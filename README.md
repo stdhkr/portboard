@@ -73,3 +73,6 @@ export default defineConfig([
   },
 ])
 ```
+
+@portman-project-plan.mdが今回の作りたいものの初期計画です。
+名前はportboardにしようと思います。
