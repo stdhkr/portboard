@@ -7,6 +7,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/brutalist";
+import { DialogDescription } from "@/components/ui/dialog";
 import { CATEGORY_INFO } from "@/constants/categories";
 import type { PortInfo } from "@/types/port";
 
@@ -59,6 +60,9 @@ export function PortDetailDialog({ open, onClose, port, onKillClick }: PortDetai
 								: port.appName || port.processName}
 						</span>
 					</DialogTitle>
+					<DialogDescription className="sr-only">
+						Detailed information for port {port.port}
+					</DialogDescription>
 				</DialogHeader>
 
 				<div className="space-y-6">
