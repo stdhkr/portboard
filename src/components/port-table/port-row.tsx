@@ -16,7 +16,7 @@ export function PortRow({ port, onKillClick }: PortRowProps) {
 
 	return (
 		<TableRow key={`${port.pid}-${port.port}`}>
-			<TableCell className="text-base font-mono font-medium">{port.port}</TableCell>
+			<TableCell className="text-base font-mono font-medium pl-4">{port.port}</TableCell>
 			<TableCell className="font-medium">
 				<div className="flex flex-col gap-1">
 					<div className="flex items-center gap-2">
