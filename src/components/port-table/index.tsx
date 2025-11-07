@@ -153,25 +153,33 @@ export function PortTable() {
 
 				{/* Category filter buttons */}
 				<div className="flex flex-wrap gap-2">
-					{(["all", "development", "database", "web-server", "system", "user"] as const).map(
-						(category) => {
-							const info = CATEGORY_INFO[category];
-							const isActive = categoryFilter === category;
-							const Icon = info.icon;
-							return (
-								<Button
-									key={category}
-									variant={isActive ? "default" : "outline"}
-									size="sm"
-									onClick={() => setCategoryFilter(category)}
-									className="gap-1"
-								>
-									<Icon className="h-4 w-4" />
-									<span>{info.label}</span>
-								</Button>
-							);
-						},
-					)}
+					{(
+						[
+							"all",
+							"development",
+							"database",
+							"web-server",
+							"applications",
+							"system",
+							"user",
+						] as const
+					).map((category) => {
+						const info = CATEGORY_INFO[category];
+						const isActive = categoryFilter === category;
+						const Icon = info.icon;
+						return (
+							<Button
+								key={category}
+								variant={isActive ? "default" : "outline"}
+								size="sm"
+								onClick={() => setCategoryFilter(category)}
+								className="gap-1"
+							>
+								<Icon className="h-4 w-4" />
+								<span>{info.label}</span>
+							</Button>
+						);
+					})}
 				</div>
 
 				<div

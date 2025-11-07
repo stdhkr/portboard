@@ -46,7 +46,7 @@ export function PortDetailDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={onClose}>
-			<DialogContent className="max-w-2xl">
+			<DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
 				<DialogHeader>
 					<DialogTitle className="font-mono flex items-center gap-3">
 						{port.appIconPath && !iconError ? (
@@ -72,7 +72,7 @@ export function PortDetailDialog({
 					</DialogDescription>
 				</DialogHeader>
 
-				<div className="space-y-6">
+				<div className="space-y-6 overflow-y-auto flex-1 pb-4 pr-2">
 					{/* Basic Info Section */}
 					<div className="space-y-3">
 						<h3 className="font-bold font-mono text-sm border-b-2 border-black dark:border-white pb-1">

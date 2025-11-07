@@ -99,7 +99,7 @@ The project uses two TypeScript configurations:
 - **Neo Brutalism Design System**: Custom design system at [src/styles/brutalism.css](src/styles/brutalism.css)
   - Color scheme: Yellow (#FFD93D), Cyan (#6BCF7E), Red (#FF6B6B)
   - 2-3px borders with offset shadows (3px standard)
-  - Custom scrollbar styling with theme support
+  - Custom scrollbar styling with theme support and transparent track
   - CSS variables for light/dark mode
 - **shadcn/ui**: Base components wrapped with brutalist styling
   - Original components in [src/components/ui/](src/components/ui/)
@@ -138,7 +138,7 @@ The project uses two TypeScript configurations:
    - **Clean table interface**: Simplified view with essential columns only
    - Hover tooltips for quick Protocol and Address info
    - Click-to-open detail modal with full port information
-   - Category-based filtering (Development, Database, Web Server, System, User Apps)
+   - Category-based filtering (Development, Database, Web Server, Applications, System, User Apps)
    - Search functionality across ports, processes, and command paths
    - Multi-column sorting with ascending/descending order (Port, Process Name, PID, Connection Status)
 3. **Process Control**: Kill processes with confirmation dialogs (✓ Completed)
@@ -147,6 +147,9 @@ The project uses two TypeScript configurations:
    - Category-aware warnings for system and development processes
    - Transparent borders with hover effects to maintain Neo Brutalism design consistency
 4. **Auto-refresh**: Real-time port monitoring (5s default interval) (✓ Completed)
+   - Last updated timestamp display (HH:MM:SS 24-hour format)
+   - Scroll position preservation using useRef and useLayoutEffect
+   - Synchronous scroll restoration after data updates
 5. **Connection Status Tracking** (✓ Completed)
    - Real-time detection of active connections using `lsof -i :PORT -a -p PID | grep ESTABLISHED`
    - Accurate server-side connection counting (filtered by PID to avoid double-counting)
@@ -157,8 +160,12 @@ The project uses two TypeScript configurations:
 6. **Port Detail Modal** (✓ Completed)
    - Click any row to view detailed information
    - Neo Brutalism styled modal with application icon
+   - Scrollable content area with flexbox layout (max-h-[90vh])
+   - Sticky header, scrollable content (overflow-y-auto flex-1)
+   - Proper padding (pb-4 pr-2) to prevent content clipping
    - Organized sections: Basic Info, Connection Status, Resource Usage, Docker Info, Command Path
    - Kill process directly from modal
+   - Last updated timestamp in modal footer
 7. **Table UI with Resource Monitoring** (✓ Completed)
    - Essential columns: Port, Process Name, PID, Status, CPU, Memory, Actions
    - CPU and Memory columns for real-time performance monitoring
@@ -258,7 +265,11 @@ The codebase follows a **modular architecture** with strict separation of concer
   - `connection-service.ts` (~19 lines): Connection count tracking
   - `unix-port-parser.ts` (~52 lines): lsof output parsing
   - `process-metadata-service.ts` (~146 lines): Process metadata collection
-  - `category-service.ts` (~125 lines): Process categorization
+  - `category-service.ts` (~130 lines): Process categorization
+    - Categorizes processes into: system, development, database, web-server, applications, user
+    - **applications**: macOS .app bundle apps (Discord, Chrome, etc.) - detected by `.app` in commandPath
+    - **user**: CLI tools, scripts, Node.js apps without .app bundle
+    - Command path only displayed in table for "user" category
   - `docker-service.ts` (~96 lines): Docker integration
   - `icon-service.ts`: Icon extraction & caching
 
@@ -330,6 +341,13 @@ The codebase follows a **modular architecture** with strict separation of concer
   - ✓ Last updated timestamp display (HH:MM:SS format)
   - ✓ Scroll position preservation using useLayoutEffect
   - ✓ Timestamp shown in both main table header and detail modal footer
+- ✓ Detail modal improvements
+  - ✓ Scrollable content area with flexbox layout (max-h-[90vh] flex flex-col)
+  - ✓ Sticky header, scrollable content (overflow-y-auto flex-1)
+  - ✓ Proper padding (pb-4 pr-2) to prevent content clipping
+- ✓ Scrollbar transparency
+  - ✓ Transparent track background (was gray #f5f5f5/#1a1a1a)
+  - ✓ Removed border from scrollbar track for cleaner appearance
 
 **Future Additions:**
 - Cross-platform icon support (Windows: .ico, Linux: .desktop)

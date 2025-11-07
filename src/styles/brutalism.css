@@ -126,14 +126,14 @@
 
 /* Brutalist Scrollbar Styles */
 :root {
-	--scrollbar-track: #f5f5f5;
+	--scrollbar-track: transparent;
 	--scrollbar-thumb: #000000;
 	--scrollbar-border: #000000;
 	--scrollbar-hover: #ffd93d;
 }
 
 .dark {
-	--scrollbar-track: #1a1a1a;
+	--scrollbar-track: transparent;
 	--scrollbar-thumb: #ffffff;
 	--scrollbar-border: #ffffff;
 	--scrollbar-hover: #6bcf7e;
@@ -147,7 +147,6 @@
 
 ::-webkit-scrollbar-track {
 	background: var(--scrollbar-track);
-	border: 2px solid var(--scrollbar-border);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -162,7 +161,6 @@
 
 ::-webkit-scrollbar-corner {
 	background: var(--scrollbar-track);
-	border: 2px solid var(--scrollbar-border);
 }
 
 /* For Firefox */

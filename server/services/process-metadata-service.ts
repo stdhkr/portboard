@@ -63,12 +63,17 @@ export async function collectProcessMetadata(
 		// Continue with existing metadata collection
 		// Try to get the full executable path using lsof first (more reliable for .app bundles)
 		try {
+			// Use -F flag for parseable output: n = file name
+			// This handles paths with spaces correctly
 			const { stdout: lsofOutput } = await execAsync(
-				`lsof -p ${pid} 2>/dev/null | grep "txt.*REG" | head -1 | awk '{for(i=9;i<=NF;i++) printf $i" "; print ""}'`,
+				`lsof -p ${pid} -a -d txt -F n 2>/dev/null | grep '^n/' | head -1`,
 			);
-			const executablePath = lsofOutput.trim();
-			if (executablePath && executablePath.startsWith("/")) {
-				commandPath = executablePath;
+			// -F output format: each field starts with a letter prefix (n = name/path)
+			if (lsofOutput.startsWith("n")) {
+				const executablePath = lsofOutput.substring(1).trim(); // Remove 'n' prefix
+				if (executablePath.startsWith("/")) {
+					commandPath = executablePath;
+				}
 			}
 		} catch {
 			// Fall back to ps if lsof fails
@@ -122,13 +127,9 @@ export async function collectProcessMetadata(
 			appName = "Cursor";
 		}
 
-		// Extract only the file path from the command
-		if (commandPath) {
-			const parts = commandPath.split(/\s+/);
-			const filePath = parts.find((part) => part.includes("/") && !part.startsWith("-"));
-			if (filePath) {
-				commandPath = filePath;
-			}
+		// For .app bundles, shorten commandPath to just the .app path (more user-friendly)
+		if (commandPath && appBundlePath && commandPath.includes(".app/")) {
+			commandPath = appBundlePath;
 		}
 
 		// Try to get project name from package.json

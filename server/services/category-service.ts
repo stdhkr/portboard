@@ -3,6 +3,7 @@ export type ProcessCategory =
 	| "development"
 	| "database"
 	| "web-server"
+	| "applications"
 	| "user";
 
 export interface DockerContainerInfo {
@@ -119,6 +120,11 @@ export function categorizeProcess(
 		return "web-server";
 	}
 
-	// Default to user application
+	// Applications (macOS .app bundles)
+	if (commandPath && commandPath.includes(".app")) {
+		return "applications";
+	}
+
+	// Default to user application (CLI tools, scripts, etc.)
 	return "user";
 }
