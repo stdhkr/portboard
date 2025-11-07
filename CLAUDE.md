@@ -101,13 +101,13 @@ The project uses two TypeScript configurations:
   - Path alias `@` configured to resolve to `./src` directory
   - Animation support via `tw-animate-css` package
 
-## Planned Architecture (from project plan)
+## Architecture
 
-### Future Backend (Phase 1)
+### Backend (Implemented)
 - **Framework**: Hono (lightweight web framework)
-- **State Management**: Zustand
+- **State Management**: Jotai (atomic state management)
 - **Data Fetching**: SWR for auto-revalidation
-- **UI Components**: shadcn/ui (to be added)
+- **UI Components**: shadcn/ui
 - **Validation**: Zod
 
 ### Key Features to Implement
@@ -163,16 +163,18 @@ portboard/
 ### Current Setup Status
 **Completed:**
 - ✓ Tailwind CSS 4 with Vite plugin
-- ✓ shadcn/ui Button component
+- ✓ shadcn/ui components (Button, Table, Dialog, Toast)
 - ✓ Dark mode support with theme variables
 - ✓ Path alias (`@`) for cleaner imports
+- ✓ Hono backend server
+- ✓ Jotai for state management (atoms-based)
+- ✓ SWR for data fetching
+- ✓ Phase 1 MVP implementation
 
 **Future Additions:**
-- Additional shadcn/ui components (Table, Dialog, Toast, etc.)
-- Hono backend server
-- Zustand for state management
-- SWR for data fetching
 - Docker and docker-compose configuration
+- CLI mode
+- Additional port filtering and sorting features
 
 ## Additional Notes
 
