@@ -90,7 +90,16 @@ The project uses two TypeScript configurations:
 - [tsconfig.json](tsconfig.json): Root configuration that references both
 
 ### Styling
-The project appears set up for CSS modules or standard CSS. The plan mentions future integration with **shadcn/ui** and **TailwindCSS** for component styling.
+- **Tailwind CSS 4**: Installed via `@tailwindcss/vite` plugin
+  - CSS import in [src/index.css](src/index.css): `@import "tailwindcss";`
+  - Vite plugin configured in [vite.config.ts](vite.config.ts)
+  - Custom theme variables defined using `@theme inline` in index.css
+  - Dark mode support via `.dark` class with custom variant
+- **shadcn/ui**: Installed with the following components:
+  - Button component available at [src/components/ui/button.tsx](src/components/ui/button.tsx)
+  - Dependencies: `@radix-ui/react-slot`, `class-variance-authority`, `clsx`, `tailwind-merge`, `lucide-react`
+  - Path alias `@` configured to resolve to `./src` directory
+  - Animation support via `tw-animate-css` package
 
 ## Planned Architecture (from project plan)
 
@@ -120,15 +129,19 @@ The project appears set up for CSS modules or standard CSS. The plan mentions fu
 ```
 portboard/
 ├── src/
+│   ├── components/
+│   │   └── ui/          # shadcn/ui components
+│   │       └── button.tsx
+│   ├── lib/
+│   │   └── utils.ts     # Utility functions (cn helper)
 │   ├── App.tsx          # Main React component
 │   ├── main.tsx         # Entry point
-│   ├── App.css          # App-specific styles
-│   └── index.css        # Global styles
+│   └── index.css        # Global styles with Tailwind CSS
 ├── public/              # Static assets
 ├── package.json         # Dependencies and scripts
 ├── tsconfig.*.json      # TypeScript configurations
-├── vite.config.ts       # Vite configuration with React Compiler
-├── eslint.config.js     # ESLint configuration (flat config)
+├── vite.config.ts       # Vite configuration with React Compiler & path alias
+├── biome.json           # Biome configuration
 └── portman-project-plan.md  # Detailed project plan (Japanese)
 ```
 
@@ -147,10 +160,15 @@ portboard/
 - The project uses **ES2022** target with **ESNext** modules
 - Biome configuration is in [biome.json](biome.json)
 
-### Future Setup (not yet implemented)
-The project plan mentions future additions:
-- shadcn/ui components (Table, Button, Dialog, Toast, etc.)
-- TailwindCSS for styling
+### Current Setup Status
+**Completed:**
+- ✓ Tailwind CSS 4 with Vite plugin
+- ✓ shadcn/ui Button component
+- ✓ Dark mode support with theme variables
+- ✓ Path alias (`@`) for cleaner imports
+
+**Future Additions:**
+- Additional shadcn/ui components (Table, Dialog, Toast, etc.)
 - Hono backend server
 - Zustand for state management
 - SWR for data fetching
