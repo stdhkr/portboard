@@ -1,6 +1,6 @@
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { ArrowDown, ArrowUp, RefreshCw } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
 import {
@@ -55,6 +55,23 @@ export function PortTable() {
 	const [detailDialogPort, setDetailDialogPort] = useState<PortInfo | null>(null);
 	const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
 
+	// State for last updated timestamp
+	const [lastUpdatedTime, setLastUpdatedTime] = useState<string>("");
+
+	// Update last updated timestamp when data changes
+	useEffect(() => {
+		if (ports) {
+			const now = new Date();
+			const timeString = now.toLocaleTimeString("en-US", {
+				hour12: false,
+				hour: "2-digit",
+				minute: "2-digit",
+				second: "2-digit",
+			});
+			setLastUpdatedTime(timeString);
+		}
+	}, [ports]);
+
 	// Filter ports
 	const filteredPorts = usePortFiltering(ports || []);
 
@@ -99,7 +116,7 @@ export function PortTable() {
 						<p className="text-sm text-black dark:text-white font-mono">
 							{isLoading
 								? "[LOADING...]"
-								: `[${sortedPorts.length}/${ports?.length || 0} PORTS] [AUTO-REFRESH: 5S]`}
+								: `[${sortedPorts.length}/${ports?.length || 0} PORTS] [AUTO-REFRESH: 5S] [UPDATED: ${lastUpdatedTime}]`}
 						</p>
 					</div>
 					<Button onClick={handleRefresh} disabled={isLoading} variant="outline" size="sm">
