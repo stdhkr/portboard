@@ -11,6 +11,7 @@ An open-source, browser-based port management dashboard for developers.
 - 🔍 **Enhanced Port Monitoring**: Real-time display with intelligent process identification
   - Full process names without truncation
   - Application name extraction from macOS .app bundles
+  - **Application icon display** with native .icns extraction and caching
   - Project name detection from package.json for CLI tools
   - Smart command path display (filters out unhelpful truncated paths)
   - Category-based filtering (Development, Database, Web Server, System, User Apps)
@@ -168,6 +169,7 @@ portboard/
   - [x] Full process names without truncation (lsof +c 0)
   - [x] Escape sequence decoding
   - [x] Application name extraction from .app bundles
+  - [x] Application icon display with native .icns extraction
   - [x] Project name detection from package.json
   - [x] Smart command path display with filtering
 - [x] Smart process kill functionality
@@ -212,6 +214,12 @@ portboard/
 - **Consistency**: Same data across all interfaces
 
 ### Phase 2: Enhanced Features
+- [x] Application icon display (macOS only)
+  - [x] Native .icns extraction from .app bundles
+  - [x] Icon caching in /tmp for performance
+  - [x] Fallback to category icons on error
+  - [x] Support for nested .app bundles (e.g., Cursor Helper)
+  - [ ] Cross-platform support (Windows: .ico, Linux: .desktop)
 - [ ] Docker container port monitoring (opt-in)
 - [ ] Configurable auto-refresh intervals
 - [ ] Port history tracking
@@ -223,7 +231,6 @@ portboard/
 - [ ] Binary distribution
 - [ ] Auto-updater
 
-See [portman-project-plan.md](portman-project-plan.md) (Japanese) for detailed planning.
 
 ## Contributing
 

@@ -1,5 +1,6 @@
 import { exec } from "node:child_process";
 import { promisify } from "node:util";
+import { extractAppIcon } from "./icon-service";
 
 const execAsync = promisify(exec);
 
@@ -28,6 +29,7 @@ export interface PortInfo {
 	commandPath?: string;
 	user?: string;
 	appName?: string;
+	appIconPath?: string;
 	category: ProcessCategory;
 	dockerContainer?: DockerContainerInfo;
 }
@@ -322,15 +324,32 @@ async function getPortsUnix(): Promise<PortInfo[]> {
 	const metadataPromises = basicPortInfo.map(async (info) => {
 		const { processName, pid, user, protocol, port, bindAddress } = info;
 
-		// Get full command path using ps
+		// Get full command path using ps and lsof
 		let commandPath: string | undefined;
 		let appName: string | undefined;
+		let appIconPath: string | undefined;
 		let cwd: string | undefined;
 		try {
-			const { stdout: psOutput } = await execAsync(
-				`ps -p ${pid} -o command= 2>/dev/null || true`,
-			);
-			commandPath = psOutput.trim() || undefined;
+			// Try to get the full executable path using lsof first (more reliable for .app bundles)
+			try {
+				const { stdout: lsofOutput } = await execAsync(
+					`lsof -p ${pid} 2>/dev/null | grep "txt.*REG" | head -1 | awk '{for(i=9;i<=NF;i++) printf $i" "; print ""}'`,
+				);
+				const executablePath = lsofOutput.trim();
+				if (executablePath && executablePath.startsWith("/")) {
+					commandPath = executablePath;
+				}
+			} catch {
+				// Fall back to ps if lsof fails
+			}
+
+			// If lsof didn't work, fall back to ps
+			if (!commandPath) {
+				const { stdout: psOutput } = await execAsync(
+					`ps -p ${pid} -o command= 2>/dev/null || true`,
+				);
+				commandPath = psOutput.trim() || undefined;
+			}
 
 			// Get the working directory of the process (used for both relative path resolution and package.json lookup)
 			try {
@@ -363,11 +382,28 @@ async function getPortsUnix(): Promise<PortInfo[]> {
 			}
 
 			// Extract application name from .app bundle path BEFORE simplifying commandPath
+			let appBundlePath: string | undefined;
 			if (commandPath) {
 				const appMatch = commandPath.match(/\/([^/]+\.app)\//);
 				if (appMatch) {
+					// Extract the first (outermost) .app bundle path
+					// For nested apps like "Cursor.app/.../Cursor Helper (Plugin).app",
+					// we want the parent Cursor.app
+					const firstAppIndex = commandPath.indexOf(appMatch[1]);
+					appBundlePath = commandPath.substring(0, firstAppIndex + appMatch[1].length);
+
 					// Remove .app extension to get clean app name
 					appName = appMatch[1].replace(/\.app$/, "");
+				}
+			}
+
+			// Extract app icon if we have an .app bundle path
+			if (appBundlePath) {
+				try {
+					appIconPath = await extractAppIcon(appBundlePath) || undefined;
+				} catch (error) {
+					// Icon extraction failed, continue without icon
+					console.debug(`Failed to extract icon for ${appBundlePath}:`, error);
 				}
 			}
 
@@ -432,6 +468,7 @@ async function getPortsUnix(): Promise<PortInfo[]> {
 			commandPath,
 			user,
 			appName,
+			appIconPath,
 			category,
 			dockerContainer,
 		} as PortInfo;
