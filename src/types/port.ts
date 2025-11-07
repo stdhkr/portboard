@@ -1,9 +1,4 @@
-export type ProcessCategory =
-	| "system"
-	| "development"
-	| "database"
-	| "web-server"
-	| "user";
+export type ProcessCategory = "system" | "development" | "database" | "web-server" | "user";
 
 export interface PortInfo {
 	port: number;
