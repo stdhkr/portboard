@@ -1,15 +1,19 @@
 import { PortTable } from "@/components/port-table";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Toaster } from "@/components/ui/toaster";
 
 function App() {
 	return (
-		<div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+		<div className="min-h-screen bg-[#f5f5f5] dark:bg-[#1a1a1a]">
 			<div className="container mx-auto p-8">
-				<div className="mb-8">
-					<h1 className="text-4xl font-bold text-gray-900 dark:text-white">Portboard</h1>
-					<p className="mt-2 text-gray-600 dark:text-gray-400">
-						Open-source port management dashboard
-					</p>
+				<div className="mb-8 flex items-start justify-between">
+					<div>
+						<h1 className="text-4xl font-bold text-black dark:text-white font-mono">PORTBOARD</h1>
+						<p className="mt-2 text-black dark:text-white font-mono">
+							{"/// Open-source port management dashboard"}
+						</p>
+					</div>
+					<ThemeToggle />
 				</div>
 				<PortTable />
 			</div>

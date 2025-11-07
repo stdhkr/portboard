@@ -13,12 +13,17 @@ An open-source, browser-based port management dashboard for developers.
   - Application name extraction from macOS .app bundles
   - Project name detection from package.json for CLI tools
   - Full command path tooltips
+  - Category-based filtering (Development, Database, Web Server, System, User Apps)
 - ⚡ **Smart Process Control**: Kill processes with confirmation dialogs
   - System process indicators (⚙️)
   - Visual distinction between system and user processes
 - 🔄 **Auto-refresh**: Real-time monitoring with 5s interval
-- 🎨 **Modern UI**: Built with Tailwind CSS 4 and shadcn/ui components
-- 🌙 **Dark Mode**: Full dark mode support
+- 🎨 **Neo Brutalism Design**: Bold, high-contrast UI with distinctive visual style
+  - Custom brutalist components wrapping shadcn/ui
+  - Strong borders, offset shadows, and geometric shapes
+  - Brutalist color scheme (yellow, cyan, red accents)
+  - Custom scrollbar styling
+- 🌙 **Dark Mode**: Full dark mode support with theme toggle
 - 🔒 **Security-First**: Localhost-only binding by default, no telemetry
 
 ### Security Principles
@@ -111,12 +116,29 @@ npm run typecheck     # Run TypeScript type checker
 portboard/
 ├── src/
 │   ├── components/
-│   │   └── ui/          # shadcn/ui components
+│   │   ├── brutalist/   # Neo Brutalism component wrappers
+│   │   │   ├── button.tsx
+│   │   │   ├── table.tsx
+│   │   │   ├── dialog.tsx
+│   │   │   ├── badge.tsx
+│   │   │   └── index.ts
+│   │   ├── ui/          # shadcn/ui base components
+│   │   ├── port-table.tsx
+│   │   └── theme-toggle.tsx
+│   ├── styles/
+│   │   └── brutalism.css # Neo Brutalism design system
 │   ├── lib/
+│   │   ├── api.ts       # API functions
 │   │   └── utils.ts     # Utility functions
+│   ├── store/
+│   │   └── port-store.ts # Jotai state atoms
+│   ├── types/
+│   │   └── port.ts      # TypeScript types
 │   ├── App.tsx          # Main component
 │   ├── main.tsx         # Entry point
 │   └── index.css        # Global styles
+├── server/              # Hono backend
+│   └── index.ts
 ├── public/              # Static assets
 ├── package.json         # Dependencies
 ├── vite.config.ts       # Vite configuration
@@ -128,7 +150,12 @@ portboard/
 ### Phase 1: MVP (✅ Completed)
 - [x] Project setup with Vite + React + TypeScript
 - [x] Tailwind CSS 4 integration
-- [x] shadcn/ui setup (Button, Table, Dialog, Toast, Tooltip)
+- [x] shadcn/ui setup (Button, Table, Dialog, Toast, Tooltip, Badge)
+- [x] Neo Brutalism design system implementation
+  - [x] Custom brutalist component wrappers
+  - [x] Brutalist color scheme and styling
+  - [x] Custom scrollbar styling
+  - [x] Dark mode support with theme toggle
 - [x] Port listing UI with enhanced process information
 - [x] Intelligent process name display
   - [x] Full process names without truncation (lsof +c 0)
@@ -140,6 +167,7 @@ portboard/
   - [x] System process indicators
   - [x] Confirmation dialogs
   - [x] Visual distinction for system/user processes
+  - [x] Category-based filtering
 - [x] Auto-refresh (5s interval)
 - [x] Toast notifications
 - [x] Hono backend server

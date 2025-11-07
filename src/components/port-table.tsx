@@ -1,29 +1,24 @@
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { RefreshCw, X } from "lucide-react";
+import { Database, Globe, List, Package, RefreshCw, Settings, Wrench, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import useSWR from "swr";
-import { Button } from "@/components/ui/button";
 import {
+	Badge,
+	Button,
 	Dialog,
 	DialogContent,
 	DialogDescription,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from "@/components/ui/dialog";
-import {
 	Table,
 	TableBody,
 	TableCell,
 	TableHead,
 	TableHeader,
 	TableRow,
-} from "@/components/ui/table";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@/components/brutalist";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { toast } from "@/components/ui/use-toast";
 import { fetchPorts, killProcess } from "@/lib/api";
 import {
@@ -40,14 +35,14 @@ const REFRESH_INTERVAL = 5000; // 5 seconds
 // Category metadata
 const CATEGORY_INFO: Record<
 	ProcessCategory | "all",
-	{ label: string; icon: string; color: string }
+	{ label: string; icon: React.ComponentType<{ className?: string }>; color: string }
 > = {
-	all: { label: "All", icon: "📋", color: "bg-gray-100 dark:bg-gray-800" },
-	system: { label: "System", icon: "⚙️", color: "bg-gray-100 dark:bg-gray-800" },
-	development: { label: "Dev Tools", icon: "🔧", color: "bg-blue-100 dark:bg-blue-900" },
-	database: { label: "Database", icon: "🗄️", color: "bg-purple-100 dark:bg-purple-900" },
-	"web-server": { label: "Web Server", icon: "🌐", color: "bg-green-100 dark:bg-green-900" },
-	user: { label: "User Apps", icon: "📦", color: "bg-orange-100 dark:bg-orange-900" },
+	all: { label: "All", icon: List, color: "bg-gray-100 dark:bg-gray-800" },
+	system: { label: "System", icon: Settings, color: "bg-gray-100 dark:bg-gray-800" },
+	development: { label: "Dev Tools", icon: Wrench, color: "bg-blue-100 dark:bg-blue-900" },
+	database: { label: "Database", icon: Database, color: "bg-purple-100 dark:bg-purple-900" },
+	"web-server": { label: "Web Server", icon: Globe, color: "bg-green-100 dark:bg-green-900" },
+	user: { label: "User Apps", icon: Package, color: "bg-orange-100 dark:bg-orange-900" },
 };
 
 export function PortTable() {
@@ -114,9 +109,9 @@ export function PortTable() {
 
 	if (error) {
 		return (
-			<div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950">
-				<h3 className="text-sm font-medium text-red-800 dark:text-red-200">Error loading ports</h3>
-				<p className="mt-1 text-sm text-red-700 dark:text-red-300">
+			<div className="brutalist-border rounded-lg brutalist-red p-4">
+				<h3 className="text-sm font-bold font-mono text-white">[!] ERROR LOADING PORTS</h3>
+				<p className="mt-1 text-sm font-mono text-white">
 					{error instanceof Error ? error.message : "Unknown error occurred"}
 				</p>
 			</div>
@@ -128,11 +123,13 @@ export function PortTable() {
 			<div className="space-y-4">
 				<div className="flex items-center justify-between">
 					<div>
-						<h2 className="text-2xl font-bold text-gray-900 dark:text-white">Listening Ports</h2>
-						<p className="text-sm text-gray-500 dark:text-gray-400">
+						<h2 className="text-2xl font-bold text-black dark:text-white font-mono">
+							{"/// LISTENING PORTS"}
+						</h2>
+						<p className="text-sm text-black dark:text-white font-mono">
 							{isLoading
-								? "Loading..."
-								: `${filteredPorts.length} of ${ports?.length || 0} port(s) · Auto-refresh: 5s`}
+								? "[LOADING...]"
+								: `[${filteredPorts.length}/${ports?.length || 0} PORTS] [AUTO-REFRESH: 5S]`}
 						</p>
 					</div>
 					<Button onClick={handleRefresh} disabled={isLoading} variant="outline" size="sm">
@@ -147,6 +144,7 @@ export function PortTable() {
 						(category) => {
 							const info = CATEGORY_INFO[category];
 							const isActive = categoryFilter === category;
+							const Icon = info.icon;
 							return (
 								<Button
 									key={category}
@@ -155,7 +153,7 @@ export function PortTable() {
 									onClick={() => setCategoryFilter(category)}
 									className="gap-1"
 								>
-									<span>{info.icon}</span>
+									<Icon className="h-4 w-4" />
 									<span>{info.label}</span>
 								</Button>
 							);
@@ -163,7 +161,7 @@ export function PortTable() {
 					)}
 				</div>
 
-				<div className="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
+				<div className="rounded-lg border-2 border-black dark:border-white overflow-hidden">
 					<Table>
 						<TableHeader>
 							<TableRow>
@@ -197,6 +195,7 @@ export function PortTable() {
 							) : (
 								filteredPorts.map((port) => {
 									const categoryInfo = CATEGORY_INFO[port.category];
+									const CategoryIcon = categoryInfo.icon;
 
 									return (
 										<TableRow key={`${port.pid}-${port.port}`}>
@@ -204,15 +203,8 @@ export function PortTable() {
 											<TableCell className="font-medium">
 												<div className="flex flex-col gap-1">
 													<div className="flex items-center gap-2">
-														<span
-															className="text-sm"
-															title={`${categoryInfo.label}`}
-														>
-															{categoryInfo.icon}
-														</span>
-														<span className="font-medium">
-															{port.appName || port.processName}
-														</span>
+														<CategoryIcon className="h-4 w-4" />
+														<span className="font-medium">{port.appName || port.processName}</span>
 													</div>
 													{port.appName && port.processName !== port.appName && (
 														<span className="text-xs text-gray-400 dark:text-gray-500">
@@ -237,9 +229,7 @@ export function PortTable() {
 											<TableCell>{port.protocol}</TableCell>
 											<TableCell className="font-mono">{port.address}</TableCell>
 											<TableCell>
-												<span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200">
-													{port.state}
-												</span>
+												<Badge variant="success">{port.state}</Badge>
 											</TableCell>
 											<TableCell className="text-right">
 												<Button
@@ -272,8 +262,8 @@ export function PortTable() {
 						<DialogDescription>
 							{selectedPort?.category === "development" ? (
 								<span className="text-yellow-600 dark:text-yellow-400">
-									⚠️ You are about to kill a development tool process. It is recommended to close
-									the application itself instead of killing the process.
+									⚠️ You are about to kill a development tool process. It is recommended to close the
+									application itself instead of killing the process.
 								</span>
 							) : selectedPort?.category === "system" ? (
 								<span className="text-red-600 dark:text-red-400">
@@ -285,27 +275,30 @@ export function PortTable() {
 						</DialogDescription>
 					</DialogHeader>
 					{selectedPort && (
-						<div className="space-y-2 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900">
+						<div className="space-y-2 rounded-lg border-2 border-black dark:border-white bg-gray-50 dark:bg-gray-900 p-4">
 							<div className="flex justify-between text-sm">
-								<span className="font-medium text-gray-500 dark:text-gray-400">Process:</span>
-								<span className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
-									<span>{CATEGORY_INFO[selectedPort.category].icon}</span>
+								<span className="font-bold font-mono text-black dark:text-white">PROCESS:</span>
+								<span className="font-mono text-black dark:text-white flex items-center gap-2">
+									{(() => {
+										const SelectedIcon = CATEGORY_INFO[selectedPort.category].icon;
+										return <SelectedIcon className="h-4 w-4" />;
+									})()}
 									<span>{selectedPort.appName || selectedPort.processName}</span>
 								</span>
 							</div>
 							<div className="flex justify-between text-sm">
-								<span className="font-medium text-gray-500 dark:text-gray-400">Category:</span>
-								<span className="text-gray-900 dark:text-white">
+								<span className="font-bold font-mono text-black dark:text-white">CATEGORY:</span>
+								<span className="font-mono text-black dark:text-white">
 									{CATEGORY_INFO[selectedPort.category].label}
 								</span>
 							</div>
 							<div className="flex justify-between text-sm">
-								<span className="font-medium text-gray-500 dark:text-gray-400">PID:</span>
-								<span className="font-mono text-gray-900 dark:text-white">{selectedPort.pid}</span>
+								<span className="font-bold font-mono text-black dark:text-white">PID:</span>
+								<span className="font-mono text-black dark:text-white">{selectedPort.pid}</span>
 							</div>
 							<div className="flex justify-between text-sm">
-								<span className="font-medium text-gray-500 dark:text-gray-400">Port:</span>
-								<span className="font-mono text-gray-900 dark:text-white">{selectedPort.port}</span>
+								<span className="font-bold font-mono text-black dark:text-white">PORT:</span>
+								<span className="font-mono text-black dark:text-white">{selectedPort.port}</span>
 							</div>
 						</div>
 					)}

@@ -4,10 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Portboard** (formerly Portman) is an open-source, browser-based port management tool built with React, TypeScript, and Vite. The project is currently in its initial setup phase with plans to evolve into a full port management dashboard.
+**Portboard** (formerly Portman) is an open-source, browser-based port management tool built with React, TypeScript, and Vite. The project features a distinctive Neo Brutalism design system and provides a full-featured dashboard for managing ports and processes.
 
 The project plan is documented in [portman-project-plan.md](portman-project-plan.md) (in Japanese). Key points:
 - **Goal**: Build a pgweb/Drizzle Studio-like web dashboard for managing ports and processes
+- **Design**: Neo Brutalism UI with bold borders, offset shadows, and high-contrast colors
 - **Security-first**: Default localhost binding, explicit opt-in for Docker socket access, own-process-only kills by default
 - **Multi-phase approach**: Starting with Bun + Hono + React, potentially migrating to Go + Wails later
 
@@ -95,8 +96,15 @@ The project uses two TypeScript configurations:
   - Vite plugin configured in [vite.config.ts](vite.config.ts)
   - Custom theme variables defined using `@theme inline` in index.css
   - Dark mode support via `.dark` class with custom variant
-- **shadcn/ui**: Installed with the following components:
-  - Button component available at [src/components/ui/button.tsx](src/components/ui/button.tsx)
+- **Neo Brutalism Design System**: Custom design system at [src/styles/brutalism.css](src/styles/brutalism.css)
+  - Color scheme: Yellow (#FFD93D), Cyan (#6BCF7E), Red (#FF6B6B)
+  - 2-3px borders with offset shadows (3px standard)
+  - Custom scrollbar styling with theme support
+  - CSS variables for light/dark mode
+- **shadcn/ui**: Base components wrapped with brutalist styling
+  - Original components in [src/components/ui/](src/components/ui/)
+  - Brutalist wrappers in [src/components/brutalist/](src/components/brutalist/)
+  - Button, Table, Dialog, Badge components available
   - Dependencies: `@radix-ui/react-slot`, `class-variance-authority`, `clsx`, `tailwind-merge`, `lucide-react`
   - Path alias `@` configured to resolve to `./src` directory
   - Animation support via `tw-animate-css` package
@@ -111,16 +119,24 @@ The project uses two TypeScript configurations:
 - **Validation**: Zod
 
 ### Implemented Features
-1. **Port Management**: Display listening ports in a table (✓ Completed)
+1. **Neo Brutalism Design System** (✓ Completed)
+   - Custom brutalist component wrappers for shadcn/ui
+   - Bold borders (2px), offset shadows (3px), geometric shapes
+   - Brutalist color scheme with yellow, cyan, and red accents
+   - Custom scrollbar styling matching the design system
+   - Dark mode support with theme toggle component
+2. **Port Management**: Display listening ports in a table (✓ Completed)
    - Full process names without truncation (lsof +c 0)
    - Escape sequence decoding (e.g., \x20 to space)
    - Application name extraction from .app bundles
    - Project name detection from package.json for CLI tools
-2. **Process Control**: Kill processes with confirmation dialogs (✓ Completed)
+   - Category-based filtering (Development, Database, Web Server, System, User Apps)
+3. **Process Control**: Kill processes with confirmation dialogs (✓ Completed)
    - System process indicators (⚙️ icon)
    - Different button styles for system vs user processes
-3. **Auto-refresh**: Real-time port monitoring (5s default interval) (✓ Completed)
-4. **Enhanced UI**: Full command path tooltips on hover (✓ Completed)
+   - Category-aware warnings for system and development processes
+4. **Auto-refresh**: Real-time port monitoring (5s default interval) (✓ Completed)
+5. **Enhanced UI**: Full command path tooltips on hover (✓ Completed)
 
 ### Features to Implement
 1. **Port Auto-adjustment**: If default port 3033 is in use, automatically try 3034, 3035, etc.
@@ -140,13 +156,29 @@ The project uses two TypeScript configurations:
 portboard/
 ├── src/
 │   ├── components/
-│   │   └── ui/          # shadcn/ui components
-│   │       └── button.tsx
+│   │   ├── brutalist/   # Neo Brutalism component wrappers
+│   │   │   ├── button.tsx
+│   │   │   ├── table.tsx
+│   │   │   ├── dialog.tsx
+│   │   │   ├── badge.tsx
+│   │   │   └── index.ts
+│   │   ├── ui/          # shadcn/ui base components
+│   │   ├── port-table.tsx
+│   │   └── theme-toggle.tsx
+│   ├── styles/
+│   │   └── brutalism.css # Neo Brutalism design system CSS
 │   ├── lib/
+│   │   ├── api.ts       # API functions
 │   │   └── utils.ts     # Utility functions (cn helper)
+│   ├── store/
+│   │   └── port-store.ts # Jotai state atoms
+│   ├── types/
+│   │   └── port.ts      # TypeScript type definitions
 │   ├── App.tsx          # Main React component
 │   ├── main.tsx         # Entry point
 │   └── index.css        # Global styles with Tailwind CSS
+├── server/              # Hono backend
+│   └── index.ts
 ├── public/              # Static assets
 ├── package.json         # Dependencies and scripts
 ├── tsconfig.*.json      # TypeScript configurations
@@ -169,12 +201,24 @@ portboard/
 - **React Refresh** requirements apply - components should follow HMR best practices
 - The project uses **ES2022** target with **ESNext** modules
 - Biome configuration is in [biome.json](biome.json)
+- **JSX comments**: Use `{"/// text"}` syntax for text that looks like comments (e.g., terminal-style prefixes) to avoid Biome lint errors
+
+### Design System Guidelines
+- **Preserve shadcn/ui components**: Never modify files in `src/components/ui/` directly
+- **Wrapper pattern**: Create brutalist wrappers in `src/components/brutalist/` to apply custom styling
+- **Brutalist styling**: Use 2px borders, 3px offset shadows, bold typography, and high-contrast colors
+- **Color palette**: Yellow (#FFD93D), Cyan (#6BCF7E), Red (#FF6B6B) for accents
+- **Dark mode**: All components should support dark mode via CSS variables
 
 ### Current Setup Status
 **Completed:**
 - ✓ Tailwind CSS 4 with Vite plugin
-- ✓ shadcn/ui components (Button, Table, Dialog, Toast, Tooltip)
-- ✓ Dark mode support with theme variables
+- ✓ shadcn/ui base components (Button, Table, Dialog, Toast, Tooltip, Badge)
+- ✓ Neo Brutalism design system
+  - ✓ Custom brutalist component wrappers
+  - ✓ Brutalist color scheme and styling
+  - ✓ Custom scrollbar with theme support
+  - ✓ Dark mode with toggle component
 - ✓ Path alias (`@`) for cleaner imports
 - ✓ Hono backend server
 - ✓ Jotai for state management (atoms-based)
@@ -183,6 +227,7 @@ portboard/
 - ✓ Enhanced process name display with application identification
 - ✓ Full command path tooltips
 - ✓ System process indicators
+- ✓ Category-based filtering
 
 **Future Additions:**
 - Docker and docker-compose configuration
