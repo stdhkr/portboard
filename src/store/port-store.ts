@@ -7,7 +7,8 @@ export const isKillDialogOpenAtom = atom(false);
 export const isRefreshingAtom = atom(false);
 
 // Filter atoms
-export const categoryFilterAtom = atom<ProcessCategory | "all">("all");
+export const categoryFilterAtom = atom<ProcessCategory | "all">("user");
+export const searchQueryAtom = atom<string>("");
 
 // Derived write-only atoms for actions
 export const openKillDialogAtom = atom(null, (_get, set, port: PortInfo) => {
@@ -17,5 +18,8 @@ export const openKillDialogAtom = atom(null, (_get, set, port: PortInfo) => {
 
 export const closeKillDialogAtom = atom(null, (_get, set) => {
 	set(isKillDialogOpenAtom, false);
-	set(selectedPortAtom, null);
+	// Delay clearing selectedPort to allow the dialog closing animation to complete
+	setTimeout(() => {
+		set(selectedPortAtom, null);
+	}, 200); // Match the dialog animation duration
 });

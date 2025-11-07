@@ -1,6 +1,6 @@
+import { Toaster } from "@/components/brutalist";
 import { PortTable } from "@/components/port-table";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Toaster } from "@/components/ui/toaster";
 
 function App() {
 	return (
