@@ -11,6 +11,8 @@ export type ProcessCategory =
 	| "web-server"
 	| "user";
 
+export type ConnectionStatus = "active" | "idle";
+
 export interface DockerContainerInfo {
 	id: string;
 	name: string;
@@ -25,13 +27,31 @@ export interface PortInfo {
 	processName: string;
 	protocol: string;
 	address: string;
-	state: string;
+	connectionStatus: ConnectionStatus;
+	connectionCount: number;
+	lastAccessed?: Date;
 	commandPath?: string;
 	user?: string;
 	appName?: string;
 	appIconPath?: string;
 	category: ProcessCategory;
 	dockerContainer?: DockerContainerInfo;
+}
+
+/**
+ * Get the number of active connections for a port
+ * Returns the count of ESTABLISHED connections
+ */
+async function getConnectionCount(port: number): Promise<number> {
+	try {
+		const { stdout } = await execAsync(
+			`lsof -i :${port} -n 2>/dev/null | grep ESTABLISHED | wc -l || echo 0`,
+		);
+		const count = Number.parseInt(stdout.trim(), 10);
+		return Number.isNaN(count) ? 0 : count;
+	} catch {
+		return 0;
+	}
 }
 
 /**
@@ -324,6 +344,11 @@ async function getPortsUnix(): Promise<PortInfo[]> {
 	const metadataPromises = basicPortInfo.map(async (info) => {
 		const { processName, pid, user, protocol, port, bindAddress } = info;
 
+		// Get connection count for this port
+		const connectionCount = await getConnectionCount(port);
+		const connectionStatus: ConnectionStatus = connectionCount > 0 ? "active" : "idle";
+		const lastAccessed = connectionCount > 0 ? new Date() : undefined;
+
 		// Get full command path using ps and lsof
 		let commandPath: string | undefined;
 		let appName: string | undefined;
@@ -464,7 +489,9 @@ async function getPortsUnix(): Promise<PortInfo[]> {
 			processName,
 			protocol,
 			address: bindAddress,
-			state: "LISTEN",
+			connectionStatus,
+			connectionCount,
+			lastAccessed,
 			commandPath,
 			user,
 			appName,
@@ -537,13 +564,16 @@ async function getPortsWindows(): Promise<PortInfo[]> {
 		// Determine process category
 		const category = categorizeProcess(processName, undefined, undefined);
 
+		// For Windows, we don't have an easy way to check connection count yet
+		// Just mark all as idle for now
 		ports.push({
 			port,
 			pid,
 			processName,
 			protocol,
 			address,
-			state: "LISTENING",
+			connectionStatus: "idle",
+			connectionCount: 0,
 			category,
 		});
 	}

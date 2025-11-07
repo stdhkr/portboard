@@ -14,9 +14,10 @@ An open-source, browser-based port management dashboard for developers.
   - **Application icon display** with native .icns extraction and caching
   - Project name detection from package.json for CLI tools
   - Smart command path display (filters out unhelpful truncated paths)
+  - **Connection status tracking**: Real-time display of active connections vs idle ports
   - Category-based filtering (Development, Database, Web Server, System, User Apps)
   - Search functionality across ports, processes, and commands
-  - Multi-column sorting (Port, Process Name, PID, Protocol, Address, State)
+  - Multi-column sorting (Port, Process Name, PID, Protocol, Address, Connection Status)
 - ⚡ **Smart Process Control**: Kill processes with confirmation dialogs
   - Subtle ghost buttons for system/development processes to prevent accidental kills
   - Destructive red buttons for user processes
@@ -179,6 +180,10 @@ portboard/
   - [x] Category-based filtering
   - [x] Search functionality (port, process name, command path)
   - [x] Multi-column sorting with ascending/descending order
+- [x] Connection status tracking
+  - [x] Real-time detection of active connections using lsof
+  - [x] Active/Idle status badges with connection count
+  - [x] Sortable connection status column
 - [x] Auto-refresh (5s interval)
 - [x] Hono backend server
 - [x] Jotai state management
@@ -220,9 +225,13 @@ portboard/
   - [x] Fallback to category icons on error
   - [x] Support for nested .app bundles (e.g., Cursor Helper)
   - [ ] Cross-platform support (Windows: .ico, Linux: .desktop)
+- [x] Connection status tracking
+  - [x] Real-time active connection detection
+  - [x] Active/Idle status display with connection count
+  - [x] Last accessed timestamp tracking
 - [ ] Docker container port monitoring (opt-in)
 - [ ] Configurable auto-refresh intervals
-- [ ] Port history tracking
+- [ ] Port history tracking with JSON persistence
 - [ ] Process resource usage monitoring
 - [ ] Export functionality (CSV, JSON)
 

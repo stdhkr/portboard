@@ -120,7 +120,9 @@ function PortRow({ port, onKillClick }: { port: PortInfo; onKillClick: (port: Po
 			<TableCell>{port.protocol}</TableCell>
 			<TableCell className="font-mono">{port.address}</TableCell>
 			<TableCell>
-				<Badge variant="success">{port.state}</Badge>
+				<Badge variant={port.connectionStatus === "active" ? "success" : "default"}>
+					{port.connectionStatus === "active" ? `Active (${port.connectionCount})` : "Idle"}
+				</Badge>
 			</TableCell>
 			<TableCell>
 				<Button
@@ -224,9 +226,16 @@ export function PortTable() {
 					aValue = a.address.toLowerCase();
 					bValue = b.address.toLowerCase();
 					break;
-				case "state":
-					aValue = a.state.toLowerCase();
-					bValue = b.state.toLowerCase();
+				case "connectionStatus":
+					// Sort: active first, then idle
+					aValue = a.connectionStatus === "active" ? 0 : 1;
+					bValue = b.connectionStatus === "active" ? 0 : 1;
+					// If same status, sort by connection count
+					if (aValue === bValue) {
+						return sortOrder === "asc"
+							? a.connectionCount - b.connectionCount
+							: b.connectionCount - a.connectionCount;
+					}
 					break;
 				default:
 					return 0;
@@ -427,12 +436,12 @@ export function PortTable() {
 									</div>
 								</TableHead>
 								<TableHead
-									className="w-[100px] cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-									onClick={() => handleSort("state")}
+									className="w-[120px] cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+									onClick={() => handleSort("connectionStatus")}
 								>
 									<div className="flex items-center gap-1">
-										<span>State</span>
-										{sortField === "state" &&
+										<span>Status</span>
+										{sortField === "connectionStatus" &&
 											(sortOrder === "asc" ? (
 												<ArrowUp className="h-3 w-3" />
 											) : (

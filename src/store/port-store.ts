@@ -11,7 +11,13 @@ export const categoryFilterAtom = atom<ProcessCategory | "all">("user");
 export const searchQueryAtom = atom<string>("");
 
 // Sort atoms
-export type SortField = "port" | "processName" | "pid" | "protocol" | "address" | "state";
+export type SortField =
+	| "port"
+	| "processName"
+	| "pid"
+	| "protocol"
+	| "address"
+	| "connectionStatus";
 export type SortOrder = "asc" | "desc";
 
 export const sortFieldAtom = atom<SortField>("port");

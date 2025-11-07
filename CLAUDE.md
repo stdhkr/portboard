@@ -134,9 +134,10 @@ The project uses two TypeScript configurations:
    - **Application icon display** with native .icns extraction and caching (macOS only)
    - Project name detection from package.json for CLI tools
    - Smart command path display (filters out .app bundle internals and truncated paths)
+   - **Connection status tracking**: Real-time active/idle status with connection count
    - Category-based filtering (Development, Database, Web Server, System, User Apps)
    - Search functionality across ports, processes, and command paths
-   - Multi-column sorting with ascending/descending order (Port, Process Name, PID, Protocol, Address, State)
+   - Multi-column sorting with ascending/descending order (Port, Process Name, PID, Protocol, Address, Connection Status)
 3. **Process Control**: Kill processes with confirmation dialogs (✓ Completed)
    - Ghost button variant for system/development processes (subtle, prevents accidental clicks)
    - Destructive button variant for user processes (prominent red)
@@ -144,11 +145,19 @@ The project uses two TypeScript configurations:
    - Transparent borders with hover effects to maintain Neo Brutalism design consistency
 4. **Auto-refresh**: Real-time port monitoring (5s default interval) (✓ Completed)
 5. **Enhanced UI**: Full command path tooltips on hover (✓ Completed)
+6. **Connection Status Tracking** (✓ Completed)
+   - Real-time detection of active connections using `lsof -i :PORT | grep ESTABLISHED`
+   - Active/Idle status badges with color coding (green for active, gray for idle)
+   - Connection count display for active ports
+   - Last accessed timestamp tracking
+   - Sortable by connection status
 
 ### Features to Implement
-1. **Port Auto-adjustment**: If default port 3033 is in use, automatically try 3034, 3035, etc.
-2. **CLI Mode**: Standalone CLI commands (`portman list`, `portman kill <pid>`)
-3. **Docker Integration** (Phase 2): Optional with `--with-docker` flag
+1. **Port History Tracking**: Track port usage over time with JSON persistence
+2. **Port Auto-adjustment**: If default port 3033 is in use, automatically try 3034, 3035, etc.
+3. **CLI Mode**: Standalone CLI commands (`portman list`, `portman kill <pid>`)
+4. **Docker Integration** (Phase 2): Optional with `--with-docker` flag
+5. **Resource Usage Monitoring**: CPU and memory usage per process
 
 ### Security Principles (from plan)
 - **Localhost-only binding** by default
@@ -253,11 +262,14 @@ portboard/
 - ✓ Category-based filtering
 - ✓ Search functionality (port, process name, command path)
 - ✓ Multi-column sorting with ascending/descending order toggle
+- ✓ Connection status tracking with active/idle detection
 
 **Future Additions:**
 - Cross-platform icon support (Windows: .ico, Linux: .desktop)
+- Port history tracking with JSON persistence
 - Docker and docker-compose configuration
 - CLI mode
+- Resource usage monitoring (CPU, memory)
 - Additional port filtering features
 
 ## Additional Notes

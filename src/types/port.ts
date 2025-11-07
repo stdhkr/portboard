@@ -1,5 +1,7 @@
 export type ProcessCategory = "system" | "development" | "database" | "web-server" | "user";
 
+export type ConnectionStatus = "active" | "idle";
+
 export interface DockerContainerInfo {
 	id: string;
 	name: string;
@@ -14,7 +16,9 @@ export interface PortInfo {
 	processName: string;
 	protocol: string;
 	address: string;
-	state: string;
+	connectionStatus: ConnectionStatus;
+	connectionCount: number;
+	lastAccessed?: Date;
 	commandPath?: string;
 	user?: string;
 	appName?: string;
