@@ -1,22 +1,18 @@
-import { create } from "zustand";
+import { atom } from "jotai";
 import type { PortInfo } from "../types/port";
 
-interface PortStore {
-	selectedPort: PortInfo | null;
-	setSelectedPort: (port: PortInfo | null) => void;
-	isKillDialogOpen: boolean;
-	openKillDialog: (port: PortInfo) => void;
-	closeKillDialog: () => void;
-	isRefreshing: boolean;
-	setIsRefreshing: (refreshing: boolean) => void;
-}
+// Base atoms
+export const selectedPortAtom = atom<PortInfo | null>(null);
+export const isKillDialogOpenAtom = atom(false);
+export const isRefreshingAtom = atom(false);
 
-export const usePortStore = create<PortStore>((set) => ({
-	selectedPort: null,
-	setSelectedPort: (port) => set({ selectedPort: port }),
-	isKillDialogOpen: false,
-	openKillDialog: (port) => set({ selectedPort: port, isKillDialogOpen: true }),
-	closeKillDialog: () => set({ isKillDialogOpen: false, selectedPort: null }),
-	isRefreshing: false,
-	setIsRefreshing: (refreshing) => set({ isRefreshing: refreshing }),
-}));
+// Derived write-only atoms for actions
+export const openKillDialogAtom = atom(null, (_get, set, port: PortInfo) => {
+	set(selectedPortAtom, port);
+	set(isKillDialogOpenAtom, true);
+});
+
+export const closeKillDialogAtom = atom(null, (_get, set) => {
+	set(isKillDialogOpenAtom, false);
+	set(selectedPortAtom, null);
+});

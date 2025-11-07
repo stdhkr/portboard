@@ -31,9 +31,9 @@ An open-source, browser-based port management dashboard for developers.
 - **shadcn/ui** for UI components
 - **React Compiler** for automatic optimization
 
-### Backend (Planned)
+### Backend
 - **Hono** - Lightweight web framework
-- **Zustand** - State management
+- **Jotai** - Atomic state management
 - **SWR** - Data fetching with auto-revalidation
 - **Zod** - Runtime validation
 

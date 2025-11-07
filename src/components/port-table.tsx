@@ -1,3 +1,4 @@
+import { useAtomValue, useSetAtom } from "jotai";
 import { RefreshCw, X } from "lucide-react";
 import { useState } from "react";
 import useSWR from "swr";
@@ -20,7 +21,12 @@ import {
 } from "@/components/ui/table";
 import { toast } from "@/components/ui/use-toast";
 import { fetchPorts, killProcess } from "@/lib/api";
-import { usePortStore } from "@/store/port-store";
+import {
+	closeKillDialogAtom,
+	isKillDialogOpenAtom,
+	openKillDialogAtom,
+	selectedPortAtom,
+} from "@/store/port-store";
 import type { PortInfo } from "@/types/port";
 
 const REFRESH_INTERVAL = 5000; // 5 seconds
@@ -36,7 +42,10 @@ export function PortTable() {
 		revalidateOnFocus: true,
 	});
 
-	const { selectedPort, isKillDialogOpen, openKillDialog, closeKillDialog } = usePortStore();
+	const selectedPort = useAtomValue(selectedPortAtom);
+	const isKillDialogOpen = useAtomValue(isKillDialogOpenAtom);
+	const openKillDialog = useSetAtom(openKillDialogAtom);
+	const closeKillDialog = useSetAtom(closeKillDialogAtom);
 
 	const [isKilling, setIsKilling] = useState(false);
 
