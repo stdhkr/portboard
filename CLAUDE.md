@@ -134,10 +134,13 @@ The project uses two TypeScript configurations:
    - **Application icon display** with native .icns extraction and caching (macOS only)
    - Project name detection from package.json for CLI tools
    - Smart command path display (filters out .app bundle internals and truncated paths)
-   - **Connection status tracking**: Real-time active/idle status with connection count
+   - **Connection status tracking**: Real-time active/idle status with accurate connection count (PID-filtered)
+   - **Clean table interface**: Simplified view with essential columns only
+   - Hover tooltips for quick Protocol and Address info
+   - Click-to-open detail modal with full port information
    - Category-based filtering (Development, Database, Web Server, System, User Apps)
    - Search functionality across ports, processes, and command paths
-   - Multi-column sorting with ascending/descending order (Port, Process Name, PID, Protocol, Address, Connection Status)
+   - Multi-column sorting with ascending/descending order (Port, Process Name, PID, Connection Status)
 3. **Process Control**: Kill processes with confirmation dialogs (✓ Completed)
    - Ghost button variant for system/development processes (subtle, prevents accidental clicks)
    - Destructive button variant for user processes (prominent red)
@@ -146,11 +149,18 @@ The project uses two TypeScript configurations:
 4. **Auto-refresh**: Real-time port monitoring (5s default interval) (✓ Completed)
 5. **Enhanced UI**: Full command path tooltips on hover (✓ Completed)
 6. **Connection Status Tracking** (✓ Completed)
-   - Real-time detection of active connections using `lsof -i :PORT | grep ESTABLISHED`
+   - Real-time detection of active connections using `lsof -i :PORT -a -p PID | grep ESTABLISHED`
+   - Accurate server-side connection counting (filtered by PID to avoid double-counting)
    - Active/Idle status badges with color coding (green for active, gray for idle)
    - Connection count display for active ports
    - Last accessed timestamp tracking
    - Sortable by connection status
+7. **Port Detail Modal** (✓ Completed)
+   - Click any row to view detailed information
+   - Neo Brutalism styled modal with application icon
+   - Organized sections: Basic Info, Connection Status, Resource Usage, Docker Info, Command Path
+   - Kill process directly from modal
+   - Hover tooltips on table rows for quick Protocol/Address preview
 
 ### Features to Implement
 1. **Port History Tracking**: Track port usage over time with JSON persistence
@@ -180,10 +190,11 @@ portboard/
 │   │   │   └── index.ts
 │   │   ├── ui/               # shadcn/ui base components
 │   │   ├── port-table/       # Modular port table components
-│   │   │   ├── index.tsx         # Main table orchestrator
-│   │   │   ├── port-row.tsx      # Individual port row display
-│   │   │   ├── kill-dialog.tsx   # Kill confirmation dialog
-│   │   │   └── search-bar.tsx    # Search input component
+│   │   │   ├── index.tsx              # Main table orchestrator
+│   │   │   ├── port-row.tsx           # Individual port row display
+│   │   │   ├── port-detail-dialog.tsx # Port detail modal
+│   │   │   ├── kill-dialog.tsx        # Kill confirmation dialog
+│   │   │   └── search-bar.tsx         # Search input component
 │   │   └── theme-toggle.tsx
 │   ├── hooks/                # Custom React hooks
 │   │   ├── use-port-filtering.ts # Port filtering logic
