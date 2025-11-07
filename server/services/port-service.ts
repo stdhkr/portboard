@@ -3,6 +3,13 @@ import { promisify } from "node:util";
 
 const execAsync = promisify(exec);
 
+export type ProcessCategory =
+	| "system"
+	| "development"
+	| "database"
+	| "web-server"
+	| "user";
+
 export interface PortInfo {
 	port: number;
 	pid: number;
@@ -13,6 +20,85 @@ export interface PortInfo {
 	commandPath?: string;
 	user?: string;
 	appName?: string;
+	category: ProcessCategory;
+}
+
+/**
+ * Determine the category of a process based on its name, app name, and command path
+ */
+function categorizeProcess(
+	processName: string,
+	appName: string | undefined,
+	commandPath: string | undefined,
+): ProcessCategory {
+	const name = (appName || processName).toLowerCase();
+	const path = (commandPath || "").toLowerCase();
+
+	// System processes
+	if (
+		path.startsWith("/system/") ||
+		processName === "rapportd" ||
+		processName === "ControlCenter" ||
+		name.includes("kernel") ||
+		name.includes("launchd")
+	) {
+		return "system";
+	}
+
+	// Development tools
+	if (
+		name.includes("visual studio code") ||
+		name.includes("code") ||
+		name.includes("vscode") ||
+		name.includes("cursor") ||
+		name.includes("raycast") ||
+		name.includes("figma") ||
+		name.includes("exosphere") ||
+		name.includes("intellij") ||
+		name.includes("pycharm") ||
+		name.includes("webstorm") ||
+		name.includes("goland") ||
+		name.includes("android studio") ||
+		name.includes("xcode") ||
+		name.includes("sublime") ||
+		name.includes("atom") ||
+		name.includes("vim") ||
+		name.includes("emacs") ||
+		name.includes("postman") ||
+		name.includes("insomnia") ||
+		name.includes("docker desktop")
+	) {
+		return "development";
+	}
+
+	// Database servers
+	if (
+		name.includes("postgres") ||
+		name.includes("mysql") ||
+		name.includes("mariadb") ||
+		name.includes("redis") ||
+		name.includes("mongodb") ||
+		name.includes("mongo") ||
+		name.includes("cassandra") ||
+		name.includes("elasticsearch") ||
+		name.includes("sqlite")
+	) {
+		return "database";
+	}
+
+	// Web servers
+	if (
+		name.includes("nginx") ||
+		name.includes("apache") ||
+		name.includes("httpd") ||
+		name.includes("caddy") ||
+		name.includes("traefik")
+	) {
+		return "web-server";
+	}
+
+	// Default to user application
+	return "user";
 }
 
 /**
@@ -133,6 +219,9 @@ async function getPortsUnix(): Promise<PortInfo[]> {
 			// If ps fails, leave commandPath undefined
 		}
 
+		// Determine process category
+		const category = categorizeProcess(processName, appName, commandPath);
+
 		ports.push({
 			port,
 			pid,
@@ -143,6 +232,7 @@ async function getPortsUnix(): Promise<PortInfo[]> {
 			commandPath,
 			user,
 			appName,
+			category,
 		});
 	}
 
@@ -203,6 +293,9 @@ async function getPortsWindows(): Promise<PortInfo[]> {
 			// If tasklist fails, leave as "unknown"
 		}
 
+		// Determine process category
+		const category = categorizeProcess(processName, undefined, undefined);
+
 		ports.push({
 			port,
 			pid,
@@ -210,6 +303,7 @@ async function getPortsWindows(): Promise<PortInfo[]> {
 			protocol,
 			address,
 			state: "LISTENING",
+			category,
 		});
 	}
 

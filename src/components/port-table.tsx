@@ -1,6 +1,6 @@
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { RefreshCw, X } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import useSWR from "swr";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,14 +27,28 @@ import {
 import { toast } from "@/components/ui/use-toast";
 import { fetchPorts, killProcess } from "@/lib/api";
 import {
+	categoryFilterAtom,
 	closeKillDialogAtom,
 	isKillDialogOpenAtom,
 	openKillDialogAtom,
 	selectedPortAtom,
 } from "@/store/port-store";
-import type { PortInfo } from "@/types/port";
+import type { PortInfo, ProcessCategory } from "@/types/port";
 
 const REFRESH_INTERVAL = 5000; // 5 seconds
+
+// Category metadata
+const CATEGORY_INFO: Record<
+	ProcessCategory | "all",
+	{ label: string; icon: string; color: string }
+> = {
+	all: { label: "All", icon: "📋", color: "bg-gray-100 dark:bg-gray-800" },
+	system: { label: "System", icon: "⚙️", color: "bg-gray-100 dark:bg-gray-800" },
+	development: { label: "Dev Tools", icon: "🔧", color: "bg-blue-100 dark:bg-blue-900" },
+	database: { label: "Database", icon: "🗄️", color: "bg-purple-100 dark:bg-purple-900" },
+	"web-server": { label: "Web Server", icon: "🌐", color: "bg-green-100 dark:bg-green-900" },
+	user: { label: "User Apps", icon: "📦", color: "bg-orange-100 dark:bg-orange-900" },
+};
 
 export function PortTable() {
 	const {
@@ -52,7 +66,15 @@ export function PortTable() {
 	const openKillDialog = useSetAtom(openKillDialogAtom);
 	const closeKillDialog = useSetAtom(closeKillDialogAtom);
 
+	const [categoryFilter, setCategoryFilter] = useAtom(categoryFilterAtom);
 	const [isKilling, setIsKilling] = useState(false);
+
+	// Filter ports by category
+	const filteredPorts = useMemo(() => {
+		if (!ports) return [];
+		if (categoryFilter === "all") return ports;
+		return ports.filter((port) => port.category === categoryFilter);
+	}, [ports, categoryFilter]);
 
 	const handleKillClick = (port: PortInfo) => {
 		openKillDialog(port);
@@ -108,13 +130,37 @@ export function PortTable() {
 					<div>
 						<h2 className="text-2xl font-bold text-gray-900 dark:text-white">Listening Ports</h2>
 						<p className="text-sm text-gray-500 dark:text-gray-400">
-							{isLoading ? "Loading..." : `${ports?.length || 0} port(s) found · Auto-refresh: 5s`}
+							{isLoading
+								? "Loading..."
+								: `${filteredPorts.length} of ${ports?.length || 0} port(s) · Auto-refresh: 5s`}
 						</p>
 					</div>
 					<Button onClick={handleRefresh} disabled={isLoading} variant="outline" size="sm">
 						<RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? "animate-spin" : ""}`} />
 						Refresh
 					</Button>
+				</div>
+
+				{/* Category filter buttons */}
+				<div className="flex flex-wrap gap-2">
+					{(["all", "development", "database", "web-server", "system", "user"] as const).map(
+						(category) => {
+							const info = CATEGORY_INFO[category];
+							const isActive = categoryFilter === category;
+							return (
+								<Button
+									key={category}
+									variant={isActive ? "default" : "outline"}
+									size="sm"
+									onClick={() => setCategoryFilter(category)}
+									className="gap-1"
+								>
+									<span>{info.icon}</span>
+									<span>{info.label}</span>
+								</Button>
+							);
+						},
+					)}
 				</div>
 
 				<div className="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-950">
@@ -140,19 +186,17 @@ export function PortTable() {
 										</div>
 									</TableCell>
 								</TableRow>
-							) : ports?.length === 0 ? (
+							) : filteredPorts.length === 0 ? (
 								<TableRow>
 									<TableCell colSpan={7} className="h-24 text-center">
-										No listening ports found
+										{ports?.length === 0
+											? "No listening ports found"
+											: `No ${CATEGORY_INFO[categoryFilter].label.toLowerCase()} found`}
 									</TableCell>
 								</TableRow>
 							) : (
-								ports?.map((port) => {
-									// Determine if it's a system process
-									const isSystemProcess =
-										port.commandPath?.startsWith("/System/") ||
-										port.processName === "rapportd" ||
-										port.processName === "ControlCenter";
+								filteredPorts.map((port) => {
+									const categoryInfo = CATEGORY_INFO[port.category];
 
 									return (
 										<TableRow key={`${port.pid}-${port.port}`}>
@@ -160,17 +204,15 @@ export function PortTable() {
 											<TableCell className="font-medium">
 												<div className="flex flex-col gap-1">
 													<div className="flex items-center gap-2">
+														<span
+															className="text-sm"
+															title={`${categoryInfo.label}`}
+														>
+															{categoryInfo.icon}
+														</span>
 														<span className="font-medium">
 															{port.appName || port.processName}
 														</span>
-														{isSystemProcess && (
-															<span
-																className="text-xs text-gray-500 dark:text-gray-400"
-																title="System Process"
-															>
-																⚙️
-															</span>
-														)}
 													</div>
 													{port.appName && port.processName !== port.appName && (
 														<span className="text-xs text-gray-400 dark:text-gray-500">
@@ -201,7 +243,11 @@ export function PortTable() {
 											</TableCell>
 											<TableCell className="text-right">
 												<Button
-													variant={isSystemProcess ? "outline" : "destructive"}
+													variant={
+														port.category === "system" || port.category === "development"
+															? "outline"
+															: "destructive"
+													}
 													size="sm"
 													onClick={() => handleKillClick(port)}
 												>
@@ -224,15 +270,33 @@ export function PortTable() {
 					<DialogHeader>
 						<DialogTitle>Kill Process</DialogTitle>
 						<DialogDescription>
-							Are you sure you want to kill this process? This action cannot be undone.
+							{selectedPort?.category === "development" ? (
+								<span className="text-yellow-600 dark:text-yellow-400">
+									⚠️ You are about to kill a development tool process. It is recommended to close
+									the application itself instead of killing the process.
+								</span>
+							) : selectedPort?.category === "system" ? (
+								<span className="text-red-600 dark:text-red-400">
+									⚠️ Killing system processes is not recommended and may cause instability.
+								</span>
+							) : (
+								"Are you sure you want to kill this process? This action cannot be undone."
+							)}
 						</DialogDescription>
 					</DialogHeader>
 					{selectedPort && (
 						<div className="space-y-2 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900">
 							<div className="flex justify-between text-sm">
 								<span className="font-medium text-gray-500 dark:text-gray-400">Process:</span>
-								<span className="font-medium text-gray-900 dark:text-white">
-									{selectedPort.appName || selectedPort.processName}
+								<span className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
+									<span>{CATEGORY_INFO[selectedPort.category].icon}</span>
+									<span>{selectedPort.appName || selectedPort.processName}</span>
+								</span>
+							</div>
+							<div className="flex justify-between text-sm">
+								<span className="font-medium text-gray-500 dark:text-gray-400">Category:</span>
+								<span className="text-gray-900 dark:text-white">
+									{CATEGORY_INFO[selectedPort.category].label}
 								</span>
 							</div>
 							<div className="flex justify-between text-sm">
@@ -249,7 +313,15 @@ export function PortTable() {
 						<Button variant="outline" onClick={closeKillDialog}>
 							Cancel
 						</Button>
-						<Button variant="destructive" onClick={handleKillConfirm} disabled={isKilling}>
+						<Button
+							variant={
+								selectedPort?.category === "system" || selectedPort?.category === "development"
+									? "outline"
+									: "destructive"
+							}
+							onClick={handleKillConfirm}
+							disabled={isKilling}
+						>
 							{isKilling ? (
 								<>
 									<RefreshCw className="mr-2 h-4 w-4 animate-spin" />
