@@ -1,3 +1,10 @@
+export type ProcessCategory =
+	| "system"
+	| "development"
+	| "database"
+	| "web-server"
+	| "user";
+
 export interface PortInfo {
 	port: number;
 	pid: number;
@@ -8,4 +15,5 @@ export interface PortInfo {
 	commandPath?: string;
 	user?: string;
 	appName?: string;
+	category: ProcessCategory;
 }

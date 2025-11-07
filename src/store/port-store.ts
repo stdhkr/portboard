@@ -1,10 +1,13 @@
 import { atom } from "jotai";
-import type { PortInfo } from "../types/port";
+import type { PortInfo, ProcessCategory } from "../types/port";
 
 // Base atoms
 export const selectedPortAtom = atom<PortInfo | null>(null);
 export const isKillDialogOpenAtom = atom(false);
 export const isRefreshingAtom = atom(false);
+
+// Filter atoms
+export const categoryFilterAtom = atom<ProcessCategory | "all">("all");
 
 // Derived write-only atoms for actions
 export const openKillDialogAtom = atom(null, (_get, set, port: PortInfo) => {
