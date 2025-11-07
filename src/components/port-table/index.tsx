@@ -193,13 +193,41 @@ export function PortTable() {
 											))}
 									</div>
 								</TableHead>
+								<TableHead
+									className="w-[100px] cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+									onClick={() => handleSort("cpuUsage")}
+								>
+									<div className="flex items-center gap-1">
+										<span>CPU</span>
+										{sortField === "cpuUsage" &&
+											(sortOrder === "asc" ? (
+												<ArrowUp className="h-3 w-3" />
+											) : (
+												<ArrowDown className="h-3 w-3" />
+											))}
+									</div>
+								</TableHead>
+								<TableHead
+									className="w-[120px] cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+									onClick={() => handleSort("memoryUsage")}
+								>
+									<div className="flex items-center gap-1">
+										<span>Memory</span>
+										{sortField === "memoryUsage" &&
+											(sortOrder === "asc" ? (
+												<ArrowUp className="h-3 w-3" />
+											) : (
+												<ArrowDown className="h-3 w-3" />
+											))}
+									</div>
+								</TableHead>
 								<TableHead className="w-[100px]">Actions</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
 							{isLoading ? (
 								<TableRow>
-									<TableCell colSpan={5} className="h-24 text-center">
+									<TableCell colSpan={7} className="h-24 text-center">
 										<div className="flex items-center justify-center">
 											<RefreshCw className="mr-2 h-4 w-4 animate-spin" />
 											Loading ports...
@@ -208,7 +236,7 @@ export function PortTable() {
 								</TableRow>
 							) : sortedPorts.length === 0 ? (
 								<TableRow>
-									<TableCell colSpan={5} className="h-24 text-center">
+									<TableCell colSpan={7} className="h-24 text-center">
 										{ports?.length === 0
 											? "No listening ports found"
 											: `No ${CATEGORY_INFO[categoryFilter].label.toLowerCase()} found`}
