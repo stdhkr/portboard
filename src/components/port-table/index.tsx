@@ -127,7 +127,7 @@ export function PortTable() {
 						<TableHeader>
 							<TableRow>
 								<TableHead
-									className="w-[100px] cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+									className="w-[100px] pl-4 cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
 									onClick={() => handleSort("port")}
 								>
 									<div className="flex items-center gap-1">
