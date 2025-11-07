@@ -105,7 +105,8 @@ The project uses two TypeScript configurations:
   - Original components in [src/components/ui/](src/components/ui/)
   - Brutalist wrappers in [src/components/brutalist/](src/components/brutalist/)
   - Button, Table, Dialog, Badge components available
-  - Dependencies: `@radix-ui/react-slot`, `class-variance-authority`, `clsx`, `tailwind-merge`, `lucide-react`
+  - Toast notifications via Sonner with brutalist styling
+  - Dependencies: `@radix-ui/react-slot`, `@radix-ui/react-dialog`, `@radix-ui/react-tooltip`, `class-variance-authority`, `clsx`, `tailwind-merge`, `lucide-react`, `sonner`
   - Path alias `@` configured to resolve to `./src` directory
   - Animation support via `tw-animate-css` package
 
@@ -125,12 +126,14 @@ The project uses two TypeScript configurations:
    - Brutalist color scheme with yellow, cyan, and red accents
    - Custom scrollbar styling matching the design system
    - Dark mode support with theme toggle component
+   - Sonner toast notifications with brutalist styling
 2. **Port Management**: Display listening ports in a table (✓ Completed)
    - Full process names without truncation (lsof +c 0)
    - Escape sequence decoding (e.g., \x20 to space)
    - Application name extraction from .app bundles
    - Project name detection from package.json for CLI tools
    - Category-based filtering (Development, Database, Web Server, System, User Apps)
+   - Search functionality across ports, processes, and command paths
 3. **Process Control**: Kill processes with confirmation dialogs (✓ Completed)
    - System process indicators (⚙️ icon)
    - Different button styles for system vs user processes
@@ -142,7 +145,6 @@ The project uses two TypeScript configurations:
 1. **Port Auto-adjustment**: If default port 3033 is in use, automatically try 3034, 3035, etc.
 2. **CLI Mode**: Standalone CLI commands (`portman list`, `portman kill <pid>`)
 3. **Docker Integration** (Phase 2): Optional with `--with-docker` flag
-4. **Filtering and Search**: Advanced port/process filtering
 
 ### Security Principles (from plan)
 - **Localhost-only binding** by default
@@ -161,6 +163,7 @@ portboard/
 │   │   │   ├── table.tsx
 │   │   │   ├── dialog.tsx
 │   │   │   ├── badge.tsx
+│   │   │   ├── sonner.tsx
 │   │   │   └── index.ts
 │   │   ├── ui/          # shadcn/ui base components
 │   │   ├── port-table.tsx
@@ -213,7 +216,8 @@ portboard/
 ### Current Setup Status
 **Completed:**
 - ✓ Tailwind CSS 4 with Vite plugin
-- ✓ shadcn/ui base components (Button, Table, Dialog, Toast, Tooltip, Badge)
+- ✓ shadcn/ui base components (Button, Table, Dialog, Tooltip, Badge)
+- ✓ Sonner toast notifications with brutalist styling
 - ✓ Neo Brutalism design system
   - ✓ Custom brutalist component wrappers
   - ✓ Brutalist color scheme and styling
@@ -228,6 +232,7 @@ portboard/
 - ✓ Full command path tooltips
 - ✓ System process indicators
 - ✓ Category-based filtering
+- ✓ Search functionality (port, process name, command path)
 
 **Future Additions:**
 - Docker and docker-compose configuration

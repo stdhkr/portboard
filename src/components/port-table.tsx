@@ -211,7 +211,7 @@ export function PortTable() {
 								<TableHead className="w-[100px]">Protocol</TableHead>
 								<TableHead>Address</TableHead>
 								<TableHead className="w-[100px]">State</TableHead>
-								<TableHead className="w-[100px] text-right">Actions</TableHead>
+								<TableHead className="w-[100px]">Actions</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
@@ -271,7 +271,7 @@ export function PortTable() {
 											<TableCell>
 												<Badge variant="success">{port.state}</Badge>
 											</TableCell>
-											<TableCell className="text-right">
+											<TableCell>
 												<Button
 													variant={
 														port.category === "system" || port.category === "development"

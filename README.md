@@ -14,6 +14,7 @@ An open-source, browser-based port management dashboard for developers.
   - Project name detection from package.json for CLI tools
   - Full command path tooltips
   - Category-based filtering (Development, Database, Web Server, System, User Apps)
+  - Search functionality across ports, processes, and commands
 - ⚡ **Smart Process Control**: Kill processes with confirmation dialogs
   - System process indicators (⚙️)
   - Visual distinction between system and user processes
@@ -23,6 +24,7 @@ An open-source, browser-based port management dashboard for developers.
   - Strong borders, offset shadows, and geometric shapes
   - Brutalist color scheme (yellow, cyan, red accents)
   - Custom scrollbar styling
+  - Sonner toast notifications with brutalist styling
 - 🌙 **Dark Mode**: Full dark mode support with theme toggle
 - 🔒 **Security-First**: Localhost-only binding by default, no telemetry
 
@@ -42,10 +44,11 @@ An open-source, browser-based port management dashboard for developers.
 - **shadcn/ui** for UI components
 - **React Compiler** for automatic optimization
 
-### Backend
+### Backend & State
 - **Hono** - Lightweight web framework
 - **Jotai** - Atomic state management
 - **SWR** - Data fetching with auto-revalidation
+- **Sonner** - Toast notifications
 - **Zod** - Runtime validation
 
 ### Development Tools
@@ -121,6 +124,7 @@ portboard/
 │   │   │   ├── table.tsx
 │   │   │   ├── dialog.tsx
 │   │   │   ├── badge.tsx
+│   │   │   ├── sonner.tsx
 │   │   │   └── index.ts
 │   │   ├── ui/          # shadcn/ui base components
 │   │   ├── port-table.tsx
@@ -150,12 +154,13 @@ portboard/
 ### Phase 1: MVP (✅ Completed)
 - [x] Project setup with Vite + React + TypeScript
 - [x] Tailwind CSS 4 integration
-- [x] shadcn/ui setup (Button, Table, Dialog, Toast, Tooltip, Badge)
+- [x] shadcn/ui setup (Button, Table, Dialog, Tooltip, Badge)
 - [x] Neo Brutalism design system implementation
   - [x] Custom brutalist component wrappers
   - [x] Brutalist color scheme and styling
   - [x] Custom scrollbar styling
   - [x] Dark mode support with theme toggle
+  - [x] Sonner toast notifications with brutalist styling
 - [x] Port listing UI with enhanced process information
 - [x] Intelligent process name display
   - [x] Full process names without truncation (lsof +c 0)
@@ -168,17 +173,17 @@ portboard/
   - [x] Confirmation dialogs
   - [x] Visual distinction for system/user processes
   - [x] Category-based filtering
+  - [x] Search functionality (port, process name, command path)
 - [x] Auto-refresh (5s interval)
-- [x] Toast notifications
 - [x] Hono backend server
 - [x] Jotai state management
 
 ### Phase 2: Enhanced Features
 - [ ] Docker container port monitoring (opt-in)
-- [ ] Advanced filtering and search
 - [ ] Configurable auto-refresh intervals
 - [ ] Port history tracking
 - [ ] Process resource usage monitoring
+- [ ] Export functionality (CSV, JSON)
 
 ### Phase 3: CLI & Distribution
 - [ ] Standalone CLI commands
