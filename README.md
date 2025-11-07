@@ -28,6 +28,8 @@ An open-source, browser-based port management dashboard for developers.
   - Destructive red buttons for user processes
   - Category-aware warnings in confirmation dialogs
 - 🔄 **Auto-refresh**: Real-time monitoring with 5s interval
+  - Last updated timestamp display (HH:MM:SS format)
+  - Scroll position preservation during auto-refresh
 - 🎨 **Neo Brutalism Design**: Bold, high-contrast UI with distinctive visual style
   - Custom brutalist components wrapping shadcn/ui
   - Strong borders, offset shadows, and geometric shapes

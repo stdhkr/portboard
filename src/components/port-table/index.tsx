@@ -313,6 +313,7 @@ export function PortTable() {
 				onClose={() => setIsDetailDialogOpen(false)}
 				port={detailDialogPort}
 				onKillClick={handleKillClick}
+				lastUpdatedTime={lastUpdatedTime}
 			/>
 		</>
 	);
