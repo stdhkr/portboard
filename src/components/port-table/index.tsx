@@ -1,5 +1,6 @@
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { ArrowDown, ArrowUp, RefreshCw } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
 import {
@@ -12,6 +13,7 @@ import {
 	TableRow,
 } from "@/components/brutalist";
 import { KillDialog } from "@/components/port-table/kill-dialog";
+import { PortDetailDialog } from "@/components/port-table/port-detail-dialog";
 import { PortRow } from "@/components/port-table/port-row";
 import { SearchBar } from "@/components/port-table/search-bar";
 import { CATEGORY_INFO } from "@/constants/categories";
@@ -49,6 +51,10 @@ export function PortTable() {
 	const [categoryFilter, setCategoryFilter] = useAtom(categoryFilterAtom);
 	const [searchQuery, setSearchQuery] = useAtom(searchQueryAtom);
 
+	// State for detail dialog
+	const [detailDialogPort, setDetailDialogPort] = useState<PortInfo | null>(null);
+	const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+
 	// Filter ports
 	const filteredPorts = usePortFiltering(ports || []);
 
@@ -57,6 +63,11 @@ export function PortTable() {
 
 	const handleKillClick = (port: PortInfo) => {
 		openKillDialog(port);
+	};
+
+	const handleRowClick = (port: PortInfo) => {
+		setDetailDialogPort(port);
+		setIsDetailDialogOpen(true);
 	};
 
 	const handleRefresh = () => {
@@ -122,7 +133,7 @@ export function PortTable() {
 					)}
 				</div>
 
-				<div className="rounded-lg border-2 border-black dark:border-white overflow-hidden">
+				<div className="rounded-lg border-2 border-black dark:border-white overflow-hidden shadow-[0px_2px_0px_rgba(0,0,0,1)] dark:shadow-[0px_2px_0px_rgba(255,255,255,1)]">
 					<Table>
 						<TableHeader>
 							<TableRow>
@@ -169,34 +180,6 @@ export function PortTable() {
 									</div>
 								</TableHead>
 								<TableHead
-									className="w-[100px] cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-									onClick={() => handleSort("protocol")}
-								>
-									<div className="flex items-center gap-1">
-										<span>Protocol</span>
-										{sortField === "protocol" &&
-											(sortOrder === "asc" ? (
-												<ArrowUp className="h-3 w-3" />
-											) : (
-												<ArrowDown className="h-3 w-3" />
-											))}
-									</div>
-								</TableHead>
-								<TableHead
-									className="cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-									onClick={() => handleSort("address")}
-								>
-									<div className="flex items-center gap-1">
-										<span>Address</span>
-										{sortField === "address" &&
-											(sortOrder === "asc" ? (
-												<ArrowUp className="h-3 w-3" />
-											) : (
-												<ArrowDown className="h-3 w-3" />
-											))}
-									</div>
-								</TableHead>
-								<TableHead
 									className="w-[120px] cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
 									onClick={() => handleSort("connectionStatus")}
 								>
@@ -216,7 +199,7 @@ export function PortTable() {
 						<TableBody>
 							{isLoading ? (
 								<TableRow>
-									<TableCell colSpan={7} className="h-24 text-center">
+									<TableCell colSpan={5} className="h-24 text-center">
 										<div className="flex items-center justify-center">
 											<RefreshCw className="mr-2 h-4 w-4 animate-spin" />
 											Loading ports...
@@ -225,7 +208,7 @@ export function PortTable() {
 								</TableRow>
 							) : sortedPorts.length === 0 ? (
 								<TableRow>
-									<TableCell colSpan={7} className="h-24 text-center">
+									<TableCell colSpan={5} className="h-24 text-center">
 										{ports?.length === 0
 											? "No listening ports found"
 											: `No ${CATEGORY_INFO[categoryFilter].label.toLowerCase()} found`}
@@ -237,6 +220,7 @@ export function PortTable() {
 										key={`${port.pid}-${port.port}`}
 										port={port}
 										onKillClick={handleKillClick}
+										onRowClick={handleRowClick}
 									/>
 								))
 							)}
@@ -250,6 +234,13 @@ export function PortTable() {
 				onClose={closeKillDialog}
 				port={selectedPort}
 				onKillSuccess={mutate}
+			/>
+
+			<PortDetailDialog
+				open={isDetailDialogOpen}
+				onClose={() => setIsDetailDialogOpen(false)}
+				port={detailDialogPort}
+				onKillClick={handleKillClick}
 			/>
 		</>
 	);

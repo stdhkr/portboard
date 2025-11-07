@@ -17,7 +17,10 @@ export type SortField =
 	| "pid"
 	| "protocol"
 	| "address"
-	| "connectionStatus";
+	| "connectionStatus"
+	| "cpuUsage"
+	| "memoryUsage"
+	| "memoryRSS";
 export type SortOrder = "asc" | "desc";
 
 export const sortFieldAtom = atom<SortField>("port");

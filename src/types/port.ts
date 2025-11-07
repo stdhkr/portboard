@@ -25,4 +25,7 @@ export interface PortInfo {
 	appIconPath?: string;
 	category: ProcessCategory;
 	dockerContainer?: DockerContainerInfo;
+	cpuUsage?: number;
+	memoryUsage?: number;
+	memoryRSS?: number;
 }

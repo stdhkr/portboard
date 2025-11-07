@@ -4,14 +4,45 @@ import { extractAppIcon } from "./icon-service";
 
 const execAsync = promisify(exec);
 
+interface ResourceUsage {
+	cpuUsage: number;
+	memoryUsage: number;
+	memoryRSS: number;
+}
+
+/**
+ * Get resource usage (CPU and memory) for a process
+ */
+async function getProcessResourceUsage(pid: number): Promise<ResourceUsage | null> {
+	try {
+		const { stdout } = await execAsync(`ps -p ${pid} -o %cpu=,%mem=,rss= 2>/dev/null`);
+		const values = stdout.trim().split(/\s+/);
+
+		if (values.length >= 3) {
+			return {
+				cpuUsage: Number.parseFloat(values[0]) || 0,
+				memoryUsage: Number.parseFloat(values[1]) || 0,
+				memoryRSS: Number.parseInt(values[2], 10) || 0,
+			};
+		}
+	} catch (error) {
+		// If ps fails, return null
+		console.debug(`Failed to get resource usage for PID ${pid}:`, error);
+	}
+	return null;
+}
+
 export interface ProcessMetadata {
 	commandPath?: string;
 	appName?: string;
 	appIconPath?: string;
+	cpuUsage?: number; // CPU usage percentage
+	memoryUsage?: number; // Memory usage percentage
+	memoryRSS?: number; // Resident Set Size in KB
 }
 
 /**
- * Collect metadata for a process (command path, app name, icon)
+ * Collect metadata for a process (command path, app name, icon, resource usage)
  */
 export async function collectProcessMetadata(
 	pid: number,
@@ -21,8 +52,15 @@ export async function collectProcessMetadata(
 	let appName: string | undefined;
 	let appIconPath: string | undefined;
 	let cwd: string | undefined;
+	let cpuUsage: number | undefined;
+	let memoryUsage: number | undefined;
+	let memoryRSS: number | undefined;
 
 	try {
+		// Get resource usage (CPU and memory) in parallel with other metadata
+		const resourcePromise = getProcessResourceUsage(pid);
+
+		// Continue with existing metadata collection
 		// Try to get the full executable path using lsof first (more reliable for .app bundles)
 		try {
 			const { stdout: lsofOutput } = await execAsync(
@@ -109,11 +147,18 @@ export async function collectProcessMetadata(
 				// If reading package.json fails, continue without app name
 			}
 		}
+		// Wait for resource usage collection
+		const resourceUsage = await resourcePromise;
+		if (resourceUsage) {
+			cpuUsage = resourceUsage.cpuUsage;
+			memoryUsage = resourceUsage.memoryUsage;
+			memoryRSS = resourceUsage.memoryRSS;
+		}
 	} catch {
 		// If collection fails, return empty metadata
 	}
 
-	return { commandPath, appName, appIconPath };
+	return { commandPath, appName, appIconPath, cpuUsage, memoryUsage, memoryRSS };
 }
 
 /**
