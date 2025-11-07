@@ -15,6 +15,7 @@ An open-source, browser-based port management dashboard for developers.
   - Smart command path display (filters out unhelpful truncated paths)
   - Category-based filtering (Development, Database, Web Server, System, User Apps)
   - Search functionality across ports, processes, and commands
+  - Multi-column sorting (Port, Process Name, PID, Protocol, Address, State)
 - ⚡ **Smart Process Control**: Kill processes with confirmation dialogs
   - Subtle ghost buttons for system/development processes to prevent accidental kills
   - Destructive red buttons for user processes
@@ -175,9 +176,40 @@ portboard/
   - [x] Confirmation dialogs with category-aware warnings
   - [x] Category-based filtering
   - [x] Search functionality (port, process name, command path)
+  - [x] Multi-column sorting with ascending/descending order
 - [x] Auto-refresh (5s interval)
 - [x] Hono backend server
 - [x] Jotai state management
+
+### Phase 1.5: MCP Server (🚧 Planned)
+
+**Goal**: Enable port management from AI-powered development tools (Claude Code, Cursor, Codex, etc.)
+
+**Architecture**: Hybrid approach with shared core logic
+
+```
+portboard/
+├── server/
+│   ├── core/              # Shared core logic (NEW)
+│   │   ├── port-manager.ts   # lsof execution, parsing, process management
+│   │   └── types.ts          # Common type definitions
+│   ├── index.ts           # Hono API server (for GUI)
+│   └── mcp.ts             # MCP server (for AI editors, standalone)
+```
+
+**Features**:
+- [ ] `list_ports`: Retrieve list of listening ports
+- [ ] `kill_process`: Kill process with confirmation
+- [ ] `get_port_info`: Get detailed information for specific port
+
+**Distribution**:
+- npm package: `@portboard/mcp-server` or `portboard-mcp`
+- Standalone operation (no Hono server required)
+
+**Benefits**:
+- **Code reuse**: Shared logic between GUI/CLI/MCP
+- **Standalone**: MCP server runs independently
+- **Consistency**: Same data across all interfaces
 
 ### Phase 2: Enhanced Features
 - [ ] Docker container port monitoring (opt-in)

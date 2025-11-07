@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Portboard** (formerly Portman) is an open-source, browser-based port management tool built with React, TypeScript, and Vite. The project features a distinctive Neo Brutalism design system and provides a full-featured dashboard for managing ports and processes.
 
-The project plan is documented in [portman-project-plan.md](portman-project-plan.md) (in Japanese). Key points:
+Key points:
 - **Goal**: Build a pgweb/Drizzle Studio-like web dashboard for managing ports and processes
 - **Design**: Neo Brutalism UI with bold borders, offset shadows, and high-contrast colors
 - **Security-first**: Default localhost binding, explicit opt-in for Docker socket access, own-process-only kills by default
@@ -135,6 +135,7 @@ The project uses two TypeScript configurations:
    - Smart command path display (filters out .app bundle internals and truncated paths)
    - Category-based filtering (Development, Database, Web Server, System, User Apps)
    - Search functionality across ports, processes, and command paths
+   - Multi-column sorting with ascending/descending order (Port, Process Name, PID, Protocol, Address, State)
 3. **Process Control**: Kill processes with confirmation dialogs (✓ Completed)
    - Ghost button variant for system/development processes (subtle, prevents accidental clicks)
    - Destructive button variant for user processes (prominent red)
@@ -188,16 +189,14 @@ portboard/
 ├── package.json         # Dependencies and scripts
 ├── tsconfig.*.json      # TypeScript configurations
 ├── vite.config.ts       # Vite configuration with React Compiler & path alias
-├── biome.json           # Biome configuration
-└── portman-project-plan.md  # Detailed project plan (Japanese)
+└── biome.json           # Biome configuration
 ```
 
 ## Working with This Codebase
 
 ### Before Implementing Features
-1. Review [portman-project-plan.md](portman-project-plan.md) for architectural decisions and feature priorities
-2. The plan emphasizes **Phase 1 MVP** focus: core port listing, process killing, and basic UI with shadcn/ui
-3. Security considerations are paramount - always default to safe operations
+1. The project emphasizes **Phase 1 MVP** focus: core port listing, process killing, and basic UI with shadcn/ui
+2. Security considerations are paramount - always default to safe operations
 
 ### Code Style
 - **TypeScript strict mode** is enabled - all code must be fully typed
@@ -241,14 +240,15 @@ portboard/
 - ✓ Ghost button variant for dangerous actions (system/development processes)
 - ✓ Category-based filtering
 - ✓ Search functionality (port, process name, command path)
+- ✓ Multi-column sorting with ascending/descending order toggle
 
 **Future Additions:**
 - Docker and docker-compose configuration
 - CLI mode
-- Additional port filtering and sorting features
+- Additional port filtering features
 
 ## Additional Notes
 
-- The project name is being changed from "Portman" to "Portboard" (as mentioned in [README.md](README.md))
-- Phase 1 target timeline: 1-2 weeks for MVP
+- The project name has been changed from "Portman" to "Portboard" (as mentioned in [README.md](README.md))
+- Phase 1 MVP is now complete with all core features implemented
 - The project emphasizes being an **open-source alternative** to closed-source port management tools due to security concerns with docker.sock access

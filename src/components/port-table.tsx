@@ -1,5 +1,7 @@
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
+	ArrowDown,
+	ArrowUp,
 	Database,
 	Globe,
 	List,
@@ -36,8 +38,11 @@ import {
 	closeKillDialogAtom,
 	isKillDialogOpenAtom,
 	openKillDialogAtom,
+	type SortField,
 	searchQueryAtom,
 	selectedPortAtom,
+	sortFieldAtom,
+	sortOrderAtom,
 } from "@/store/port-store";
 import type { PortInfo, ProcessCategory } from "@/types/port";
 
@@ -74,9 +79,23 @@ export function PortTable() {
 
 	const [categoryFilter, setCategoryFilter] = useAtom(categoryFilterAtom);
 	const [searchQuery, setSearchQuery] = useAtom(searchQueryAtom);
+	const [sortField, setSortField] = useAtom(sortFieldAtom);
+	const [sortOrder, setSortOrder] = useAtom(sortOrderAtom);
 	const [isKilling, setIsKilling] = useState(false);
 
-	// Filter ports by category and search query
+	// Handle sort column click
+	const handleSort = (field: SortField) => {
+		if (sortField === field) {
+			// Toggle order if clicking the same field
+			setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+		} else {
+			// Set new field with ascending order
+			setSortField(field);
+			setSortOrder("asc");
+		}
+	};
+
+	// Filter and sort ports
 	const filteredPorts = useMemo(() => {
 		if (!ports) return [];
 
@@ -103,8 +122,52 @@ export function PortTable() {
 			});
 		}
 
-		return filtered;
-	}, [ports, categoryFilter, searchQuery]);
+		// Apply sorting
+		const sorted = [...filtered].sort((a, b) => {
+			let aValue: string | number;
+			let bValue: string | number;
+
+			switch (sortField) {
+				case "port":
+					aValue = a.port;
+					bValue = b.port;
+					break;
+				case "processName":
+					aValue = (a.appName || a.processName).toLowerCase();
+					bValue = (b.appName || b.processName).toLowerCase();
+					break;
+				case "pid":
+					aValue = a.pid;
+					bValue = b.pid;
+					break;
+				case "protocol":
+					aValue = a.protocol.toLowerCase();
+					bValue = b.protocol.toLowerCase();
+					break;
+				case "address":
+					aValue = a.address.toLowerCase();
+					bValue = b.address.toLowerCase();
+					break;
+				case "state":
+					aValue = a.state.toLowerCase();
+					bValue = b.state.toLowerCase();
+					break;
+				default:
+					return 0;
+			}
+
+			if (typeof aValue === "number" && typeof bValue === "number") {
+				return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
+			}
+
+			// String comparison
+			if (aValue < bValue) return sortOrder === "asc" ? -1 : 1;
+			if (aValue > bValue) return sortOrder === "asc" ? 1 : -1;
+			return 0;
+		});
+
+		return sorted;
+	}, [ports, categoryFilter, searchQuery, sortField, sortOrder]);
 
 	const handleKillClick = (port: PortInfo) => {
 		openKillDialog(port);
@@ -217,12 +280,90 @@ export function PortTable() {
 					<Table>
 						<TableHeader>
 							<TableRow>
-								<TableHead className="w-[100px]">Port</TableHead>
-								<TableHead>Process Name</TableHead>
-								<TableHead className="w-[100px]">PID</TableHead>
-								<TableHead className="w-[100px]">Protocol</TableHead>
-								<TableHead>Address</TableHead>
-								<TableHead className="w-[100px]">State</TableHead>
+								<TableHead
+									className="w-[100px] cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+									onClick={() => handleSort("port")}
+								>
+									<div className="flex items-center gap-1">
+										<span>Port</span>
+										{sortField === "port" &&
+											(sortOrder === "asc" ? (
+												<ArrowUp className="h-3 w-3" />
+											) : (
+												<ArrowDown className="h-3 w-3" />
+											))}
+									</div>
+								</TableHead>
+								<TableHead
+									className="cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+									onClick={() => handleSort("processName")}
+								>
+									<div className="flex items-center gap-1">
+										<span>Process Name</span>
+										{sortField === "processName" &&
+											(sortOrder === "asc" ? (
+												<ArrowUp className="h-3 w-3" />
+											) : (
+												<ArrowDown className="h-3 w-3" />
+											))}
+									</div>
+								</TableHead>
+								<TableHead
+									className="w-[100px] cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+									onClick={() => handleSort("pid")}
+								>
+									<div className="flex items-center gap-1">
+										<span>PID</span>
+										{sortField === "pid" &&
+											(sortOrder === "asc" ? (
+												<ArrowUp className="h-3 w-3" />
+											) : (
+												<ArrowDown className="h-3 w-3" />
+											))}
+									</div>
+								</TableHead>
+								<TableHead
+									className="w-[100px] cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+									onClick={() => handleSort("protocol")}
+								>
+									<div className="flex items-center gap-1">
+										<span>Protocol</span>
+										{sortField === "protocol" &&
+											(sortOrder === "asc" ? (
+												<ArrowUp className="h-3 w-3" />
+											) : (
+												<ArrowDown className="h-3 w-3" />
+											))}
+									</div>
+								</TableHead>
+								<TableHead
+									className="cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+									onClick={() => handleSort("address")}
+								>
+									<div className="flex items-center gap-1">
+										<span>Address</span>
+										{sortField === "address" &&
+											(sortOrder === "asc" ? (
+												<ArrowUp className="h-3 w-3" />
+											) : (
+												<ArrowDown className="h-3 w-3" />
+											))}
+									</div>
+								</TableHead>
+								<TableHead
+									className="w-[100px] cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+									onClick={() => handleSort("state")}
+								>
+									<div className="flex items-center gap-1">
+										<span>State</span>
+										{sortField === "state" &&
+											(sortOrder === "asc" ? (
+												<ArrowUp className="h-3 w-3" />
+											) : (
+												<ArrowDown className="h-3 w-3" />
+											))}
+									</div>
+								</TableHead>
 								<TableHead className="w-[100px]">Actions</TableHead>
 							</TableRow>
 						</TableHeader>
@@ -273,7 +414,8 @@ export function PortTable() {
 														</>
 													) : port.commandPath?.startsWith("/") &&
 														!port.commandPath.includes(".app/") &&
-														(port.commandPath.includes(".") || port.commandPath.split("/").length > 5) ? (
+														(port.commandPath.includes(".") ||
+															port.commandPath.split("/").length > 5) ? (
 														<Tooltip>
 															<TooltipTrigger asChild>
 																<span className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-md block">
