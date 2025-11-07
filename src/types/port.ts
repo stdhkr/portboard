@@ -18,6 +18,7 @@ export interface PortInfo {
 	commandPath?: string;
 	user?: string;
 	appName?: string;
+	appIconPath?: string;
 	category: ProcessCategory;
 	dockerContainer?: DockerContainerInfo;
 }

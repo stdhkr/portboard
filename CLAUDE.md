@@ -131,6 +131,7 @@ The project uses two TypeScript configurations:
    - Full process names without truncation (lsof +c 0)
    - Escape sequence decoding (e.g., \x20 to space)
    - Application name extraction from .app bundles
+   - **Application icon display** with native .icns extraction and caching (macOS only)
    - Project name detection from package.json for CLI tools
    - Smart command path display (filters out .app bundle internals and truncated paths)
    - Category-based filtering (Development, Database, Web Server, System, User Apps)
@@ -184,7 +185,13 @@ portboard/
 │   ├── main.tsx         # Entry point
 │   └── index.css        # Global styles with Tailwind CSS
 ├── server/              # Hono backend
-│   └── index.ts
+│   ├── index.ts         # Server entry point
+│   ├── routes/
+│   │   ├── ports.ts     # Port listing and kill endpoints
+│   │   └── icons.ts     # Icon serving endpoint
+│   └── services/
+│       ├── port-service.ts  # Port scanning and metadata collection
+│       └── icon-service.ts  # Icon extraction and caching
 ├── public/              # Static assets
 ├── package.json         # Dependencies and scripts
 ├── tsconfig.*.json      # TypeScript configurations
@@ -236,6 +243,11 @@ portboard/
 - ✓ SWR for data fetching
 - ✓ Phase 1 MVP implementation
 - ✓ Enhanced process name display with application identification
+- ✓ Application icon display (macOS only)
+  - ✓ Native .icns extraction from .app bundles using `sips`
+  - ✓ Icon caching in `/tmp/portboard-icons/`
+  - ✓ Support for nested .app bundles (e.g., Cursor Helper)
+  - ✓ Fallback to category icons on error
 - ✓ Smart command path display (filters .app internals and truncated paths)
 - ✓ Ghost button variant for dangerous actions (system/development processes)
 - ✓ Category-based filtering
@@ -243,6 +255,7 @@ portboard/
 - ✓ Multi-column sorting with ascending/descending order toggle
 
 **Future Additions:**
+- Cross-platform icon support (Windows: .ico, Linux: .desktop)
 - Docker and docker-compose configuration
 - CLI mode
 - Additional port filtering features
