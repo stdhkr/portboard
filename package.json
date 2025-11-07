@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:server": "bun --watch server/index.ts",
+    "dev:all": "bun run dev:server & bun run dev",
     "build": "tsc -b && vite build",
     "lint": "biome lint ./src/",
     "format": "biome format --write ./src/",
@@ -13,15 +15,22 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@hono/node-server": "^1.19.6",
+    "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-slot": "^1.2.4",
+    "@radix-ui/react-toast": "^1.2.15",
     "@tailwindcss/vite": "^4.1.17",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "hono": "^4.10.4",
     "lucide-react": "^0.552.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "swr": "^2.3.6",
     "tailwind-merge": "^3.3.1",
-    "tailwindcss": "^4.1.17"
+    "tailwindcss": "^4.1.17",
+    "zod": "^4.1.12",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.4",
