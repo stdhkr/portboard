@@ -60,7 +60,8 @@ export function PortRow({ port, onKillClick, onRowClick }: PortRowProps) {
 								{port.dockerContainer.composeConfigFiles || "Manual (docker run)"}
 							</span>
 						</>
-					) : port.commandPath?.startsWith("/") &&
+					) : port.category === "user" &&
+						port.commandPath?.startsWith("/") &&
 						!port.commandPath.includes(".app/") &&
 						(port.commandPath.includes(".") || port.commandPath.split("/").length > 5) ? (
 						<span className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-md block">

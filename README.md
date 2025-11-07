@@ -20,7 +20,7 @@ An open-source, browser-based port management dashboard for developers.
   - **Clean table interface**: Simplified view showing only essential information
     - Core columns: Port, Process Name, PID, Status, CPU, Memory, Actions
     - Click rows to open detailed modal with full information
-  - Category-based filtering (Development, Database, Web Server, System, User Apps)
+  - Category-based filtering (Development, Database, Web Server, Applications, System, User Apps)
   - Search functionality across ports, processes, and commands
   - Multi-column sorting (Port, Process Name, PID, Connection Status, CPU, Memory)
 - ⚡ **Smart Process Control**: Kill processes with confirmation dialogs
@@ -30,11 +30,16 @@ An open-source, browser-based port management dashboard for developers.
 - 🔄 **Auto-refresh**: Real-time monitoring with 5s interval
   - Last updated timestamp display (HH:MM:SS format)
   - Scroll position preservation during auto-refresh
+- 📋 **Enhanced Detail Modal**: Click any row to view full port information
+  - Scrollable content area with proper padding
+  - Sticky header with application icons
+  - Full process details including environment and Docker info
+  - Timestamp display in modal footer
 - 🎨 **Neo Brutalism Design**: Bold, high-contrast UI with distinctive visual style
   - Custom brutalist components wrapping shadcn/ui
   - Strong borders, offset shadows, and geometric shapes
   - Brutalist color scheme (yellow, cyan, red accents)
-  - Custom scrollbar styling
+  - Custom scrollbar styling with transparent track
   - Sonner toast notifications with brutalist styling
 - 🌙 **Dark Mode**: Full dark mode support with theme toggle
 - 🔒 **Security-First**: Localhost-only binding by default, no telemetry
