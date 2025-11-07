@@ -1,6 +1,7 @@
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { Database, Globe, List, Package, RefreshCw, Settings, Wrench, X } from "lucide-react";
+import { Database, Globe, List, Package, RefreshCw, Search, Settings, Wrench, X } from "lucide-react";
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import useSWR from "swr";
 import {
 	Badge,
@@ -19,13 +20,13 @@ import {
 	TableRow,
 } from "@/components/brutalist";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { toast } from "@/components/ui/use-toast";
 import { fetchPorts, killProcess } from "@/lib/api";
 import {
 	categoryFilterAtom,
 	closeKillDialogAtom,
 	isKillDialogOpenAtom,
 	openKillDialogAtom,
+	searchQueryAtom,
 	selectedPortAtom,
 } from "@/store/port-store";
 import type { PortInfo, ProcessCategory } from "@/types/port";
@@ -62,14 +63,36 @@ export function PortTable() {
 	const closeKillDialog = useSetAtom(closeKillDialogAtom);
 
 	const [categoryFilter, setCategoryFilter] = useAtom(categoryFilterAtom);
+	const [searchQuery, setSearchQuery] = useAtom(searchQueryAtom);
 	const [isKilling, setIsKilling] = useState(false);
 
-	// Filter ports by category
+	// Filter ports by category and search query
 	const filteredPorts = useMemo(() => {
 		if (!ports) return [];
-		if (categoryFilter === "all") return ports;
-		return ports.filter((port) => port.category === categoryFilter);
-	}, [ports, categoryFilter]);
+
+		let filtered = ports;
+
+		// Apply category filter
+		if (categoryFilter !== "all") {
+			filtered = filtered.filter((port) => port.category === categoryFilter);
+		}
+
+		// Apply search filter
+		if (searchQuery.trim()) {
+			const query = searchQuery.toLowerCase();
+			filtered = filtered.filter((port) => {
+				return (
+					port.port.toString().includes(query) ||
+					port.processName.toLowerCase().includes(query) ||
+					port.appName?.toLowerCase().includes(query) ||
+					port.commandPath?.toLowerCase().includes(query) ||
+					port.address.toLowerCase().includes(query)
+				);
+			});
+		}
+
+		return filtered;
+	}, [ports, categoryFilter, searchQuery]);
 
 	const handleKillClick = (port: PortInfo) => {
 		openKillDialog(port);
@@ -81,17 +104,14 @@ export function PortTable() {
 		setIsKilling(true);
 		try {
 			await killProcess(selectedPort.pid);
-			toast({
-				title: "Process killed",
+			toast.success("Process killed", {
 				description: `Successfully killed process ${selectedPort.processName} (PID: ${selectedPort.pid})`,
 			});
 			closeKillDialog();
 			// Refresh the list immediately
 			mutate();
 		} catch (error) {
-			toast({
-				variant: "destructive",
-				title: "Failed to kill process",
+			toast.error("Failed to kill process", {
 				description: error instanceof Error ? error.message : "Unknown error occurred",
 			});
 		} finally {
@@ -101,8 +121,7 @@ export function PortTable() {
 
 	const handleRefresh = () => {
 		mutate();
-		toast({
-			title: "Refreshing",
+		toast.success("Refreshing", {
 			description: "Port list has been refreshed",
 		});
 	};
@@ -138,6 +157,27 @@ export function PortTable() {
 					</Button>
 				</div>
 
+				{/* Search input */}
+				<div className="relative max-w-md">
+					<Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500 dark:text-gray-400" />
+					<input
+						type="text"
+						placeholder="Search by port, process name, command..."
+						value={searchQuery}
+						onChange={(e) => setSearchQuery(e.target.value)}
+						className="w-full rounded-lg border-2 border-black dark:border-white bg-white dark:bg-gray-900 py-2 pl-10 pr-4 font-mono text-sm text-black dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#FFD93D] brutalist-shadow"
+					/>
+					{searchQuery && (
+						<button
+							type="button"
+							onClick={() => setSearchQuery("")}
+							className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-black dark:hover:text-white transition-colors"
+						>
+							<X className="h-4 w-4" />
+						</button>
+					)}
+				</div>
+
 				{/* Category filter buttons */}
 				<div className="flex flex-wrap gap-2">
 					{(["all", "development", "database", "web-server", "system", "user"] as const).map(
@@ -171,7 +211,7 @@ export function PortTable() {
 								<TableHead className="w-[100px]">Protocol</TableHead>
 								<TableHead>Address</TableHead>
 								<TableHead className="w-[100px]">State</TableHead>
-								<TableHead className="w-[100px] text-right">Actions</TableHead>
+								<TableHead className="w-[100px]">Actions</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
@@ -231,7 +271,7 @@ export function PortTable() {
 											<TableCell>
 												<Badge variant="success">{port.state}</Badge>
 											</TableCell>
-											<TableCell className="text-right">
+											<TableCell>
 												<Button
 													variant={
 														port.category === "system" || port.category === "development"
