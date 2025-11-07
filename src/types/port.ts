@@ -5,4 +5,7 @@ export interface PortInfo {
 	protocol: string;
 	address: string;
 	state: string;
+	commandPath?: string;
+	user?: string;
+	appName?: string;
 }

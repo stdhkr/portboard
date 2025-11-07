@@ -19,6 +19,11 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { toast } from "@/components/ui/use-toast";
 import { fetchPorts, killProcess } from "@/lib/api";
 import {
@@ -142,26 +147,71 @@ export function PortTable() {
 									</TableCell>
 								</TableRow>
 							) : (
-								ports?.map((port) => (
-									<TableRow key={`${port.pid}-${port.port}`}>
-										<TableCell className="font-mono font-medium">{port.port}</TableCell>
-										<TableCell className="font-medium">{port.processName}</TableCell>
-										<TableCell className="font-mono">{port.pid}</TableCell>
-										<TableCell>{port.protocol}</TableCell>
-										<TableCell className="font-mono">{port.address}</TableCell>
-										<TableCell>
-											<span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200">
-												{port.state}
-											</span>
-										</TableCell>
-										<TableCell className="text-right">
-											<Button variant="destructive" size="sm" onClick={() => handleKillClick(port)}>
-												<X className="mr-1 h-3 w-3" />
-												Kill
-											</Button>
-										</TableCell>
-									</TableRow>
-								))
+								ports?.map((port) => {
+									// Determine if it's a system process
+									const isSystemProcess =
+										port.commandPath?.startsWith("/System/") ||
+										port.processName === "rapportd" ||
+										port.processName === "ControlCenter";
+
+									return (
+										<TableRow key={`${port.pid}-${port.port}`}>
+											<TableCell className="font-mono font-medium">{port.port}</TableCell>
+											<TableCell className="font-medium">
+												<div className="flex flex-col gap-1">
+													<div className="flex items-center gap-2">
+														<span className="font-medium">
+															{port.appName || port.processName}
+														</span>
+														{isSystemProcess && (
+															<span
+																className="text-xs text-gray-500 dark:text-gray-400"
+																title="System Process"
+															>
+																⚙️
+															</span>
+														)}
+													</div>
+													{port.appName && port.processName !== port.appName && (
+														<span className="text-xs text-gray-400 dark:text-gray-500">
+															{port.processName}
+														</span>
+													)}
+													{port.commandPath && (
+														<Tooltip>
+															<TooltipTrigger asChild>
+																<span className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-md block">
+																	{port.commandPath}
+																</span>
+															</TooltipTrigger>
+															<TooltipContent side="bottom" align="start" className="max-w-lg">
+																<p className="break-all">{port.commandPath}</p>
+															</TooltipContent>
+														</Tooltip>
+													)}
+												</div>
+											</TableCell>
+											<TableCell className="font-mono">{port.pid}</TableCell>
+											<TableCell>{port.protocol}</TableCell>
+											<TableCell className="font-mono">{port.address}</TableCell>
+											<TableCell>
+												<span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-200">
+													{port.state}
+												</span>
+											</TableCell>
+											<TableCell className="text-right">
+												<Button
+													variant={isSystemProcess ? "outline" : "destructive"}
+													size="sm"
+													onClick={() => handleKillClick(port)}
+												>
+													<X className="mr-1 h-3 w-3" />
+													Kill
+												</Button>
+											</TableCell>
+										</TableRow>
+									);
+								})
 							)}
 						</TableBody>
 					</Table>
@@ -182,7 +232,7 @@ export function PortTable() {
 							<div className="flex justify-between text-sm">
 								<span className="font-medium text-gray-500 dark:text-gray-400">Process:</span>
 								<span className="font-medium text-gray-900 dark:text-white">
-									{selectedPort.processName}
+									{selectedPort.appName || selectedPort.processName}
 								</span>
 							</div>
 							<div className="flex justify-between text-sm">

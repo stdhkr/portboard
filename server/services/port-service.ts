@@ -10,6 +10,9 @@ export interface PortInfo {
 	protocol: string;
 	address: string;
 	state: string;
+	commandPath?: string;
+	user?: string;
+	appName?: string;
 }
 
 /**
@@ -40,12 +43,12 @@ export async function getListeningPorts(): Promise<PortInfo[]> {
  */
 async function getPortsUnix(): Promise<PortInfo[]> {
 	// Use lsof to get listening TCP and UDP ports
+	// +c 0: show full command names (no width limit)
 	// -i: internet connections
 	// -P: show port numbers instead of service names
 	// -n: don't resolve hostnames
-	// -sTCP:LISTEN: show only listening TCP connections
 	const { stdout } = await execAsync(
-		"lsof -i -P -n | grep LISTEN || true",
+		"lsof +c 0 -i -P -n | grep LISTEN || true",
 	);
 
 	const lines = stdout.trim().split("\n").filter(Boolean);
@@ -58,8 +61,13 @@ async function getPortsUnix(): Promise<PortInfo[]> {
 		const parts = line.split(/\s+/);
 		if (parts.length < 10) continue;
 
-		const processName = parts[0];
+		// Decode escape sequences in process name (e.g., \x20 -> space)
+		const rawProcessName = parts[0];
+		const processName = rawProcessName.replace(/\\x([0-9a-fA-F]{2})/g, (_, hex) =>
+			String.fromCharCode(Number.parseInt(hex, 16)),
+		);
 		const pid = Number.parseInt(parts[1], 10);
+		const user = parts[2]; // USER field
 		const protocol = parts[7]; // TCP or UDP
 		const addressWithState = parts[8]; // e.g., 127.0.0.1:3000 or *:3000
 
@@ -77,6 +85,54 @@ async function getPortsUnix(): Promise<PortInfo[]> {
 		// Extract bind address (everything before the last colon)
 		const bindAddress = address.substring(0, address.lastIndexOf(":")) || "*";
 
+		// Get full command path using ps
+		let commandPath: string | undefined;
+		let appName: string | undefined;
+		try {
+			const { stdout: psOutput } = await execAsync(
+				`ps -p ${pid} -o command= 2>/dev/null || true`,
+			);
+			commandPath = psOutput.trim() || undefined;
+
+			// Extract application name from .app bundle path
+			if (commandPath) {
+				const appMatch = commandPath.match(/\/([^/]+\.app)\//);
+				if (appMatch) {
+					// Remove .app extension to get clean app name
+					appName = appMatch[1].replace(/\.app$/, "");
+				}
+			}
+
+			// If no app name found, try to get project name from package.json
+			if (!appName && commandPath) {
+				try {
+					// Get the working directory of the process
+					const { stdout: cwdOutput } = await execAsync(
+						`lsof -a -p ${pid} -d cwd -F n 2>/dev/null | grep '^n' | head -1`,
+					);
+					const cwd = cwdOutput.trim().substring(1); // Remove 'n' prefix
+
+					if (cwd) {
+						// Try to read package.json from the working directory
+						const { stdout: packageJson } = await execAsync(
+							`cat "${cwd}/package.json" 2>/dev/null || echo ""`,
+						);
+
+						if (packageJson) {
+							const pkg = JSON.parse(packageJson);
+							if (pkg.name) {
+								appName = pkg.name;
+							}
+						}
+					}
+				} catch {
+					// If reading package.json fails, continue without app name
+				}
+			}
+		} catch {
+			// If ps fails, leave commandPath undefined
+		}
+
 		ports.push({
 			port,
 			pid,
@@ -84,6 +140,9 @@ async function getPortsUnix(): Promise<PortInfo[]> {
 			protocol,
 			address: bindAddress,
 			state: "LISTEN",
+			commandPath,
+			user,
+			appName,
 		});
 	}
 
