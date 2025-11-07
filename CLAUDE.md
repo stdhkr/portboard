@@ -147,20 +147,23 @@ The project uses two TypeScript configurations:
    - Category-aware warnings for system and development processes
    - Transparent borders with hover effects to maintain Neo Brutalism design consistency
 4. **Auto-refresh**: Real-time port monitoring (5s default interval) (✓ Completed)
-5. **Enhanced UI**: Full command path tooltips on hover (✓ Completed)
-6. **Connection Status Tracking** (✓ Completed)
+5. **Connection Status Tracking** (✓ Completed)
    - Real-time detection of active connections using `lsof -i :PORT -a -p PID | grep ESTABLISHED`
    - Accurate server-side connection counting (filtered by PID to avoid double-counting)
    - Active/Idle status badges with color coding (green for active, gray for idle)
    - Connection count display for active ports
    - Last accessed timestamp tracking
    - Sortable by connection status
-7. **Port Detail Modal** (✓ Completed)
+6. **Port Detail Modal** (✓ Completed)
    - Click any row to view detailed information
    - Neo Brutalism styled modal with application icon
    - Organized sections: Basic Info, Connection Status, Resource Usage, Docker Info, Command Path
    - Kill process directly from modal
-   - Hover tooltips on table rows for quick Protocol/Address preview
+7. **Table UI with Resource Monitoring** (✓ Completed)
+   - Essential columns: Port, Process Name, PID, Status, CPU, Memory, Actions
+   - CPU and Memory columns for real-time performance monitoring
+   - Sortable by CPU usage and Memory usage
+   - formatMemory() helper: shows "-" for missing data, "< 0.01 MB" for tiny values
 
 ### Features to Implement
 1. **Port History Tracking**: Track port usage over time with JSON persistence
@@ -245,7 +248,7 @@ The codebase follows a **modular architecture** with strict separation of concer
   - UI logic separated from business logic
 - **Hooks**: Reusable logic extracted into custom hooks
   - `use-port-filtering.ts`: Filter ports by category/search
-  - `use-port-sorting.ts`: Sort ports by multiple columns
+  - `use-port-sorting.ts`: Sort ports by multiple columns (port, processName, pid, connectionStatus, cpuUsage, memoryUsage)
 - **Constants**: Shared definitions centralized
   - `categories.tsx`: Category metadata & icons
 
@@ -320,13 +323,15 @@ The codebase follows a **modular architecture** with strict separation of concer
 - ✓ Search functionality (port, process name, command path)
 - ✓ Multi-column sorting with ascending/descending order toggle
 - ✓ Connection status tracking with active/idle detection
+- ✓ CPU and Memory columns in table for resource monitoring
+  - ✓ Sortable by CPU usage and Memory usage
+  - ✓ formatMemory() helper with smart formatting
 
 **Future Additions:**
 - Cross-platform icon support (Windows: .ico, Linux: .desktop)
 - Port history tracking with JSON persistence
 - Docker and docker-compose configuration
 - CLI mode
-- Resource usage monitoring (CPU, memory)
 - Additional port filtering features
 
 ## Additional Notes

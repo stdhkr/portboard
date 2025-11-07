@@ -7,6 +7,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/brutalist";
+import { DialogDescription } from "@/components/ui/dialog";
 import { CATEGORY_INFO } from "@/constants/categories";
 import type { PortInfo } from "@/types/port";
 
@@ -25,11 +26,16 @@ export function PortDetailDialog({ open, onClose, port, onKillClick }: PortDetai
 	const categoryInfo = CATEGORY_INFO[port.category];
 	const CategoryIcon = categoryInfo.icon;
 
-	const cpuUsage = port.cpuUsage ? `${port.cpuUsage.toFixed(2)}%` : "N/A";
-	const memoryUsage = port.memoryUsage
-		? `${(port.memoryUsage / 1024 / 1024).toFixed(2)} MB`
-		: "N/A";
-	const memoryRSS = port.memoryRSS ? `${(port.memoryRSS / 1024 / 1024).toFixed(2)} MB` : "N/A";
+	const cpuUsage = port.cpuUsage && port.cpuUsage > 0 ? `${port.cpuUsage.toFixed(2)}%` : "-";
+
+	const formatMemory = (bytes: number | undefined): string => {
+		if (!bytes || bytes === 0) return "-";
+		const mb = bytes / 1024 / 1024;
+		return mb < 0.01 ? "< 0.01 MB" : `${mb.toFixed(2)} MB`;
+	};
+
+	const memoryUsage = formatMemory(port.memoryUsage);
+	const memoryRSS = formatMemory(port.memoryRSS);
 
 	return (
 		<Dialog open={open} onOpenChange={onClose}>
@@ -54,6 +60,9 @@ export function PortDetailDialog({ open, onClose, port, onKillClick }: PortDetai
 								: port.appName || port.processName}
 						</span>
 					</DialogTitle>
+					<DialogDescription className="sr-only">
+						Detailed information for port {port.port}
+					</DialogDescription>
 				</DialogHeader>
 
 				<div className="space-y-6">

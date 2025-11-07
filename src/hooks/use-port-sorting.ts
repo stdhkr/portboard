@@ -57,6 +57,14 @@ export function usePortSorting(ports: PortInfo[]) {
 							: b.connectionCount - a.connectionCount;
 					}
 					break;
+				case "cpuUsage":
+					aValue = a.cpuUsage || 0;
+					bValue = b.cpuUsage || 0;
+					break;
+				case "memoryUsage":
+					aValue = a.memoryUsage || 0;
+					bValue = b.memoryUsage || 0;
+					break;
 				default:
 					return 0;
 			}

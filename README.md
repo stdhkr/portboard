@@ -18,12 +18,11 @@ An open-source, browser-based port management dashboard for developers.
     - Accurate server-side connection counting (filtered by PID)
     - Active/Idle status badges with connection count
   - **Clean table interface**: Simplified view showing only essential information
-    - Core columns: Port, Process Name, PID, Status, Actions
-    - Hover tooltips for quick Protocol and Address info
+    - Core columns: Port, Process Name, PID, Status, CPU, Memory, Actions
     - Click rows to open detailed modal with full information
   - Category-based filtering (Development, Database, Web Server, System, User Apps)
   - Search functionality across ports, processes, and commands
-  - Multi-column sorting (Port, Process Name, PID, Connection Status)
+  - Multi-column sorting (Port, Process Name, PID, Connection Status, CPU, Memory)
 - ⚡ **Smart Process Control**: Kill processes with confirmation dialogs
   - Subtle ghost buttons for system/development processes to prevent accidental kills
   - Destructive red buttons for user processes
@@ -213,10 +212,10 @@ portboard/
   - [x] Active/Idle status badges with connection count
   - [x] Sortable connection status column
 - [x] Simplified table interface with detail modal
-  - [x] Minimal columns for cleaner view
-  - [x] Hover tooltips for quick Protocol/Address info
+  - [x] Essential columns: Port, Process Name, PID, Status, CPU, Memory, Actions
   - [x] Click-to-open detail modal with full information
   - [x] Application icons in modal titles
+  - [x] Sortable CPU and Memory columns for performance monitoring
 - [x] Auto-refresh (5s interval)
 - [x] Hono backend server
 - [x] Jotai state management
