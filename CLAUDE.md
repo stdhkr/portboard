@@ -110,13 +110,23 @@ The project uses two TypeScript configurations:
 - **UI Components**: shadcn/ui
 - **Validation**: Zod
 
-### Key Features to Implement
-1. **Port Management**: Display listening ports in a table with sorting/filtering
-2. **Process Control**: Kill processes with confirmation dialogs
-3. **Auto-refresh**: Real-time port monitoring (5s default interval)
-4. **Port Auto-adjustment**: If default port 3033 is in use, automatically try 3034, 3035, etc.
-5. **CLI Mode**: Standalone CLI commands (`portman list`, `portman kill <pid>`)
-6. **Docker Integration** (Phase 2): Optional with `--with-docker` flag
+### Implemented Features
+1. **Port Management**: Display listening ports in a table (✓ Completed)
+   - Full process names without truncation (lsof +c 0)
+   - Escape sequence decoding (e.g., \x20 to space)
+   - Application name extraction from .app bundles
+   - Project name detection from package.json for CLI tools
+2. **Process Control**: Kill processes with confirmation dialogs (✓ Completed)
+   - System process indicators (⚙️ icon)
+   - Different button styles for system vs user processes
+3. **Auto-refresh**: Real-time port monitoring (5s default interval) (✓ Completed)
+4. **Enhanced UI**: Full command path tooltips on hover (✓ Completed)
+
+### Features to Implement
+1. **Port Auto-adjustment**: If default port 3033 is in use, automatically try 3034, 3035, etc.
+2. **CLI Mode**: Standalone CLI commands (`portman list`, `portman kill <pid>`)
+3. **Docker Integration** (Phase 2): Optional with `--with-docker` flag
+4. **Filtering and Search**: Advanced port/process filtering
 
 ### Security Principles (from plan)
 - **Localhost-only binding** by default
@@ -163,13 +173,16 @@ portboard/
 ### Current Setup Status
 **Completed:**
 - ✓ Tailwind CSS 4 with Vite plugin
-- ✓ shadcn/ui components (Button, Table, Dialog, Toast)
+- ✓ shadcn/ui components (Button, Table, Dialog, Toast, Tooltip)
 - ✓ Dark mode support with theme variables
 - ✓ Path alias (`@`) for cleaner imports
 - ✓ Hono backend server
 - ✓ Jotai for state management (atoms-based)
 - ✓ SWR for data fetching
 - ✓ Phase 1 MVP implementation
+- ✓ Enhanced process name display with application identification
+- ✓ Full command path tooltips
+- ✓ System process indicators
 
 **Future Additions:**
 - Docker and docker-compose configuration

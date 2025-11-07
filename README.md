@@ -6,11 +6,17 @@ An open-source, browser-based port management dashboard for developers.
 
 **Portboard** is a security-first port management tool built with modern web technologies. Inspired by tools like pgweb and Drizzle Studio, it provides a clean web interface for monitoring listening ports and managing processes on your local machine.
 
-### Key Features (Planned)
+### Key Features
 
-- 🔍 **Port Monitoring**: Real-time display of listening ports with process information
-- ⚡ **Process Control**: Kill processes with confirmation dialogs
-- 🔄 **Auto-refresh**: Configurable real-time monitoring (default: 5s interval)
+- 🔍 **Enhanced Port Monitoring**: Real-time display with intelligent process identification
+  - Full process names without truncation
+  - Application name extraction from macOS .app bundles
+  - Project name detection from package.json for CLI tools
+  - Full command path tooltips
+- ⚡ **Smart Process Control**: Kill processes with confirmation dialogs
+  - System process indicators (⚙️)
+  - Visual distinction between system and user processes
+- 🔄 **Auto-refresh**: Real-time monitoring with 5s interval
 - 🎨 **Modern UI**: Built with Tailwind CSS 4 and shadcn/ui components
 - 🌙 **Dark Mode**: Full dark mode support
 - 🔒 **Security-First**: Localhost-only binding by default, no telemetry
@@ -119,19 +125,32 @@ portboard/
 
 ## Roadmap
 
-### Phase 1: MVP (Current)
+### Phase 1: MVP (✅ Completed)
 - [x] Project setup with Vite + React + TypeScript
 - [x] Tailwind CSS 4 integration
-- [x] shadcn/ui setup
-- [ ] Port listing UI
-- [ ] Process information display
-- [ ] Basic process kill functionality
+- [x] shadcn/ui setup (Button, Table, Dialog, Toast, Tooltip)
+- [x] Port listing UI with enhanced process information
+- [x] Intelligent process name display
+  - [x] Full process names without truncation (lsof +c 0)
+  - [x] Escape sequence decoding
+  - [x] Application name extraction from .app bundles
+  - [x] Project name detection from package.json
+  - [x] Full command path tooltips
+- [x] Smart process kill functionality
+  - [x] System process indicators
+  - [x] Confirmation dialogs
+  - [x] Visual distinction for system/user processes
+- [x] Auto-refresh (5s interval)
+- [x] Toast notifications
+- [x] Hono backend server
+- [x] Jotai state management
 
 ### Phase 2: Enhanced Features
 - [ ] Docker container port monitoring (opt-in)
 - [ ] Advanced filtering and search
-- [ ] Auto-refresh with configurable intervals
-- [ ] Toast notifications
+- [ ] Configurable auto-refresh intervals
+- [ ] Port history tracking
+- [ ] Process resource usage monitoring
 
 ### Phase 3: CLI & Distribution
 - [ ] Standalone CLI commands
@@ -150,7 +169,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Project Status
 
-🚧 **Early Development** - This project is in its initial setup phase. The core port management features are currently being implemented.
+✅ **Phase 1 MVP Complete** - Core port management features are fully functional! The dashboard can monitor listening ports, display process information, and kill processes with confirmation dialogs.
 
 ---
 
