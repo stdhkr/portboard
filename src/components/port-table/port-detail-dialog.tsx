@@ -16,9 +16,16 @@ interface PortDetailDialogProps {
 	onClose: () => void;
 	port: PortInfo | null;
 	onKillClick: (port: PortInfo) => void;
+	lastUpdatedTime: string;
 }
 
-export function PortDetailDialog({ open, onClose, port, onKillClick }: PortDetailDialogProps) {
+export function PortDetailDialog({
+	open,
+	onClose,
+	port,
+	onKillClick,
+	lastUpdatedTime,
+}: PortDetailDialogProps) {
 	const [iconError, setIconError] = useState(false);
 
 	if (!port) return null;
@@ -171,23 +178,34 @@ export function PortDetailDialog({ open, onClose, port, onKillClick }: PortDetai
 					)}
 
 					{/* Actions */}
-					<div className="flex justify-end gap-2 pt-4 border-t-2 border-black dark:border-white">
-						<Button variant="outline" onClick={onClose}>
-							Close
-						</Button>
-						<Button
-							variant={
-								port.category === "system" || port.category === "development"
-									? "ghost"
-									: "destructive"
-							}
-							onClick={() => {
-								onKillClick(port);
-								onClose();
-							}}
-						>
-							Kill Process
-						</Button>
+					<div className="pt-4 border-t-2 border-black dark:border-white">
+						<div className="flex items-center justify-between">
+							{lastUpdatedTime ? (
+								<p className="text-xs text-gray-600 dark:text-gray-400 font-mono">
+									Last updated: {lastUpdatedTime}
+								</p>
+							) : (
+								<div />
+							)}
+							<div className="flex gap-2">
+								<Button variant="outline" onClick={onClose}>
+									Close
+								</Button>
+								<Button
+									variant={
+										port.category === "system" || port.category === "development"
+											? "ghost"
+											: "destructive"
+									}
+									onClick={() => {
+										onKillClick(port);
+										onClose();
+									}}
+								>
+									Kill Process
+								</Button>
+							</div>
+						</div>
 					</div>
 				</div>
 			</DialogContent>

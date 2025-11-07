@@ -326,6 +326,10 @@ The codebase follows a **modular architecture** with strict separation of concer
 - ✓ CPU and Memory columns in table for resource monitoring
   - ✓ Sortable by CPU usage and Memory usage
   - ✓ formatMemory() helper with smart formatting
+- ✓ Auto-refresh improvements
+  - ✓ Last updated timestamp display (HH:MM:SS format)
+  - ✓ Scroll position preservation using useLayoutEffect
+  - ✓ Timestamp shown in both main table header and detail modal footer
 
 **Future Additions:**
 - Cross-platform icon support (Windows: .ico, Linux: .desktop)
