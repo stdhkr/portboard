@@ -1,6 +1,6 @@
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { ArrowDown, ArrowUp, RefreshCw } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
 import {
@@ -58,17 +58,41 @@ export function PortTable() {
 	// State for last updated timestamp
 	const [lastUpdatedTime, setLastUpdatedTime] = useState<string>("");
 
-	// Update last updated timestamp when data changes
+	// Ref to store scroll container and position
+	const scrollContainerRef = useRef<HTMLDivElement>(null);
+	const scrollPositionRef = useRef<number>(0);
+
+	// Save scroll position on scroll
 	useEffect(() => {
-		if (ports) {
-			const now = new Date();
-			const timeString = now.toLocaleTimeString("en-US", {
-				hour12: false,
-				hour: "2-digit",
-				minute: "2-digit",
-				second: "2-digit",
-			});
-			setLastUpdatedTime(timeString);
+		const container = scrollContainerRef.current;
+		if (!container) return;
+
+		const handleScroll = () => {
+			scrollPositionRef.current = container.scrollTop;
+		};
+
+		container.addEventListener("scroll", handleScroll);
+		return () => container.removeEventListener("scroll", handleScroll);
+	}, []);
+
+	// Restore scroll position after data update - use useLayoutEffect for synchronous restoration
+	useLayoutEffect(() => {
+		if (!ports) return;
+
+		// Update timestamp
+		const now = new Date();
+		const timeString = now.toLocaleTimeString("en-US", {
+			hour12: false,
+			hour: "2-digit",
+			minute: "2-digit",
+			second: "2-digit",
+		});
+		setLastUpdatedTime(timeString);
+
+		// Restore scroll position immediately after DOM update
+		const container = scrollContainerRef.current;
+		if (container && scrollPositionRef.current > 0) {
+			container.scrollTop = scrollPositionRef.current;
 		}
 	}, [ports]);
 
@@ -150,7 +174,10 @@ export function PortTable() {
 					)}
 				</div>
 
-				<div className="rounded-lg border-2 border-black dark:border-white overflow-hidden shadow-[0px_2px_0px_rgba(0,0,0,1)] dark:shadow-[0px_2px_0px_rgba(255,255,255,1)]">
+				<div
+					ref={scrollContainerRef}
+					className="rounded-lg border-2 border-black dark:border-white overflow-auto shadow-[0px_2px_0px_rgba(0,0,0,1)] dark:shadow-[0px_2px_0px_rgba(255,255,255,1)]"
+				>
 					<Table>
 						<TableHeader>
 							<TableRow>
