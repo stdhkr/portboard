@@ -123,34 +123,54 @@ npm run typecheck     # Run TypeScript type checker
 portboard/
 ├── src/
 │   ├── components/
-│   │   ├── brutalist/   # Neo Brutalism component wrappers
+│   │   ├── brutalist/        # Neo Brutalism component wrappers
 │   │   │   ├── button.tsx
 │   │   │   ├── table.tsx
 │   │   │   ├── dialog.tsx
 │   │   │   ├── badge.tsx
 │   │   │   ├── sonner.tsx
 │   │   │   └── index.ts
-│   │   ├── ui/          # shadcn/ui base components
-│   │   ├── port-table.tsx
+│   │   ├── ui/               # shadcn/ui base components
+│   │   ├── port-table/       # Port table components
+│   │   │   ├── index.tsx         # Main table component
+│   │   │   ├── port-row.tsx      # Individual port row
+│   │   │   ├── kill-dialog.tsx   # Kill confirmation dialog
+│   │   │   └── search-bar.tsx    # Search input
 │   │   └── theme-toggle.tsx
+│   ├── hooks/
+│   │   ├── use-port-filtering.ts # Port filtering logic
+│   │   └── use-port-sorting.ts   # Port sorting logic
+│   ├── constants/
+│   │   └── categories.tsx        # Category definitions & icons
 │   ├── styles/
-│   │   └── brutalism.css # Neo Brutalism design system
+│   │   └── brutalism.css         # Neo Brutalism design system
 │   ├── lib/
-│   │   ├── api.ts       # API functions
-│   │   └── utils.ts     # Utility functions
+│   │   ├── api.ts                # API functions
+│   │   └── utils.ts              # Utility functions
 │   ├── store/
-│   │   └── port-store.ts # Jotai state atoms
+│   │   └── port-store.ts         # Jotai state atoms
 │   ├── types/
-│   │   └── port.ts      # TypeScript types
-│   ├── App.tsx          # Main component
-│   ├── main.tsx         # Entry point
-│   └── index.css        # Global styles
-├── server/              # Hono backend
-│   └── index.ts
-├── public/              # Static assets
-├── package.json         # Dependencies
-├── vite.config.ts       # Vite configuration
-└── biome.json          # Biome configuration
+│   │   └── port.ts               # TypeScript types
+│   ├── App.tsx                   # Main component
+│   ├── main.tsx                  # Entry point
+│   └── index.css                 # Global styles
+├── server/
+│   ├── index.ts                  # Hono server entry
+│   ├── routes/
+│   │   ├── ports.ts              # Port endpoints
+│   │   └── icons.ts              # Icon serving endpoint
+│   └── services/                 # Modular services
+│       ├── port-service.ts           # Main port API
+│       ├── connection-service.ts     # Connection tracking
+│       ├── unix-port-parser.ts       # lsof output parsing
+│       ├── process-metadata-service.ts # Process metadata
+│       ├── category-service.ts       # Process categorization
+│       ├── docker-service.ts         # Docker integration
+│       └── icon-service.ts           # Icon extraction & caching
+├── public/                       # Static assets
+├── package.json                  # Dependencies
+├── vite.config.ts                # Vite configuration
+└── biome.json                    # Biome configuration
 ```
 
 ## Roadmap

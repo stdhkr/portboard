@@ -171,42 +171,88 @@ The project uses two TypeScript configurations:
 portboard/
 ├── src/
 │   ├── components/
-│   │   ├── brutalist/   # Neo Brutalism component wrappers
+│   │   ├── brutalist/        # Neo Brutalism component wrappers
 │   │   │   ├── button.tsx
 │   │   │   ├── table.tsx
 │   │   │   ├── dialog.tsx
 │   │   │   ├── badge.tsx
 │   │   │   ├── sonner.tsx
 │   │   │   └── index.ts
-│   │   ├── ui/          # shadcn/ui base components
-│   │   ├── port-table.tsx
+│   │   ├── ui/               # shadcn/ui base components
+│   │   ├── port-table/       # Modular port table components
+│   │   │   ├── index.tsx         # Main table orchestrator
+│   │   │   ├── port-row.tsx      # Individual port row display
+│   │   │   ├── kill-dialog.tsx   # Kill confirmation dialog
+│   │   │   └── search-bar.tsx    # Search input component
 │   │   └── theme-toggle.tsx
+│   ├── hooks/                # Custom React hooks
+│   │   ├── use-port-filtering.ts # Port filtering logic
+│   │   └── use-port-sorting.ts   # Port sorting logic
+│   ├── constants/
+│   │   └── categories.tsx        # Category definitions & icons
 │   ├── styles/
-│   │   └── brutalism.css # Neo Brutalism design system CSS
+│   │   └── brutalism.css         # Neo Brutalism design system CSS
 │   ├── lib/
-│   │   ├── api.ts       # API functions
-│   │   └── utils.ts     # Utility functions (cn helper)
+│   │   ├── api.ts                # API functions
+│   │   └── utils.ts              # Utility functions (cn helper)
 │   ├── store/
-│   │   └── port-store.ts # Jotai state atoms
+│   │   └── port-store.ts         # Jotai state atoms
 │   ├── types/
-│   │   └── port.ts      # TypeScript type definitions
-│   ├── App.tsx          # Main React component
-│   ├── main.tsx         # Entry point
-│   └── index.css        # Global styles with Tailwind CSS
-├── server/              # Hono backend
-│   ├── index.ts         # Server entry point
+│   │   └── port.ts               # TypeScript type definitions
+│   ├── App.tsx                   # Main React component
+│   ├── main.tsx                  # Entry point
+│   └── index.css                 # Global styles with Tailwind CSS
+├── server/
+│   ├── index.ts                  # Hono server entry point
 │   ├── routes/
-│   │   ├── ports.ts     # Port listing and kill endpoints
-│   │   └── icons.ts     # Icon serving endpoint
-│   └── services/
-│       ├── port-service.ts  # Port scanning and metadata collection
-│       └── icon-service.ts  # Icon extraction and caching
-├── public/              # Static assets
-├── package.json         # Dependencies and scripts
-├── tsconfig.*.json      # TypeScript configurations
-├── vite.config.ts       # Vite configuration with React Compiler & path alias
-└── biome.json           # Biome configuration
+│   │   ├── ports.ts              # Port listing and kill endpoints
+│   │   └── icons.ts              # Icon serving endpoint
+│   └── services/                 # Modular service layer
+│       ├── port-service.ts           # Main port API (orchestrator)
+│       ├── connection-service.ts     # Connection count tracking
+│       ├── unix-port-parser.ts       # lsof output parsing
+│       ├── process-metadata-service.ts # Process metadata collection
+│       ├── category-service.ts       # Process categorization logic
+│       ├── docker-service.ts         # Docker port mapping detection
+│       └── icon-service.ts           # Icon extraction and caching
+├── public/                       # Static assets
+├── package.json                  # Dependencies and scripts
+├── tsconfig.*.json               # TypeScript configurations
+├── vite.config.ts                # Vite configuration with React Compiler & path alias
+└── biome.json                    # Biome configuration
 ```
+
+## Code Architecture
+
+### Modular Design Principles
+
+The codebase follows a **modular architecture** with strict separation of concerns:
+
+**Frontend (React):**
+- **Components**: Organized by feature (port-table/) with single-responsibility components
+  - Each component < 150 lines
+  - UI logic separated from business logic
+- **Hooks**: Reusable logic extracted into custom hooks
+  - `use-port-filtering.ts`: Filter ports by category/search
+  - `use-port-sorting.ts`: Sort ports by multiple columns
+- **Constants**: Shared definitions centralized
+  - `categories.tsx`: Category metadata & icons
+
+**Backend (Hono):**
+- **Services**: Modular service layer with focused responsibilities
+  - `port-service.ts` (~230 lines): Main orchestrator, platform detection
+  - `connection-service.ts` (~19 lines): Connection count tracking
+  - `unix-port-parser.ts` (~52 lines): lsof output parsing
+  - `process-metadata-service.ts` (~146 lines): Process metadata collection
+  - `category-service.ts` (~125 lines): Process categorization
+  - `docker-service.ts` (~96 lines): Docker integration
+  - `icon-service.ts`: Icon extraction & caching
+
+**Benefits:**
+- 📖 **Readable**: Each file has a clear, single purpose
+- 🧪 **Testable**: Small units are easy to test in isolation
+- 🔧 **Maintainable**: Changes are localized and easy to understand
+- 🤖 **AI-friendly**: File names and structure are self-documenting
 
 ## Working with This Codebase
 

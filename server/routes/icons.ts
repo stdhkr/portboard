@@ -19,8 +19,11 @@ iconRoutes.get("/:filename", async (c) => {
 			return c.json({ error: "Icon not found" }, 404);
 		}
 
+		// Convert Buffer to Uint8Array for Hono compatibility
+		const uint8Array = new Uint8Array(iconData);
+
 		// Return the image with proper headers
-		return c.body(iconData, 200, {
+		return c.body(uint8Array, 200, {
 			"Content-Type": "image/png",
 			"Cache-Control": "public, max-age=86400", // Cache for 24 hours
 		});
