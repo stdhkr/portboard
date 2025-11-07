@@ -35,7 +35,10 @@ export const TableHead = forwardRef<
 	return (
 		<UITableHead
 			ref={ref}
-			className={cn("border-b-3 border-black bg-gray-100 dark:bg-gray-800 font-bold", className)}
+			className={cn(
+				"border-b-3 border-black dark:border-white! bg-gray-100 dark:bg-gray-800 font-bold",
+				className,
+			)}
 			{...props}
 		/>
 	);

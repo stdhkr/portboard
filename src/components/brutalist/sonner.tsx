@@ -20,8 +20,7 @@ export function Toaster({ ...props }: ToasterProps) {
 					toast:
 						"group toast font-mono bg-white dark:bg-gray-900 text-black dark:text-white border-2 border-black dark:border-white rounded-lg brutalist-shadow p-4 !gap-4 relative",
 					description: "text-sm text-gray-600 dark:text-gray-400 font-mono",
-					closeButton:
-						"!absolute !right-1 !top-4 !bg-transparent !border-0 hover:!bg-gray-100 dark:hover:!bg-gray-800 !text-black dark:!text-white !left-auto",
+					closeButton: "!absolute !right-1 !top-4 !bg-transparent !border-0 !text-black !left-auto",
 					actionButton:
 						"brutalist-border brutalist-shadow brutalist-yellow font-bold font-mono px-3 py-1.5 rounded",
 					cancelButton:
