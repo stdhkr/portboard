@@ -12,12 +12,13 @@ An open-source, browser-based port management dashboard for developers.
   - Full process names without truncation
   - Application name extraction from macOS .app bundles
   - Project name detection from package.json for CLI tools
-  - Full command path tooltips
+  - Smart command path display (filters out unhelpful truncated paths)
   - Category-based filtering (Development, Database, Web Server, System, User Apps)
   - Search functionality across ports, processes, and commands
 - ⚡ **Smart Process Control**: Kill processes with confirmation dialogs
-  - System process indicators (⚙️)
-  - Visual distinction between system and user processes
+  - Subtle ghost buttons for system/development processes to prevent accidental kills
+  - Destructive red buttons for user processes
+  - Category-aware warnings in confirmation dialogs
 - 🔄 **Auto-refresh**: Real-time monitoring with 5s interval
 - 🎨 **Neo Brutalism Design**: Bold, high-contrast UI with distinctive visual style
   - Custom brutalist components wrapping shadcn/ui
@@ -167,11 +168,11 @@ portboard/
   - [x] Escape sequence decoding
   - [x] Application name extraction from .app bundles
   - [x] Project name detection from package.json
-  - [x] Full command path tooltips
+  - [x] Smart command path display with filtering
 - [x] Smart process kill functionality
-  - [x] System process indicators
-  - [x] Confirmation dialogs
-  - [x] Visual distinction for system/user processes
+  - [x] Ghost button variant for system/development processes
+  - [x] Destructive button variant for user processes
+  - [x] Confirmation dialogs with category-aware warnings
   - [x] Category-based filtering
   - [x] Search functionality (port, process name, command path)
 - [x] Auto-refresh (5s interval)

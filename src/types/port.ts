@@ -1,5 +1,13 @@
 export type ProcessCategory = "system" | "development" | "database" | "web-server" | "user";
 
+export interface DockerContainerInfo {
+	id: string;
+	name: string;
+	image: string;
+	containerPort?: number;
+	composeConfigFiles?: string;
+}
+
 export interface PortInfo {
 	port: number;
 	pid: number;
@@ -11,4 +19,5 @@ export interface PortInfo {
 	user?: string;
 	appName?: string;
 	category: ProcessCategory;
+	dockerContainer?: DockerContainerInfo;
 }
