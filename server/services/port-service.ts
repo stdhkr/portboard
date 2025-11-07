@@ -10,6 +10,14 @@ export type ProcessCategory =
 	| "web-server"
 	| "user";
 
+export interface DockerContainerInfo {
+	id: string;
+	name: string;
+	image: string;
+	containerPort?: number;
+	composeConfigFiles?: string;
+}
+
 export interface PortInfo {
 	port: number;
 	pid: number;
@@ -21,6 +29,98 @@ export interface PortInfo {
 	user?: string;
 	appName?: string;
 	category: ProcessCategory;
+	dockerContainer?: DockerContainerInfo;
+}
+
+/**
+ * Get Docker container port mappings
+ * Returns a Map of host port -> container info
+ */
+async function getDockerPortMappings(): Promise<Map<number, DockerContainerInfo>> {
+	const portMap = new Map<number, DockerContainerInfo>();
+
+	try {
+		// Check if Docker CLI is available
+		await execAsync("which docker");
+
+		// Get container info with port mappings
+		const { stdout } = await execAsync(
+			'docker ps --format "{{.ID}}\t{{.Names}}\t{{.Image}}\t{{.Ports}}"',
+		);
+
+		const containerIds: string[] = [];
+		const containerData = new Map<string, { name: string; image: string; ports: string }>();
+
+		for (const line of stdout.trim().split("\n").filter(Boolean)) {
+			const [id, name, image, ports] = line.split("\t");
+			containerIds.push(id);
+			containerData.set(id, { name, image, ports });
+		}
+
+		// Get compose metadata via docker inspect
+		const containerLabels = new Map<string, Record<string, string>>();
+		if (containerIds.length > 0) {
+			try {
+				const { stdout: inspectOutput } = await execAsync(
+					`docker inspect ${containerIds.join(" ")}`,
+				);
+				const inspectData = JSON.parse(inspectOutput);
+
+				for (const container of inspectData) {
+					// Use short ID (first 12 chars) to match with docker ps output
+					const shortId = container.Id.substring(0, 12);
+					containerLabels.set(shortId, container.Config?.Labels || {});
+				}
+			} catch (error) {
+				console.debug("Failed to inspect containers for labels:", error);
+			}
+		}
+
+		// Build port mappings with compose metadata
+		for (const [id, data] of containerData.entries()) {
+			const { name, image, ports } = data;
+			const labels = containerLabels.get(id) || {};
+			const composeConfigFiles = labels["com.docker.compose.project.config_files"];
+
+			// Extract host ports from format: "0.0.0.0:5433->5432/tcp"
+			const portMatches = [...ports.matchAll(/0\.0\.0\.0:(\d+)->(\d+)/g)];
+
+			for (const match of portMatches) {
+				const hostPort = Number.parseInt(match[1], 10);
+				const containerPort = Number.parseInt(match[2], 10);
+
+				portMap.set(hostPort, {
+					id,
+					name,
+					image,
+					containerPort,
+					composeConfigFiles,
+				});
+			}
+
+			// Also handle *:port->port format
+			const wildcardMatches = [...ports.matchAll(/\*:(\d+)->(\d+)/g)];
+			for (const match of wildcardMatches) {
+				const hostPort = Number.parseInt(match[1], 10);
+				const containerPort = Number.parseInt(match[2], 10);
+
+				if (!portMap.has(hostPort)) {
+					portMap.set(hostPort, {
+						id,
+						name,
+						image,
+						containerPort,
+						composeConfigFiles,
+					});
+				}
+			}
+		}
+	} catch {
+		// Docker not available or not running - return empty map
+		console.debug("Docker not available, skipping container detection");
+	}
+
+	return portMap;
 }
 
 /**
@@ -30,7 +130,39 @@ function categorizeProcess(
 	processName: string,
 	appName: string | undefined,
 	commandPath: string | undefined,
+	dockerContainer?: DockerContainerInfo,
 ): ProcessCategory {
+	// If it's a Docker container, categorize by image name
+	if (dockerContainer) {
+		const image = dockerContainer.image.toLowerCase();
+
+		// Database containers
+		if (
+			image.includes("postgres") ||
+			image.includes("mysql") ||
+			image.includes("mariadb") ||
+			image.includes("redis") ||
+			image.includes("mongo") ||
+			image.includes("cassandra") ||
+			image.includes("elasticsearch")
+		) {
+			return "database";
+		}
+
+		// Web server containers
+		if (
+			image.includes("nginx") ||
+			image.includes("apache") ||
+			image.includes("caddy") ||
+			image.includes("traefik")
+		) {
+			return "web-server";
+		}
+
+		// Default Docker containers to user category
+		return "user";
+	}
+
 	const name = (appName || processName).toLowerCase();
 	const path = (commandPath || "").toLowerCase();
 
@@ -128,6 +260,9 @@ export async function getListeningPorts(): Promise<PortInfo[]> {
  * Get ports on Unix-like systems (macOS, Linux) using lsof
  */
 async function getPortsUnix(): Promise<PortInfo[]> {
+	// Get Docker container port mappings first
+	const dockerPortMap = await getDockerPortMappings();
+
 	// Use lsof to get listening TCP and UDP ports
 	// +c 0: show full command names (no width limit)
 	// -i: internet connections
@@ -138,7 +273,16 @@ async function getPortsUnix(): Promise<PortInfo[]> {
 	);
 
 	const lines = stdout.trim().split("\n").filter(Boolean);
-	const ports: PortInfo[] = [];
+
+	// First pass: parse lsof output to extract basic info
+	const basicPortInfo: Array<{
+		processName: string;
+		pid: number;
+		user: string;
+		protocol: string;
+		port: number;
+		bindAddress: string;
+	}> = [];
 
 	for (const line of lines) {
 		// Parse lsof output
@@ -171,16 +315,54 @@ async function getPortsUnix(): Promise<PortInfo[]> {
 		// Extract bind address (everything before the last colon)
 		const bindAddress = address.substring(0, address.lastIndexOf(":")) || "*";
 
+		basicPortInfo.push({ processName, pid, user, protocol, port, bindAddress });
+	}
+
+	// Second pass: collect metadata for all processes in parallel
+	const metadataPromises = basicPortInfo.map(async (info) => {
+		const { processName, pid, user, protocol, port, bindAddress } = info;
+
 		// Get full command path using ps
 		let commandPath: string | undefined;
 		let appName: string | undefined;
+		let cwd: string | undefined;
 		try {
 			const { stdout: psOutput } = await execAsync(
 				`ps -p ${pid} -o command= 2>/dev/null || true`,
 			);
 			commandPath = psOutput.trim() || undefined;
 
-			// Extract application name from .app bundle path
+			// Get the working directory of the process (used for both relative path resolution and package.json lookup)
+			try {
+				const { stdout: cwdOutput } = await execAsync(
+					`lsof -a -p ${pid} -d cwd -F n 2>/dev/null | grep '^n' | head -1`,
+				);
+				cwd = cwdOutput.trim().substring(1); // Remove 'n' prefix
+			} catch {
+				// If getting cwd fails, continue without it
+			}
+
+			// Convert relative paths to absolute paths and extract file path only
+			if (commandPath && cwd && !commandPath.startsWith("/")) {
+				// Check if command starts with a relative file path (not just a command name)
+				const parts = commandPath.split(/\s+/);
+				if (parts.length > 0 && parts[0].includes("/")) {
+					// First part looks like a path, resolve it
+					const resolvedPath = `${cwd}/${parts[0]}`;
+					commandPath = [resolvedPath, ...parts.slice(1)].join(" ");
+				} else if (parts.length > 1) {
+					// Check if any argument is a relative path
+					const resolvedParts = parts.map((part, index) => {
+						if (index > 0 && part.includes("/") && !part.startsWith("/") && !part.startsWith("-")) {
+							return `${cwd}/${part}`;
+						}
+						return part;
+					});
+					commandPath = resolvedParts.join(" ");
+				}
+			}
+
+			// Extract application name from .app bundle path BEFORE simplifying commandPath
 			if (commandPath) {
 				const appMatch = commandPath.match(/\/([^/]+\.app)\//);
 				if (appMatch) {
@@ -189,26 +371,33 @@ async function getPortsUnix(): Promise<PortInfo[]> {
 				}
 			}
 
+			// Special handling for Cursor - extract from process name
+			if (!appName && processName.toLowerCase().includes("cursor")) {
+				appName = "Cursor";
+			}
+
+			// Extract only the file path from the command (remove command name and options)
+			if (commandPath) {
+				const parts = commandPath.split(/\s+/);
+				// Find the first part that looks like a file path (contains / and doesn't start with -)
+				const filePath = parts.find(part => part.includes("/") && !part.startsWith("-"));
+				if (filePath) {
+					commandPath = filePath;
+				}
+			}
+
 			// If no app name found, try to get project name from package.json
-			if (!appName && commandPath) {
+			if (!appName && commandPath && cwd) {
 				try {
-					// Get the working directory of the process
-					const { stdout: cwdOutput } = await execAsync(
-						`lsof -a -p ${pid} -d cwd -F n 2>/dev/null | grep '^n' | head -1`,
+					// Try to read package.json from the working directory
+					const { stdout: packageJson } = await execAsync(
+						`cat "${cwd}/package.json" 2>/dev/null || echo ""`,
 					);
-					const cwd = cwdOutput.trim().substring(1); // Remove 'n' prefix
 
-					if (cwd) {
-						// Try to read package.json from the working directory
-						const { stdout: packageJson } = await execAsync(
-							`cat "${cwd}/package.json" 2>/dev/null || echo ""`,
-						);
-
-						if (packageJson) {
-							const pkg = JSON.parse(packageJson);
-							if (pkg.name) {
-								appName = pkg.name;
-							}
+					if (packageJson) {
+						const pkg = JSON.parse(packageJson);
+						if (pkg.name) {
+							appName = pkg.name;
 						}
 					}
 				} catch {
@@ -219,10 +408,21 @@ async function getPortsUnix(): Promise<PortInfo[]> {
 			// If ps fails, leave commandPath undefined
 		}
 
-		// Determine process category
-		const category = categorizeProcess(processName, appName, commandPath);
+		// Check if this port belongs to a Docker container
+		let dockerContainer: DockerContainerInfo | undefined;
+		if (processName === "com.docker.backend" || appName === "Docker") {
+			dockerContainer = dockerPortMap.get(port);
 
-		ports.push({
+			// Override appName with container name for better display
+			if (dockerContainer) {
+				appName = dockerContainer.name;
+			}
+		}
+
+		// Determine process category
+		const category = categorizeProcess(processName, appName, commandPath, dockerContainer);
+
+		return {
 			port,
 			pid,
 			processName,
@@ -233,8 +433,12 @@ async function getPortsUnix(): Promise<PortInfo[]> {
 			user,
 			appName,
 			category,
-		});
-	}
+			dockerContainer,
+		} as PortInfo;
+	});
+
+	// Wait for all metadata collection to complete
+	const ports = await Promise.all(metadataPromises);
 
 	// Remove duplicates (same port/pid combination from IPv4/IPv6)
 	const uniquePorts = new Map<string, PortInfo>();

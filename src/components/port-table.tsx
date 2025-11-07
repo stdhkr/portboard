@@ -1,5 +1,15 @@
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { Database, Globe, List, Package, RefreshCw, Search, Settings, Wrench, X } from "lucide-react";
+import {
+	Database,
+	Globe,
+	List,
+	Package,
+	RefreshCw,
+	Search,
+	Settings,
+	Wrench,
+	X,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
@@ -86,7 +96,9 @@ export function PortTable() {
 					port.processName.toLowerCase().includes(query) ||
 					port.appName?.toLowerCase().includes(query) ||
 					port.commandPath?.toLowerCase().includes(query) ||
-					port.address.toLowerCase().includes(query)
+					port.address.toLowerCase().includes(query) ||
+					port.dockerContainer?.name.toLowerCase().includes(query) ||
+					port.dockerContainer?.image.toLowerCase().includes(query)
 				);
 			});
 		}
@@ -239,19 +251,29 @@ export function PortTable() {
 
 									return (
 										<TableRow key={`${port.pid}-${port.port}`}>
-											<TableCell className="font-mono font-medium">{port.port}</TableCell>
+											<TableCell className="text-base font-mono font-medium">{port.port}</TableCell>
 											<TableCell className="font-medium">
 												<div className="flex flex-col gap-1">
 													<div className="flex items-center gap-2">
 														<CategoryIcon className="h-4 w-4" />
-														<span className="font-medium">{port.appName || port.processName}</span>
-													</div>
-													{port.appName && port.processName !== port.appName && (
-														<span className="text-xs text-gray-400 dark:text-gray-500">
-															{port.processName}
+														<span className="font-medium">
+															{port.dockerContainer
+																? `${port.dockerContainer.name} (Docker)`
+																: port.appName || port.processName}
 														</span>
-													)}
-													{port.commandPath && (
+													</div>
+													{port.dockerContainer ? (
+														<>
+															<span className="text-xs text-gray-400 dark:text-gray-500">
+																{port.dockerContainer.image}
+															</span>
+															<span className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+																{port.dockerContainer.composeConfigFiles || "Manual (docker run)"}
+															</span>
+														</>
+													) : port.commandPath?.startsWith("/") &&
+														!port.commandPath.includes(".app/") &&
+														(port.commandPath.includes(".") || port.commandPath.split("/").length > 5) ? (
 														<Tooltip>
 															<TooltipTrigger asChild>
 																<span className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-md block">
@@ -262,7 +284,7 @@ export function PortTable() {
 																<p className="break-all">{port.commandPath}</p>
 															</TooltipContent>
 														</Tooltip>
-													)}
+													) : null}
 												</div>
 											</TableCell>
 											<TableCell className="font-mono">{port.pid}</TableCell>
@@ -275,7 +297,7 @@ export function PortTable() {
 												<Button
 													variant={
 														port.category === "system" || port.category === "development"
-															? "outline"
+															? "ghost"
 															: "destructive"
 													}
 													size="sm"
@@ -349,7 +371,7 @@ export function PortTable() {
 						<Button
 							variant={
 								selectedPort?.category === "system" || selectedPort?.category === "development"
-									? "outline"
+									? "ghost"
 									: "destructive"
 							}
 							onClick={handleKillConfirm}

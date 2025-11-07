@@ -132,12 +132,14 @@ The project uses two TypeScript configurations:
    - Escape sequence decoding (e.g., \x20 to space)
    - Application name extraction from .app bundles
    - Project name detection from package.json for CLI tools
+   - Smart command path display (filters out .app bundle internals and truncated paths)
    - Category-based filtering (Development, Database, Web Server, System, User Apps)
    - Search functionality across ports, processes, and command paths
 3. **Process Control**: Kill processes with confirmation dialogs (✓ Completed)
-   - System process indicators (⚙️ icon)
-   - Different button styles for system vs user processes
+   - Ghost button variant for system/development processes (subtle, prevents accidental clicks)
+   - Destructive button variant for user processes (prominent red)
    - Category-aware warnings for system and development processes
+   - Transparent borders with hover effects to maintain Neo Brutalism design consistency
 4. **Auto-refresh**: Real-time port monitoring (5s default interval) (✓ Completed)
 5. **Enhanced UI**: Full command path tooltips on hover (✓ Completed)
 
@@ -212,6 +214,12 @@ portboard/
 - **Brutalist styling**: Use 2px borders, 3px offset shadows, bold typography, and high-contrast colors
 - **Color palette**: Yellow (#FFD93D), Cyan (#6BCF7E), Red (#FF6B6B) for accents
 - **Dark mode**: All components should support dark mode via CSS variables
+- **Button variants**:
+  - `default`: Yellow background (primary actions)
+  - `destructive`: Red background (dangerous actions like killing user processes)
+  - `outline`: White/Black background (secondary actions)
+  - `ghost`: Transparent with subtle hover (for dangerous but less common actions like killing system processes)
+  - Use transparent borders (`border-2 border-transparent`) for ghost buttons to prevent layout shift on hover
 
 ### Current Setup Status
 **Completed:**
@@ -229,8 +237,8 @@ portboard/
 - ✓ SWR for data fetching
 - ✓ Phase 1 MVP implementation
 - ✓ Enhanced process name display with application identification
-- ✓ Full command path tooltips
-- ✓ System process indicators
+- ✓ Smart command path display (filters .app internals and truncated paths)
+- ✓ Ghost button variant for dangerous actions (system/development processes)
 - ✓ Category-based filtering
 - ✓ Search functionality (port, process name, command path)
 
