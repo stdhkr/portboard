@@ -152,3 +152,29 @@ export async function openInTerminal(path: string, terminalCommand: string): Pro
 		throw new Error(result.error || "Failed to open in terminal");
 	}
 }
+
+/**
+ * Open shell in Docker container
+ */
+export async function openContainerShell(
+	containerName: string,
+	terminalCommand: string,
+): Promise<void> {
+	const response = await fetch(`${API_BASE_URL}/ports/open-container-shell`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({ containerName, terminalCommand }),
+	});
+
+	if (!response.ok) {
+		const result: OpenDirectoryResponse = await response.json();
+		throw new Error(result.error || `Failed to open container shell: ${response.statusText}`);
+	}
+
+	const result: OpenDirectoryResponse = await response.json();
+	if (!result.success || result.error) {
+		throw new Error(result.error || "Failed to open container shell");
+	}
+}

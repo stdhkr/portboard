@@ -379,3 +379,48 @@ export async function openInTerminal(
 		await execAsync(command);
 	}
 }
+
+/**
+ * Open a shell in the specified Docker container
+ */
+export async function openContainerShell(
+	containerName: string,
+	terminalCommand: string,
+): Promise<void> {
+	// Determine shell to use (try bash, fallback to sh)
+	const shellCmd = "docker exec -it " + containerName + " sh -c 'command -v bash >/dev/null 2>&1 && exec bash || exec sh'";
+
+	// Special handling for different terminals to execute docker exec
+	if (terminalCommand.includes("Ghostty.app") || terminalCommand === "ghostty") {
+		// Ghostty
+		await execAsync(`open -n -a Ghostty --args -e sh -c "${shellCmd.replace(/"/g, '\\"')}"`);
+	} else if (terminalCommand.includes("open -a Terminal")) {
+		// macOS Terminal - use AppleScript
+		const script = `tell application "Terminal" to do script "${shellCmd.replace(/"/g, '\\"')}"`;
+		await execAsync(`osascript -e '${script}'`);
+	} else if (terminalCommand.includes("iTerm.app") || terminalCommand === "iterm") {
+		// iTerm2 - use AppleScript
+		const script = `tell application "iTerm"
+			create window with default profile
+			tell current session of current window
+				write text "${shellCmd.replace(/"/g, '\\"')}"
+			end tell
+		end tell`;
+		await execAsync(`osascript -e '${script.replace(/\n/g, " ")}'`);
+	} else if (terminalCommand.includes("Warp.app") || terminalCommand === "warp") {
+		// Warp - execute command in new tab
+		await execAsync(`open -a Warp -n --args ${shellCmd}`);
+	} else if (terminalCommand.includes("Alacritty.app") || terminalCommand === "alacritty") {
+		// Alacritty
+		await execAsync(`open -a Alacritty --args -e sh -c "${shellCmd.replace(/"/g, '\\"')}"`);
+	} else if (terminalCommand.includes("kitty.app") || terminalCommand === "kitty") {
+		// Kitty
+		await execAsync(`open -a kitty --args sh -c "${shellCmd.replace(/"/g, '\\"')}"`);
+	} else if (terminalCommand.includes("Hyper.app") || terminalCommand === "hyper") {
+		// Hyper
+		await execAsync(`open -a Hyper --args sh -c "${shellCmd.replace(/"/g, '\\"')}"`);
+	} else {
+		// Generic fallback - try to execute in new terminal window
+		await execAsync(`osascript -e 'tell application "Terminal" to do script "${shellCmd.replace(/"/g, '\\"')}"'`);
+	}
+}

@@ -22,6 +22,7 @@ import {
 	fetchAvailableIDEs,
 	fetchAvailableTerminals,
 	type IDEInfo,
+	openContainerShell,
 	openInIDE,
 	openInTerminal,
 	type TerminalInfo,
@@ -70,6 +71,17 @@ export function PortDetailDialog({
 
 	const categoryInfo = CATEGORY_INFO[port.category];
 	const CategoryIcon = categoryInfo.icon;
+
+	// Extract compose directory from composeConfigFiles
+	const getComposeDirectory = (): string | null => {
+		if (!port.dockerContainer?.composeConfigFiles) return null;
+		// composeConfigFiles is like "/path/to/project/compose.yaml"
+		const lastSlashIndex = port.dockerContainer.composeConfigFiles.lastIndexOf("/");
+		if (lastSlashIndex === -1) return null;
+		return port.dockerContainer.composeConfigFiles.substring(0, lastSlashIndex);
+	};
+
+	const composeDirectory = getComposeDirectory();
 
 	const formatMemory = (bytes: number | undefined): string => {
 		if (!bytes || bytes === 0) return "-";
@@ -255,8 +267,137 @@ export function PortDetailDialog({
 						</div>
 					)}
 
-					{/* Working Directory Section */}
-					{port.cwd && port.cwd !== "/" && (
+					{/* Working Directory Section - Docker Containers */}
+					{port.dockerContainer && (
+						<div className="space-y-3">
+							<h3 className="font-bold font-mono text-sm border-b-2 border-black dark:border-white pb-1">
+								{"/// ACTIONS"}
+							</h3>
+							<div className="space-y-2">
+								{/* docker-compose project directory */}
+								{composeDirectory && (
+									<div>
+										<span className="text-gray-600 dark:text-gray-400 text-xs block mb-1">
+											Project Directory
+										</span>
+										<p className="font-mono text-xs break-all bg-gray-100 dark:bg-gray-800 p-2 rounded mb-2">
+											{composeDirectory}
+										</p>
+										<div className="flex gap-2 flex-wrap">
+											<DropdownMenu>
+												<DropdownMenuTrigger asChild>
+													<Button
+														variant="outline"
+														size="sm"
+														className="flex items-center gap-2"
+														disabled={availableIDEs.length === 0}
+													>
+														<FolderOpen className="size-4" />
+														Open in IDE...
+														<ChevronDown className="size-4" />
+													</Button>
+												</DropdownMenuTrigger>
+												<DropdownMenuContent align="start">
+													<DropdownMenuLabel>IDEs</DropdownMenuLabel>
+													{availableIDEs.map((ide) => (
+														<DropdownMenuItem
+															key={ide.id}
+															onClick={async () => {
+																try {
+																	await openInIDE(composeDirectory, ide.command);
+																	toast.success(`Opening project in ${ide.name}...`);
+																} catch (error) {
+																	toast.error(
+																		error instanceof Error
+																			? error.message
+																			: "Failed to open in IDE",
+																	);
+																}
+															}}
+															className="text-sm py-2"
+														>
+															{ide.iconPath ? (
+																<img
+																	src={`http://localhost:3033${ide.iconPath}`}
+																	alt={ide.name}
+																	className="size-5 mr-2 rounded"
+																/>
+															) : (
+																<Code className="size-5 mr-2" />
+															)}
+															{ide.name}
+														</DropdownMenuItem>
+													))}
+												</DropdownMenuContent>
+											</DropdownMenu>
+										</div>
+									</div>
+								)}
+
+								{/* Container shell */}
+								<div>
+									<span className="text-gray-600 dark:text-gray-400 text-xs block mb-1">
+										Container Shell
+									</span>
+									<div className="flex gap-2 flex-wrap">
+										<DropdownMenu>
+											<DropdownMenuTrigger asChild>
+												<Button
+													variant="outline"
+													size="sm"
+													className="flex items-center gap-2"
+													disabled={availableTerminals.length === 0}
+												>
+													<Terminal className="size-4" />
+													Open Shell...
+													<ChevronDown className="size-4" />
+												</Button>
+											</DropdownMenuTrigger>
+											<DropdownMenuContent align="start">
+												<DropdownMenuLabel>Terminals</DropdownMenuLabel>
+												{availableTerminals.map((terminal) => (
+													<DropdownMenuItem
+														key={terminal.id}
+														onClick={async () => {
+															if (!port.dockerContainer?.name) return;
+															try {
+																await openContainerShell(
+																	port.dockerContainer.name,
+																	terminal.command,
+																);
+																toast.success(`Opening shell in ${terminal.name}...`);
+															} catch (error) {
+																toast.error(
+																	error instanceof Error
+																		? error.message
+																		: "Failed to open container shell",
+																);
+															}
+														}}
+														className="text-sm py-2"
+													>
+														{terminal.iconPath ? (
+															<img
+																src={`http://localhost:3033${terminal.iconPath}`}
+																alt={terminal.name}
+																className="size-5 mr-2 rounded"
+															/>
+														) : (
+															<Terminal className="size-5 mr-2" />
+														)}
+														{terminal.name}
+													</DropdownMenuItem>
+												))}
+											</DropdownMenuContent>
+										</DropdownMenu>
+									</div>
+								</div>
+							</div>
+						</div>
+					)}
+
+					{/* Working Directory Section - Non-Docker Processes */}
+					{!port.dockerContainer && port.cwd && port.cwd !== "/" && (
 						<div className="space-y-3">
 							<h3 className="font-bold font-mono text-sm border-b-2 border-black dark:border-white pb-1">
 								{"/// WORKING DIRECTORY"}
@@ -286,7 +427,7 @@ export function PortDetailDialog({
 												variant="outline"
 												size="sm"
 												className="flex items-center gap-2"
-												disabled={availableIDEs.length === 0}
+												disabled={availableIDEs.length === 0 && availableTerminals.length === 0}
 											>
 												<FolderOpen className="size-4" />
 												Open With...

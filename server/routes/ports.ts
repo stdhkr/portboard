@@ -6,6 +6,7 @@ import {
 	getAvailableTerminals,
 	openInIDE as openInIDEService,
 	openInTerminal as openInTerminalService,
+	openContainerShell as openContainerShellService,
 } from "../services/ide-detection-service";
 
 export const portRoutes = new Hono();
@@ -173,6 +174,45 @@ portRoutes.post("/open-in-terminal", async (c) => {
 					error instanceof Error
 						? error.message
 						: "Failed to open in terminal",
+			},
+			500,
+		);
+	}
+});
+
+// POST /api/ports/open-container-shell - Open shell in Docker container
+const openContainerShellSchema = z.object({
+	containerName: z.string().min(1),
+	terminalCommand: z.string().min(1),
+});
+
+portRoutes.post("/open-container-shell", async (c) => {
+	try {
+		const body = await c.req.json();
+		const { containerName, terminalCommand } = openContainerShellSchema.parse(body);
+
+		await openContainerShellService(containerName, terminalCommand);
+		return c.json({ success: true, error: null });
+	} catch (error) {
+		console.error("Error opening container shell:", error);
+
+		if (error instanceof z.ZodError) {
+			return c.json(
+				{
+					success: false,
+					error: "Invalid request: containerName and terminalCommand are required",
+				},
+				400,
+			);
+		}
+
+		return c.json(
+			{
+				success: false,
+				error:
+					error instanceof Error
+						? error.message
+						: "Failed to open container shell",
 			},
 			500,
 		);
