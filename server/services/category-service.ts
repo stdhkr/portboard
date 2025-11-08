@@ -121,7 +121,7 @@ export function categorizeProcess(
 	}
 
 	// Applications (macOS .app bundles)
-	if (commandPath && commandPath.includes(".app")) {
+	if (commandPath?.includes(".app")) {
 		return "applications";
 	}
 

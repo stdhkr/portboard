@@ -1,8 +1,8 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { portRoutes } from "./routes/ports";
 import { iconRoutes } from "./routes/icons";
+import { portRoutes } from "./routes/ports";
 
 const app = new Hono();
 
@@ -24,9 +24,7 @@ const MAX_PORT_ATTEMPTS = 10;
 
 async function startServer(port: number, attempt = 0): Promise<void> {
 	if (attempt >= MAX_PORT_ATTEMPTS) {
-		console.error(
-			`Failed to start server after ${MAX_PORT_ATTEMPTS} attempts`,
-		);
+		console.error(`Failed to start server after ${MAX_PORT_ATTEMPTS} attempts`);
 		process.exit(1);
 	}
 
@@ -42,11 +40,7 @@ async function startServer(port: number, attempt = 0): Promise<void> {
 			},
 		);
 	} catch (error) {
-		if (
-			error instanceof Error &&
-			"code" in error &&
-			error.code === "EADDRINUSE"
-		) {
+		if (error instanceof Error && "code" in error && error.code === "EADDRINUSE") {
 			console.log(`Port ${port} is in use, trying ${port + 1}...`);
 			await startServer(port + 1, attempt + 1);
 		} else {

@@ -107,9 +107,7 @@ export async function collectProcessMetadata(
 
 		// If lsof didn't work, fall back to ps
 		if (!commandPath) {
-			const { stdout: psOutput } = await execAsync(
-				`ps -p ${pid} -o command= 2>/dev/null || true`,
-			);
+			const { stdout: psOutput } = await execAsync(`ps -p ${pid} -o command= 2>/dev/null || true`);
 			commandPath = psOutput.trim() || undefined;
 		}
 
@@ -190,7 +188,16 @@ export async function collectProcessMetadata(
 		// If collection fails, return empty metadata
 	}
 
-	return { commandPath, cwd, appName, appIconPath, cpuUsage, memoryUsage, memoryRSS, processStartTime };
+	return {
+		commandPath,
+		cwd,
+		appName,
+		appIconPath,
+		cpuUsage,
+		memoryUsage,
+		memoryRSS,
+		processStartTime,
+	};
 }
 
 /**

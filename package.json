@@ -8,9 +8,9 @@
     "dev:server": "bun --watch server/index.ts",
     "dev:all": "bun run dev:server & bun run dev",
     "build": "tsc -b && vite build",
-    "lint": "biome lint ./src/",
-    "format": "biome format --write ./src/",
-    "check": "biome check --write ./src/",
+    "lint": "biome lint ./src/ ./server/",
+    "format": "biome format --write ./src/ ./server/",
+    "check": "biome check --write ./src/ ./server/",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview"
   },

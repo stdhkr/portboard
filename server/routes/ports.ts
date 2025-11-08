@@ -1,13 +1,13 @@
 import { Hono } from "hono";
 import { z } from "zod";
-import { getListeningPorts, killProcess } from "../services/port-service";
 import {
 	getAvailableIDEs,
 	getAvailableTerminals,
+	openContainerShell as openContainerShellService,
 	openInIDE as openInIDEService,
 	openInTerminal as openInTerminalService,
-	openContainerShell as openContainerShellService,
 } from "../services/ide-detection-service";
+import { getListeningPorts, killProcess } from "../services/port-service";
 
 export const portRoutes = new Hono();
 
@@ -21,8 +21,7 @@ portRoutes.get("/", async (c) => {
 		return c.json(
 			{
 				data: null,
-				error:
-					error instanceof Error ? error.message : "Failed to fetch ports",
+				error: error instanceof Error ? error.message : "Failed to fetch ports",
 			},
 			500,
 		);
@@ -74,10 +73,7 @@ portRoutes.get("/available-ides", async (c) => {
 		return c.json(
 			{
 				data: null,
-				error:
-					error instanceof Error
-						? error.message
-						: "Failed to get available IDEs",
+				error: error instanceof Error ? error.message : "Failed to get available IDEs",
 			},
 			500,
 		);
@@ -94,10 +90,7 @@ portRoutes.get("/available-terminals", async (c) => {
 		return c.json(
 			{
 				data: null,
-				error:
-					error instanceof Error
-						? error.message
-						: "Failed to get available terminals",
+				error: error instanceof Error ? error.message : "Failed to get available terminals",
 			},
 			500,
 		);
@@ -133,8 +126,7 @@ portRoutes.post("/open-in-ide", async (c) => {
 		return c.json(
 			{
 				success: false,
-				error:
-					error instanceof Error ? error.message : "Failed to open in IDE",
+				error: error instanceof Error ? error.message : "Failed to open in IDE",
 			},
 			500,
 		);
@@ -170,10 +162,7 @@ portRoutes.post("/open-in-terminal", async (c) => {
 		return c.json(
 			{
 				success: false,
-				error:
-					error instanceof Error
-						? error.message
-						: "Failed to open in terminal",
+				error: error instanceof Error ? error.message : "Failed to open in terminal",
 			},
 			500,
 		);
@@ -209,10 +198,7 @@ portRoutes.post("/open-container-shell", async (c) => {
 		return c.json(
 			{
 				success: false,
-				error:
-					error instanceof Error
-						? error.message
-						: "Failed to open container shell",
+				error: error instanceof Error ? error.message : "Failed to open container shell",
 			},
 			500,
 		);

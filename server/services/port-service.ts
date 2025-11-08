@@ -84,7 +84,16 @@ async function getPortsUnix(): Promise<PortInfo[]> {
 		const lastAccessed = connectionCount > 0 ? new Date() : undefined;
 
 		// Collect process metadata (including resource usage and start time)
-		const { commandPath, cwd, appName, appIconPath, cpuUsage, memoryUsage, memoryRSS, processStartTime } = await collectProcessMetadata(pid, processName);
+		const {
+			commandPath,
+			cwd,
+			appName,
+			appIconPath,
+			cpuUsage,
+			memoryUsage,
+			memoryRSS,
+			processStartTime,
+		} = await collectProcessMetadata(pid, processName);
 
 		// Check if this port belongs to a Docker container
 		let dockerContainer: DockerContainerInfo | undefined;

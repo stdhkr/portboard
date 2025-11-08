@@ -1,9 +1,9 @@
 import { exec } from "node:child_process";
+import * as crypto from "node:crypto";
 import * as fs from "node:fs/promises";
+import * as os from "node:os";
 import * as path from "node:path";
 import { promisify } from "node:util";
-import * as os from "node:os";
-import * as crypto from "node:crypto";
 
 const execAsync = promisify(exec);
 
@@ -81,13 +81,7 @@ export async function extractAppIcon(appPath: string): Promise<string | null> {
 		}
 
 		// Try the specified icon file first, then fallback to common names
-		const iconCandidates = [
-			icnsFileName,
-			"AppIcon.icns",
-			"app.icns",
-			"icon.icns",
-			"Icon.icns",
-		];
+		const iconCandidates = [icnsFileName, "AppIcon.icns", "app.icns", "icon.icns", "Icon.icns"];
 
 		let icnsPath: string | null = null;
 		for (const candidate of iconCandidates) {

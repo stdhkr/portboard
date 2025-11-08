@@ -148,14 +148,10 @@ async function findAppPath(appName: string): Promise<string | null> {
 /**
  * Check if a command is available in the system PATH or via .app path
  */
-async function isCommandAvailable(
-	command: string,
-	macAppPath?: string,
-): Promise<boolean> {
+async function isCommandAvailable(command: string, macAppPath?: string): Promise<boolean> {
 	// First, try the command in PATH
 	try {
-		const checkCommand =
-			process.platform === "win32" ? `where ${command}` : `which ${command}`;
+		const checkCommand = process.platform === "win32" ? `where ${command}` : `which ${command}`;
 		await execAsync(checkCommand);
 		return true;
 	} catch {
@@ -246,10 +242,7 @@ export async function detectAvailableTerminals(): Promise<TerminalInfo[]> {
 				resolvedAppPath = (await findAppPath(terminal.name)) || undefined;
 			}
 
-			const available = await isCommandAvailable(
-				terminal.command,
-				resolvedAppPath,
-			);
+			const available = await isCommandAvailable(terminal.command, resolvedAppPath);
 			const actualCommand = available
 				? await getActualCommand(terminal.command, resolvedAppPath, true)
 				: terminal.command;
@@ -302,9 +295,7 @@ let cachedAvailableTerminals: TerminalInfo[] | null = null;
 export async function getAvailableTerminals(): Promise<TerminalInfo[]> {
 	if (!cachedAvailableTerminals) {
 		const allTerminals = await detectAvailableTerminals();
-		cachedAvailableTerminals = allTerminals.filter(
-			(terminal) => terminal.available,
-		);
+		cachedAvailableTerminals = allTerminals.filter((terminal) => terminal.available);
 		console.log(
 			`Detected ${cachedAvailableTerminals.length} available terminals:`,
 			cachedAvailableTerminals.map((terminal) => terminal.name).join(", "),
@@ -330,10 +321,7 @@ export function refreshTerminalCache(): void {
 /**
  * Open a directory in the specified IDE
  */
-export async function openInIDE(
-	path: string,
-	ideCommand: string,
-): Promise<void> {
+export async function openInIDE(path: string, ideCommand: string): Promise<void> {
 	// If ideCommand contains spaces (like .app paths), quote it
 	const command = ideCommand.includes(" ")
 		? `"${ideCommand}" "${path}"`
@@ -345,10 +333,7 @@ export async function openInIDE(
 /**
  * Open a directory in the specified terminal
  */
-export async function openInTerminal(
-	path: string,
-	terminalCommand: string,
-): Promise<void> {
+export async function openInTerminal(path: string, terminalCommand: string): Promise<void> {
 	// Special handling for different terminals
 	if (terminalCommand.includes("Ghostty.app") || terminalCommand === "ghostty") {
 		// Ghostty - create a shell script that changes directory and execute it
@@ -388,7 +373,10 @@ export async function openContainerShell(
 	terminalCommand: string,
 ): Promise<void> {
 	// Determine shell to use (try bash, fallback to sh)
-	const shellCmd = "docker exec -it " + containerName + " sh -c 'command -v bash >/dev/null 2>&1 && exec bash || exec sh'";
+	const shellCmd =
+		"docker exec -it " +
+		containerName +
+		" sh -c 'command -v bash >/dev/null 2>&1 && exec bash || exec sh'";
 
 	// Special handling for different terminals to execute docker exec
 	if (terminalCommand.includes("Ghostty.app") || terminalCommand === "ghostty") {
@@ -421,6 +409,8 @@ export async function openContainerShell(
 		await execAsync(`open -a Hyper --args sh -c "${shellCmd.replace(/"/g, '\\"')}"`);
 	} else {
 		// Generic fallback - try to execute in new terminal window
-		await execAsync(`osascript -e 'tell application "Terminal" to do script "${shellCmd.replace(/"/g, '\\"')}"'`);
+		await execAsync(
+			`osascript -e 'tell application "Terminal" to do script "${shellCmd.replace(/"/g, '\\"')}"'`,
+		);
 	}
 }
