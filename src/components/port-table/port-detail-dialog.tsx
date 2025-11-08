@@ -130,8 +130,8 @@ export function PortDetailDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={onClose}>
-			<DialogContent className="max-w-2xl max-h-[90vh] flex flex-col pr-0!">
-				<DialogHeader className="pr-6">
+			<DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
+				<DialogHeader className="shrink-0">
 					<DialogTitle className="font-mono flex items-center gap-3">
 						{port.appIconPath && !iconError ? (
 							<img
@@ -156,7 +156,7 @@ export function PortDetailDialog({
 					</DialogDescription>
 				</DialogHeader>
 
-				<div className="space-y-6 overflow-y-auto flex-1 pb-4 pr-6">
+				<div className="space-y-6 overflow-y-auto flex-1 -mr-6 pr-6 dialog-scrollbar">
 					{/* Basic Info Section */}
 					<div className="space-y-3">
 						<h3 className="font-bold font-mono text-sm border-b-2 border-black dark:border-white pb-1">
@@ -507,35 +507,35 @@ export function PortDetailDialog({
 							</p>
 						</div>
 					)}
+				</div>
 
-					{/* Actions */}
-					<div className="pt-4 border-t-2 border-black dark:border-white">
-						<div className="flex items-center justify-between">
-							{lastUpdatedTime ? (
-								<p className="text-xs text-gray-600 dark:text-gray-400 font-mono">
-									Last updated: {lastUpdatedTime}
-								</p>
-							) : (
-								<div />
-							)}
-							<div className="flex gap-2">
-								<Button variant="outline" onClick={onClose}>
-									Close
-								</Button>
-								<Button
-									variant={
-										port.category === "system" || port.category === "development"
-											? "ghost"
-											: "destructive"
-									}
-									onClick={() => {
-										onKillClick(port);
-										onClose();
-									}}
-								>
-									Kill Process
-								</Button>
-							</div>
+				{/* Footer Actions - Fixed at bottom */}
+				<div className="pt-4 border-t-2 border-black dark:border-white shrink-0">
+					<div className="flex items-center justify-between">
+						{lastUpdatedTime ? (
+							<p className="text-xs text-gray-600 dark:text-gray-400 font-mono">
+								Last updated: {lastUpdatedTime}
+							</p>
+						) : (
+							<div />
+						)}
+						<div className="flex gap-2">
+							<Button variant="outline" onClick={onClose}>
+								Close
+							</Button>
+							<Button
+								variant={
+									port.category === "system" || port.category === "development"
+										? "ghost"
+										: "destructive"
+								}
+								onClick={() => {
+									onKillClick(port);
+									onClose();
+								}}
+							>
+								Kill Process
+							</Button>
 						</div>
 					</div>
 				</div>

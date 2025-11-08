@@ -168,3 +168,18 @@
 	scrollbar-width: auto;
 	scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
+
+/* Dialog Scrollbar - Thinner and more subtle */
+.dialog-scrollbar::-webkit-scrollbar {
+	width: 8px;
+}
+
+.dialog-scrollbar::-webkit-scrollbar-thumb {
+	background: var(--scrollbar-thumb);
+	border: 1px solid var(--scrollbar-border);
+	border-radius: 4px;
+}
+
+.dialog-scrollbar::-webkit-scrollbar-thumb:hover {
+	background: var(--scrollbar-hover);
+}
