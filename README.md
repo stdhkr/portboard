@@ -46,6 +46,9 @@ An open-source, browser-based port management dashboard for developers.
     - Application icons displayed in dropdown menu
     - Dynamic detection using macOS Spotlight (mdfind)
     - Copy directory path to clipboard
+    - **Docker container support**:
+      - Open docker-compose project directory in IDE
+      - Open interactive shell inside container with `docker exec`
   - Docker port mapping display (Host:Container format, e.g., 3000:80)
   - Timestamp display in modal footer
 - 🎨 **Neo Brutalism Design**: Bold, high-contrast UI with distinctive visual style
@@ -294,6 +297,11 @@ portboard/
   - [x] Application icon extraction and display
   - [x] Open working directory in selected IDE/Terminal
   - [x] Copy directory path to clipboard
+  - [x] Docker container support
+    - [x] Open docker-compose project directory in IDE
+    - [x] Open interactive shell inside container
+    - [x] Terminal-specific command handling (Ghostty, iTerm2, etc.)
+    - [x] Automatic bash/sh detection
   - [ ] Cross-platform support (Windows, Linux)
 - [ ] Docker container port monitoring (opt-in)
 - [ ] Configurable auto-refresh intervals

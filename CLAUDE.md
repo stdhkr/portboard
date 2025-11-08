@@ -174,6 +174,12 @@ The project uses two TypeScript configurations:
      - Supports 11 IDEs: Cursor, VS Code, IntelliJ IDEA family, Sublime, Atom, Zed, etc.
      - Supports 7 terminals: Ghostty, iTerm2, Warp, Alacritty, Kitty, Hyper, Terminal
      - Clipboard copy functionality with visual feedback
+     - **Docker container support**:
+       - /// ACTIONS section for Docker containers (replaces /// WORKING DIRECTORY)
+       - Project Directory: Open docker-compose project directory in IDE
+       - Container Shell: Open interactive shell inside container with `docker exec -it`
+       - Automatic bash/sh detection with fallback
+       - Terminal-specific command handling (AppleScript for Terminal/iTerm2)
    - Kill process directly from modal
    - Last updated timestamp in modal footer
 7. **Table UI with Resource Monitoring** (✓ Completed)
@@ -290,11 +296,15 @@ The codebase follows a **modular architecture** with strict separation of concer
     - Command path only displayed in table for "user" category
   - `docker-service.ts` (~96 lines): Docker integration
   - `icon-service.ts`: Icon extraction & caching
-  - `ide-detection-service.ts` (~382 lines): IDE/Terminal auto-detection and launching
+  - `ide-detection-service.ts` (~427 lines): IDE/Terminal auto-detection and launching
     - Dynamic app detection using macOS Spotlight (mdfind)
     - Hardcoded paths as fallback for common installations
     - Icon extraction for IDEs and terminals
     - Special handling for different terminal apps (Ghostty, iTerm2, etc.)
+    - `openContainerShell()`: Docker container shell access
+      - Uses `docker exec -it <container> sh/bash` with automatic shell detection
+      - AppleScript support for Terminal and iTerm2
+      - Generic fallback for other terminal apps
     - Caching for performance optimization
 
 **Benefits:**
@@ -389,6 +399,12 @@ The codebase follows a **modular architecture** with strict separation of concer
   - ✓ Special handling for terminal-specific commands (Ghostty, iTerm2, etc.)
   - ✓ "Open With..." dropdown in working directory section
   - ✓ Clipboard copy functionality
+  - ✓ Docker container support
+    - ✓ Context-aware UI (/// ACTIONS for Docker, /// WORKING DIRECTORY for non-Docker)
+    - ✓ docker-compose project directory detection and IDE integration
+    - ✓ Container shell access with `docker exec -it`
+    - ✓ Automatic bash/sh detection
+    - ✓ AppleScript integration for Terminal and iTerm2
 
 **Future Additions:**
 - Cross-platform support for IDE/Terminal integration (Windows, Linux)
