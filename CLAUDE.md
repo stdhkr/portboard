@@ -90,9 +90,10 @@ The project uses two TypeScript configurations:
 - **shadcn/ui**: Base components wrapped with brutalist styling
   - Original components in [src/components/ui/](src/components/ui/)
   - Brutalist wrappers in [src/components/brutalist/](src/components/brutalist/)
-  - Button, Table, Dialog, Badge components available
+  - Button, Table, Dialog, DropdownMenu, Select components available
+  - Custom components: CopyButton (render props pattern), ConnectionStatusIndicator (Active/Idle display)
   - Toast notifications via Sonner with brutalist styling
-  - Dependencies: `@radix-ui/react-slot`, `@radix-ui/react-dialog`, `@radix-ui/react-tooltip`, `class-variance-authority`, `clsx`, `tailwind-merge`, `lucide-react`, `sonner`
+  - Dependencies: `@radix-ui/react-slot`, `@radix-ui/react-dialog`, `@radix-ui/react-tooltip`, `@radix-ui/react-dropdown-menu`, `@radix-ui/react-select`, `class-variance-authority`, `clsx`, `tailwind-merge`, `lucide-react`, `sonner`
   - Path alias `@` configured to resolve to `./src` directory
   - Animation support via `tw-animate-css` package
 
@@ -140,7 +141,8 @@ The project uses two TypeScript configurations:
 5. **Connection Status Tracking** (✓ Completed)
    - Real-time detection of active connections using `lsof -i :PORT -a -p PID | grep ESTABLISHED`
    - Accurate server-side connection counting (filtered by PID to avoid double-counting)
-   - Active/Idle status badges with color coding (green for active, gray for idle)
+   - Custom ConnectionStatusIndicator component with lightweight design
+   - Active/Idle status with visual indicator (green dot for active, empty dot for idle)
    - Connection count display for active ports
    - Last accessed timestamp tracking
    - Sortable by connection status
@@ -177,6 +179,10 @@ The project uses two TypeScript configurations:
    - **Transparent scrollbar background**: Light mode background color changed from white to light gray (oklch(0.97 0 0)) for better visual clarity
    - Scrollbar track remains transparent across both light and dark modes
    - Memory display optimization: `< 0.01 MB` → `~0 MB` for reduced visual noise
+   - **Connection Status Indicator refactoring**: Replaced Badge component with dedicated lightweight component
+     - Removed dependency on brutalist Badge wrapper
+     - Custom green dot indicator for active connections
+     - Cleaner visual design with mono font
 
 ### Features to Implement
 1. **Port History Tracking**: Track port usage over time with JSON persistence
@@ -201,7 +207,6 @@ portboard/
 │   │   │   ├── button.tsx
 │   │   │   ├── table.tsx
 │   │   │   ├── dialog.tsx
-│   │   │   ├── badge.tsx
 │   │   │   ├── sonner.tsx
 │   │   │   ├── copy-button.tsx         # Clipboard copy with render props
 │   │   │   ├── dropdown-menu.tsx       # Brutalist dropdown menu
@@ -209,11 +214,12 @@ portboard/
 │   │   │   └── index.ts
 │   │   ├── ui/               # shadcn/ui base components
 │   │   ├── port-table/       # Modular port table components
-│   │   │   ├── index.tsx              # Main table orchestrator
-│   │   │   ├── port-row.tsx           # Individual port row display
-│   │   │   ├── port-detail-dialog.tsx # Port detail modal
-│   │   │   ├── kill-dialog.tsx        # Kill confirmation dialog
-│   │   │   └── search-bar.tsx         # Search input component
+│   │   │   ├── index.tsx                         # Main table orchestrator
+│   │   │   ├── port-row.tsx                      # Individual port row display
+│   │   │   ├── port-detail-dialog.tsx            # Port detail modal
+│   │   │   ├── kill-dialog.tsx                   # Kill confirmation dialog
+│   │   │   ├── search-bar.tsx                    # Search input component
+│   │   │   └── connection-status-indicator.tsx   # Connection status display
 │   │   └── theme-toggle.tsx
 │   ├── hooks/                # Custom React hooks
 │   │   ├── use-port-filtering.ts # Port filtering logic
@@ -330,7 +336,10 @@ The codebase follows a **modular architecture** with strict separation of concer
 ### Current Setup Status
 **Completed:**
 - ✓ Tailwind CSS 4 with Vite plugin
-- ✓ shadcn/ui base components (Button, Table, Dialog, Tooltip, Badge, DropdownMenu, Select)
+- ✓ shadcn/ui base components (Button, Table, Dialog, Tooltip, DropdownMenu, Select)
+- ✓ Custom UI components
+  - ✓ CopyButton with render props pattern
+  - ✓ ConnectionStatusIndicator (lightweight Active/Idle display)
 - ✓ Sonner toast notifications with brutalist styling
 - ✓ Neo Brutalism design system
   - ✓ Custom brutalist component wrappers

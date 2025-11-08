@@ -147,16 +147,19 @@ portboard/
 │   │   │   ├── button.tsx
 │   │   │   ├── table.tsx
 │   │   │   ├── dialog.tsx
-│   │   │   ├── badge.tsx
 │   │   │   ├── sonner.tsx
+│   │   │   ├── copy-button.tsx
+│   │   │   ├── dropdown-menu.tsx
+│   │   │   ├── select.tsx
 │   │   │   └── index.ts
 │   │   ├── ui/               # shadcn/ui base components
 │   │   ├── port-table/       # Port table components
-│   │   │   ├── index.tsx              # Main table component
-│   │   │   ├── port-row.tsx           # Individual port row
-│   │   │   ├── port-detail-dialog.tsx # Port detail modal
-│   │   │   ├── kill-dialog.tsx        # Kill confirmation dialog
-│   │   │   └── search-bar.tsx         # Search input
+│   │   │   ├── index.tsx                         # Main table component
+│   │   │   ├── port-row.tsx                      # Individual port row
+│   │   │   ├── port-detail-dialog.tsx            # Port detail modal
+│   │   │   ├── kill-dialog.tsx                   # Kill confirmation dialog
+│   │   │   ├── search-bar.tsx                    # Search input
+│   │   │   └── connection-status-indicator.tsx   # Connection status display
 │   │   └── theme-toggle.tsx
 │   ├── hooks/
 │   │   ├── use-port-filtering.ts # Port filtering logic
