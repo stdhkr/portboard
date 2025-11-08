@@ -12,6 +12,7 @@
     "format": "biome format --write ./src/ ./server/",
     "check": "biome check --write ./src/ ./server/",
     "typecheck": "tsc --noEmit",
+    "lint:all": "bun run typecheck && bun run check && bun run format",
     "preview": "vite preview"
   },
   "dependencies": {

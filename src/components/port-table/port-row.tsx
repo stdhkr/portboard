@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Badge, Button, TableCell, TableRow } from "@/components/brutalist";
+import { Button, TableCell, TableRow } from "@/components/brutalist";
 import { CATEGORY_INFO } from "@/constants/categories";
 import type { PortInfo } from "@/types/port";
+import { ConnectionStatusIndicator } from "./connection-status-indicator";
 
 interface PortRowProps {
 	port: PortInfo;
@@ -69,9 +70,11 @@ export function PortRow({ port, onKillClick, onRowClick }: PortRowProps) {
 			</TableCell>
 			<TableCell className="font-mono">{port.pid}</TableCell>
 			<TableCell>
-				<Badge variant={port.connectionStatus === "active" ? "success" : "default"}>
-					{port.connectionStatus === "active" ? `Active (${port.connectionCount})` : "Idle"}
-				</Badge>
+				<ConnectionStatusIndicator
+					status={port.connectionStatus}
+					connectionCount={port.connectionCount}
+					showConnectionCount={false}
+				/>
 			</TableCell>
 			<TableCell className="font-mono text-sm">{cpuUsage}</TableCell>
 			<TableCell className="font-mono text-sm">{memoryUsage}</TableCell>

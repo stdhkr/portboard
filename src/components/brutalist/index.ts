@@ -1,7 +1,5 @@
 // Brutalist Component Exports
 
-export type { BadgeProps } from "./badge";
-export { Badge } from "./badge";
 export type { BrutalistButtonProps } from "./button";
 export { Button } from "./button";
 export { CopyButton } from "./copy-button";
