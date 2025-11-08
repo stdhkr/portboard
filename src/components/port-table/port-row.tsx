@@ -17,7 +17,7 @@ export function PortRow({ port, onKillClick, onRowClick }: PortRowProps) {
 	const formatMemory = (bytes: number | undefined): string => {
 		if (!bytes || bytes === 0) return "-";
 		const mb = bytes / 1024 / 1024;
-		return mb < 0.01 ? "< 0.01 MB" : `${mb.toFixed(2)} MB`;
+		return mb < 0.01 ? "~ 0 MB" : `${mb.toFixed(2)} MB`;
 	};
 
 	const cpuUsage = port.cpuUsage && port.cpuUsage > 0 ? `${port.cpuUsage.toFixed(2)}%` : "-";
@@ -60,12 +60,9 @@ export function PortRow({ port, onKillClick, onRowClick }: PortRowProps) {
 								{port.dockerContainer.composeConfigFiles || "Manual (docker run)"}
 							</span>
 						</>
-					) : port.category === "user" &&
-						port.commandPath?.startsWith("/") &&
-						!port.commandPath.includes(".app/") &&
-						(port.commandPath.includes(".") || port.commandPath.split("/").length > 5) ? (
-						<span className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-md block">
-							{port.commandPath}
+					) : port.cwd && port.cwd !== "/" ? (
+						<span className="text-xs text-gray-500 dark:text-gray-400 font-mono truncate max-w-md block">
+							{port.cwd}
 						</span>
 					) : null}
 				</div>

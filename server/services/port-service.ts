@@ -26,6 +26,7 @@ export interface PortInfo {
 	connectionCount: number;
 	lastAccessed?: Date;
 	commandPath?: string;
+	cwd?: string;
 	user?: string;
 	appName?: string;
 	appIconPath?: string;
@@ -34,6 +35,7 @@ export interface PortInfo {
 	cpuUsage?: number;
 	memoryUsage?: number;
 	memoryRSS?: number;
+	processStartTime?: Date;
 }
 
 /**
@@ -81,8 +83,8 @@ async function getPortsUnix(): Promise<PortInfo[]> {
 		const connectionStatus: ConnectionStatus = connectionCount > 0 ? "active" : "idle";
 		const lastAccessed = connectionCount > 0 ? new Date() : undefined;
 
-		// Collect process metadata (including resource usage)
-		const { commandPath, appName, appIconPath, cpuUsage, memoryUsage, memoryRSS } = await collectProcessMetadata(pid, processName);
+		// Collect process metadata (including resource usage and start time)
+		const { commandPath, cwd, appName, appIconPath, cpuUsage, memoryUsage, memoryRSS, processStartTime } = await collectProcessMetadata(pid, processName);
 
 		// Check if this port belongs to a Docker container
 		let dockerContainer: DockerContainerInfo | undefined;
@@ -108,6 +110,7 @@ async function getPortsUnix(): Promise<PortInfo[]> {
 			connectionCount,
 			lastAccessed,
 			commandPath,
+			cwd,
 			user,
 			appName: finalAppName,
 			appIconPath,
@@ -116,6 +119,7 @@ async function getPortsUnix(): Promise<PortInfo[]> {
 			cpuUsage,
 			memoryUsage,
 			memoryRSS,
+			processStartTime,
 		} as PortInfo;
 	});
 

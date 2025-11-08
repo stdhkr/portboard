@@ -26,6 +26,7 @@ export interface PortInfo {
 	connectionCount: number;
 	lastAccessed?: Date;
 	commandPath?: string;
+	cwd?: string;
 	user?: string;
 	appName?: string;
 	appIconPath?: string;
@@ -34,4 +35,5 @@ export interface PortInfo {
 	cpuUsage?: number;
 	memoryUsage?: number;
 	memoryRSS?: number;
+	processStartTime?: Date;
 }

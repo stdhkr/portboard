@@ -14,6 +14,7 @@ An open-source, browser-based port management dashboard for developers.
   - **Application icon display** with native .icns extraction and caching
   - Project name detection from package.json for CLI tools
   - Smart command path display (filters out unhelpful truncated paths)
+  - **Working directory (cwd) display** for non-Docker processes
   - **Connection status tracking**: Real-time display of active connections vs idle ports
     - Accurate server-side connection counting (filtered by PID)
     - Active/Idle status badges with connection count
@@ -31,16 +32,23 @@ An open-source, browser-based port management dashboard for developers.
   - Last updated timestamp display (HH:MM:SS format)
   - Scroll position preservation during auto-refresh
 - 📋 **Enhanced Detail Modal**: Click any row to view full port information
-  - Scrollable content area with proper padding
+  - Scrollable content area with proper padding and right-aligned scrollbar
   - Sticky header with application icons
-  - Full process details including environment and Docker info
+  - Full process details including:
+    - **Process start time and uptime** display
+    - Working directory (cwd) for execution context
+    - Command path for binary location
+    - Docker container information (image, config, ports)
+    - Resource usage (CPU, Memory, RSS)
+  - Docker port mapping display (Host:Container format, e.g., 3000:80)
   - Timestamp display in modal footer
 - 🎨 **Neo Brutalism Design**: Bold, high-contrast UI with distinctive visual style
   - Custom brutalist components wrapping shadcn/ui
   - Strong borders, offset shadows, and geometric shapes
   - Brutalist color scheme (yellow, cyan, red accents)
-  - Custom scrollbar styling with transparent track
+  - Custom scrollbar styling with transparent track and background
   - Sonner toast notifications with brutalist styling
+  - Optimized light mode background for better visual clarity
 - 🌙 **Dark Mode**: Full dark mode support with theme toggle
 - 🔒 **Security-First**: Localhost-only binding by default, no telemetry
 
@@ -223,6 +231,10 @@ portboard/
   - [x] Click-to-open detail modal with full information
   - [x] Application icons in modal titles
   - [x] Sortable CPU and Memory columns for performance monitoring
+  - [x] Working directory (cwd) display for process execution context
+  - [x] Process start time and uptime tracking
+  - [x] Docker port mapping display (Host:Container format)
+  - [x] Improved scrollbar positioning and styling
 - [x] Auto-refresh (5s interval)
 - [x] Hono backend server
 - [x] Jotai state management
