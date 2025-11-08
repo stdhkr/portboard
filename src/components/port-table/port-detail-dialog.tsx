@@ -1,14 +1,31 @@
-import { useState } from "react";
+import { Check, ChevronDown, Code, Copy, FolderOpen, Terminal } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import {
 	Badge,
 	Button,
+	CopyButton,
 	Dialog,
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
 } from "@/components/brutalist";
 import { DialogDescription } from "@/components/ui/dialog";
 import { CATEGORY_INFO } from "@/constants/categories";
+import {
+	fetchAvailableIDEs,
+	fetchAvailableTerminals,
+	type IDEInfo,
+	openInIDE,
+	openInTerminal,
+	type TerminalInfo,
+} from "@/lib/api";
 import type { PortInfo } from "@/types/port";
 
 interface PortDetailDialogProps {
@@ -27,6 +44,27 @@ export function PortDetailDialog({
 	lastUpdatedTime,
 }: PortDetailDialogProps) {
 	const [iconError, setIconError] = useState(false);
+	const [availableIDEs, setAvailableIDEs] = useState<IDEInfo[]>([]);
+	const [availableTerminals, setAvailableTerminals] = useState<TerminalInfo[]>([]);
+
+	// Fetch available IDEs and terminals on mount
+	useEffect(() => {
+		fetchAvailableIDEs()
+			.then((ides) => {
+				setAvailableIDEs(ides);
+			})
+			.catch((error) => {
+				console.error("Failed to fetch available IDEs:", error);
+			});
+
+		fetchAvailableTerminals()
+			.then((terminals) => {
+				setAvailableTerminals(terminals);
+			})
+			.catch((error) => {
+				console.error("Failed to fetch available terminals:", error);
+			});
+	}, []);
 
 	if (!port) return null;
 
@@ -223,9 +261,110 @@ export function PortDetailDialog({
 							<h3 className="font-bold font-mono text-sm border-b-2 border-black dark:border-white pb-1">
 								{"/// WORKING DIRECTORY"}
 							</h3>
-							<p className="font-mono text-xs break-all bg-gray-100 dark:bg-gray-800 p-3 rounded">
-								{port.cwd}
-							</p>
+							<div className="space-y-2">
+								<p className="font-mono text-xs break-all bg-gray-100 dark:bg-gray-800 p-3 rounded">
+									{port.cwd}
+								</p>
+								<div className="flex gap-2 flex-wrap">
+									<CopyButton value={port.cwd}>
+										{({ copied, copy }) => (
+											<Button
+												variant="outline"
+												size="sm"
+												className="flex items-center gap-2"
+												onClick={copy}
+											>
+												{copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+												{copied ? "Copied!" : "Copy"}
+											</Button>
+										)}
+									</CopyButton>
+
+									<DropdownMenu>
+										<DropdownMenuTrigger asChild>
+											<Button
+												variant="outline"
+												size="sm"
+												className="flex items-center gap-2"
+												disabled={availableIDEs.length === 0}
+											>
+												<FolderOpen className="size-4" />
+												Open With...
+												<ChevronDown className="size-4" />
+											</Button>
+										</DropdownMenuTrigger>
+										<DropdownMenuContent align="start">
+											{availableIDEs.length > 0 && (
+												<>
+													<DropdownMenuLabel>IDEs</DropdownMenuLabel>
+													{availableIDEs.map((ide) => (
+														<DropdownMenuItem
+															key={ide.id}
+															onClick={async () => {
+																if (!port.cwd) return;
+																try {
+																	await openInIDE(port.cwd, ide.command);
+																	toast.success(`Opening in ${ide.name}...`);
+																} catch (error) {
+																	toast.error(
+																		error instanceof Error
+																			? error.message
+																			: "Failed to open in IDE",
+																	);
+																}
+															}}
+															className="text-sm py-2"
+														>
+															{ide.iconPath ? (
+																<img
+																	src={`http://localhost:3033${ide.iconPath}`}
+																	alt={ide.name}
+																	className="size-5 mr-2 rounded"
+																/>
+															) : (
+																<Code className="size-5 mr-2" />
+															)}
+															{ide.name}
+														</DropdownMenuItem>
+													))}
+													<DropdownMenuSeparator />
+												</>
+											)}
+											<DropdownMenuLabel>Terminals</DropdownMenuLabel>
+											{availableTerminals.map((terminal) => (
+												<DropdownMenuItem
+													key={terminal.id}
+													onClick={async () => {
+														if (!port.cwd) return;
+														try {
+															await openInTerminal(port.cwd, terminal.command);
+															toast.success(`Opening in ${terminal.name}...`);
+														} catch (error) {
+															toast.error(
+																error instanceof Error
+																	? error.message
+																	: "Failed to open in terminal",
+															);
+														}
+													}}
+													className="text-sm py-2"
+												>
+													{terminal.iconPath ? (
+														<img
+															src={`http://localhost:3033${terminal.iconPath}`}
+															alt={terminal.name}
+															className="size-5 mr-2 rounded"
+														/>
+													) : (
+														<Terminal className="size-5 mr-2" />
+													)}
+													{terminal.name}
+												</DropdownMenuItem>
+											))}
+										</DropdownMenuContent>
+									</DropdownMenu>
+								</div>
+							</div>
 						</div>
 					)}
 

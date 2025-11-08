@@ -40,6 +40,12 @@ An open-source, browser-based port management dashboard for developers.
     - Command path for binary location
     - Docker container information (image, config, ports)
     - Resource usage (CPU, Memory, RSS)
+  - **IDE/Terminal Integration** (macOS): Open working directory in your favorite tools
+    - Auto-detection of installed IDEs (Cursor, VS Code, WebStorm, IntelliJ, etc.)
+    - Auto-detection of terminal apps (Ghostty, iTerm2, Warp, Terminal, etc.)
+    - Application icons displayed in dropdown menu
+    - Dynamic detection using macOS Spotlight (mdfind)
+    - Copy directory path to clipboard
   - Docker port mapping display (Host:Container format, e.g., 3000:80)
   - Timestamp display in modal footer
 - 🎨 **Neo Brutalism Design**: Bold, high-contrast UI with distinctive visual style
@@ -187,7 +193,8 @@ portboard/
 │       ├── process-metadata-service.ts # Process metadata
 │       ├── category-service.ts       # Process categorization
 │       ├── docker-service.ts         # Docker integration
-│       └── icon-service.ts           # Icon extraction & caching
+│       ├── icon-service.ts           # Icon extraction & caching
+│       └── ide-detection-service.ts  # IDE/Terminal auto-detection
 ├── public/                       # Static assets
 ├── package.json                  # Dependencies
 ├── vite.config.ts                # Vite configuration
@@ -280,6 +287,14 @@ portboard/
   - [x] Real-time active connection detection
   - [x] Active/Idle status display with connection count
   - [x] Last accessed timestamp tracking
+- [x] IDE/Terminal integration (macOS only)
+  - [x] Auto-detection of installed IDEs (Cursor, VS Code, IntelliJ family, etc.)
+  - [x] Auto-detection of terminal apps (Ghostty, iTerm2, Warp, Alacritty, etc.)
+  - [x] Dynamic app discovery using macOS Spotlight (mdfind)
+  - [x] Application icon extraction and display
+  - [x] Open working directory in selected IDE/Terminal
+  - [x] Copy directory path to clipboard
+  - [ ] Cross-platform support (Windows, Linux)
 - [ ] Docker container port monitoring (opt-in)
 - [ ] Configurable auto-refresh intervals
 - [ ] Port history tracking with JSON persistence
