@@ -4,6 +4,7 @@ export type { BadgeProps } from "./badge";
 export { Badge } from "./badge";
 export type { BrutalistButtonProps } from "./button";
 export { Button } from "./button";
+export { CopyButton } from "./copy-button";
 export {
 	Dialog,
 	DialogContent,
@@ -13,6 +14,23 @@ export {
 	DialogTitle,
 	DialogTrigger,
 } from "./dialog";
+export {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuGroup,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "./dropdown-menu";
+export {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "./select";
 export { Toaster } from "./sonner";
 export {
 	Table,
