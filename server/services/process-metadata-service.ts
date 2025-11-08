@@ -32,13 +32,37 @@ async function getProcessResourceUsage(pid: number): Promise<ResourceUsage | nul
 	return null;
 }
 
+/**
+ * Get process start time
+ */
+async function getProcessStartTime(pid: number): Promise<Date | null> {
+	try {
+		// Use lstart for full timestamp on macOS/Linux
+		const { stdout } = await execAsync(`ps -p ${pid} -o lstart= 2>/dev/null`);
+		const startTimeStr = stdout.trim();
+
+		if (startTimeStr) {
+			// Parse the date string (format: "Mon Jan  8 14:30:15 2025")
+			const date = new Date(startTimeStr);
+			if (!Number.isNaN(date.getTime())) {
+				return date;
+			}
+		}
+	} catch (error) {
+		console.debug(`Failed to get process start time for PID ${pid}:`, error);
+	}
+	return null;
+}
+
 export interface ProcessMetadata {
 	commandPath?: string;
+	cwd?: string;
 	appName?: string;
 	appIconPath?: string;
 	cpuUsage?: number; // CPU usage percentage
 	memoryUsage?: number; // Memory usage percentage
 	memoryRSS?: number; // Resident Set Size in KB
+	processStartTime?: Date; // Process start time
 }
 
 /**
@@ -55,10 +79,12 @@ export async function collectProcessMetadata(
 	let cpuUsage: number | undefined;
 	let memoryUsage: number | undefined;
 	let memoryRSS: number | undefined;
+	let processStartTime: Date | undefined;
 
 	try {
-		// Get resource usage (CPU and memory) in parallel with other metadata
+		// Get resource usage (CPU and memory) and start time in parallel with other metadata
 		const resourcePromise = getProcessResourceUsage(pid);
+		const startTimePromise = getProcessStartTime(pid);
 
 		// Continue with existing metadata collection
 		// Try to get the full executable path using lsof first (more reliable for .app bundles)
@@ -148,18 +174,23 @@ export async function collectProcessMetadata(
 				// If reading package.json fails, continue without app name
 			}
 		}
-		// Wait for resource usage collection
-		const resourceUsage = await resourcePromise;
+		// Wait for resource usage and start time collection
+		const [resourceUsage, startTime] = await Promise.all([resourcePromise, startTimePromise]);
+
 		if (resourceUsage) {
 			cpuUsage = resourceUsage.cpuUsage;
 			memoryUsage = resourceUsage.memoryUsage;
 			memoryRSS = resourceUsage.memoryRSS;
 		}
+
+		if (startTime) {
+			processStartTime = startTime;
+		}
 	} catch {
 		// If collection fails, return empty metadata
 	}
 
-	return { commandPath, appName, appIconPath, cpuUsage, memoryUsage, memoryRSS };
+	return { commandPath, cwd, appName, appIconPath, cpuUsage, memoryUsage, memoryRSS, processStartTime };
 }
 
 /**

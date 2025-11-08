@@ -33,21 +33,55 @@ export function PortDetailDialog({
 	const categoryInfo = CATEGORY_INFO[port.category];
 	const CategoryIcon = categoryInfo.icon;
 
-	const cpuUsage = port.cpuUsage && port.cpuUsage > 0 ? `${port.cpuUsage.toFixed(2)}%` : "-";
-
 	const formatMemory = (bytes: number | undefined): string => {
 		if (!bytes || bytes === 0) return "-";
 		const mb = bytes / 1024 / 1024;
-		return mb < 0.01 ? "< 0.01 MB" : `${mb.toFixed(2)} MB`;
+		return mb < 0.01 ? "~ 0 MB" : `${mb.toFixed(2)} MB`;
 	};
 
+	const formatUptime = (startTime: Date): string => {
+		const now = new Date();
+		const diffMs = now.getTime() - startTime.getTime();
+		const diffSeconds = Math.floor(diffMs / 1000);
+		const diffMinutes = Math.floor(diffSeconds / 60);
+		const diffHours = Math.floor(diffMinutes / 60);
+		const diffDays = Math.floor(diffHours / 24);
+
+		if (diffDays > 0) {
+			const hours = diffHours % 24;
+			return `${diffDays}d ${hours}h`;
+		}
+		if (diffHours > 0) {
+			const minutes = diffMinutes % 60;
+			return `${diffHours}h ${minutes}m`;
+		}
+		if (diffMinutes > 0) {
+			const seconds = diffSeconds % 60;
+			return `${diffMinutes}m ${seconds}s`;
+		}
+		return `${diffSeconds}s`;
+	};
+
+	const formatDateTime = (date: Date): string => {
+		return date.toLocaleString("ja-JP", {
+			year: "numeric",
+			month: "2-digit",
+			day: "2-digit",
+			hour: "2-digit",
+			minute: "2-digit",
+			second: "2-digit",
+			hour12: false,
+		});
+	};
+
+	const cpuUsage = port.cpuUsage && port.cpuUsage > 0 ? `${port.cpuUsage.toFixed(2)}%` : "-";
 	const memoryUsage = formatMemory(port.memoryUsage);
 	const memoryRSS = formatMemory(port.memoryRSS);
 
 	return (
 		<Dialog open={open} onOpenChange={onClose}>
-			<DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
-				<DialogHeader>
+			<DialogContent className="max-w-2xl max-h-[90vh] flex flex-col pr-0!">
+				<DialogHeader className="pr-6">
 					<DialogTitle className="font-mono flex items-center gap-3">
 						{port.appIconPath && !iconError ? (
 							<img
@@ -72,7 +106,7 @@ export function PortDetailDialog({
 					</DialogDescription>
 				</DialogHeader>
 
-				<div className="space-y-6 overflow-y-auto flex-1 pb-4 pr-2">
+				<div className="space-y-6 overflow-y-auto flex-1 pb-4 pr-6">
 					{/* Basic Info Section */}
 					<div className="space-y-3">
 						<h3 className="font-bold font-mono text-sm border-b-2 border-black dark:border-white pb-1">
@@ -80,8 +114,14 @@ export function PortDetailDialog({
 						</h3>
 						<div className="grid grid-cols-2 gap-4 font-mono text-sm">
 							<div>
-								<span className="text-gray-600 dark:text-gray-400">Port</span>
-								<p className="font-bold text-base">{port.port}</p>
+								<span className="text-gray-600 dark:text-gray-400">
+									{port.dockerContainer ? "Port (Host:Container)" : "Port"}
+								</span>
+								<p className="font-bold text-base">
+									{port.dockerContainer?.containerPort
+										? `${port.port}:${port.dockerContainer.containerPort}`
+										: port.port}
+								</p>
 							</div>
 							<div>
 								<span className="text-gray-600 dark:text-gray-400">PID</span>
@@ -102,6 +142,18 @@ export function PortDetailDialog({
 									{categoryInfo.label}
 								</p>
 							</div>
+							{port.processStartTime && (
+								<>
+									<div className="col-span-2">
+										<span className="text-gray-600 dark:text-gray-400">Started</span>
+										<p className="font-bold">{formatDateTime(new Date(port.processStartTime))}</p>
+									</div>
+									<div className="col-span-2">
+										<span className="text-gray-600 dark:text-gray-400">Uptime</span>
+										<p className="font-bold">{formatUptime(new Date(port.processStartTime))}</p>
+									</div>
+								</>
+							)}
 						</div>
 					</div>
 
@@ -162,6 +214,18 @@ export function PortDetailDialog({
 									</p>
 								</div>
 							</div>
+						</div>
+					)}
+
+					{/* Working Directory Section */}
+					{port.cwd && port.cwd !== "/" && (
+						<div className="space-y-3">
+							<h3 className="font-bold font-mono text-sm border-b-2 border-black dark:border-white pb-1">
+								{"/// WORKING DIRECTORY"}
+							</h3>
+							<p className="font-mono text-xs break-all bg-gray-100 dark:bg-gray-800 p-3 rounded">
+								{port.cwd}
+							</p>
 						</div>
 					)}
 

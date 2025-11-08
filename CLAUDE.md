@@ -134,13 +134,14 @@ The project uses two TypeScript configurations:
    - **Application icon display** with native .icns extraction and caching (macOS only)
    - Project name detection from package.json for CLI tools
    - Smart command path display (filters out .app bundle internals and truncated paths)
+   - **Working directory (cwd) display**: Shows execution context for non-Docker processes (excludes "/" to reduce noise)
    - **Connection status tracking**: Real-time active/idle status with accurate connection count (PID-filtered)
    - **Clean table interface**: Simplified view with essential columns only
    - Hover tooltips for quick Protocol and Address info
    - Click-to-open detail modal with full port information
    - Category-based filtering (Development, Database, Web Server, Applications, System, User Apps)
    - Search functionality across ports, processes, and command paths
-   - Multi-column sorting with ascending/descending order (Port, Process Name, PID, Connection Status)
+   - Multi-column sorting with ascending/descending order (Port, Process Name, PID, Connection Status, CPU, Memory)
 3. **Process Control**: Kill processes with confirmation dialogs (✓ Completed)
    - Ghost button variant for system/development processes (subtle, prevents accidental clicks)
    - Destructive button variant for user processes (prominent red)
@@ -162,15 +163,22 @@ The project uses two TypeScript configurations:
    - Neo Brutalism styled modal with application icon
    - Scrollable content area with flexbox layout (max-h-[90vh])
    - Sticky header, scrollable content (overflow-y-auto flex-1)
-   - Proper padding (pb-4 pr-2) to prevent content clipping
-   - Organized sections: Basic Info, Connection Status, Resource Usage, Docker Info, Command Path
+   - **Right-aligned scrollbar**: DialogContent uses `pr-0!` to push scrollbar to edge, content sections use `pr-6` for padding
+   - Organized sections: Basic Info, Connection Status, Resource Usage, Docker Info, Working Directory, Command Path
+   - **Process start time and uptime**: Shows when process started and how long it's been running (format: "2d 3h", "5h 30m", etc.)
+   - **Docker port mapping**: Displays Host:Container format (e.g., "3000:80") for Docker containers
+   - **Working directory (cwd)**: Shows process execution context (hidden if "/" to reduce noise)
    - Kill process directly from modal
    - Last updated timestamp in modal footer
 7. **Table UI with Resource Monitoring** (✓ Completed)
    - Essential columns: Port, Process Name, PID, Status, CPU, Memory, Actions
    - CPU and Memory columns for real-time performance monitoring
    - Sortable by CPU usage and Memory usage
-   - formatMemory() helper: shows "-" for missing data, "< 0.01 MB" for tiny values
+   - formatMemory() helper: shows "-" for missing data, "~0 MB" for tiny values (cleaner visual)
+8. **UI/UX Improvements** (✓ Completed)
+   - **Transparent scrollbar background**: Light mode background color changed from white to light gray (oklch(0.97 0 0)) for better visual clarity
+   - Scrollbar track remains transparent across both light and dark modes
+   - Memory display optimization: `< 0.01 MB` → `~0 MB` for reduced visual noise
 
 ### Features to Implement
 1. **Port History Tracking**: Track port usage over time with JSON persistence
@@ -344,10 +352,18 @@ The codebase follows a **modular architecture** with strict separation of concer
 - ✓ Detail modal improvements
   - ✓ Scrollable content area with flexbox layout (max-h-[90vh] flex flex-col)
   - ✓ Sticky header, scrollable content (overflow-y-auto flex-1)
-  - ✓ Proper padding (pb-4 pr-2) to prevent content clipping
-- ✓ Scrollbar transparency
-  - ✓ Transparent track background (was gray #f5f5f5/#1a1a1a)
-  - ✓ Removed border from scrollbar track for cleaner appearance
+  - ✓ Right-aligned scrollbar positioning (DialogContent pr-0!, sections pr-6)
+  - ✓ Process start time and uptime display
+  - ✓ Working directory (cwd) section
+  - ✓ Docker port mapping (Host:Container format)
+- ✓ Enhanced process metadata
+  - ✓ Working directory (cwd) collection via lsof
+  - ✓ Process start time collection via ps lstart
+  - ✓ Uptime calculation and formatting (human-readable: "2d 3h", "5h 30m")
+- ✓ UI polish
+  - ✓ Memory display: `< 0.01 MB` → `~0 MB` for cleaner visuals
+  - ✓ Light mode background optimization (oklch(0.97 0 0))
+  - ✓ Scrollbar positioning fixes in detail modal
 
 **Future Additions:**
 - Cross-platform icon support (Windows: .ico, Linux: .desktop)
