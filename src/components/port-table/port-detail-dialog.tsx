@@ -284,6 +284,20 @@ export function PortDetailDialog({
 											{composeDirectory}
 										</p>
 										<div className="flex gap-2 flex-wrap">
+											<CopyButton value={composeDirectory}>
+												{({ copied, copy }) => (
+													<Button
+														variant="outline"
+														size="sm"
+														className="flex items-center gap-2"
+														onClick={copy}
+													>
+														{copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+														{copied ? "Copied!" : "Copy"}
+													</Button>
+												)}
+											</CopyButton>
+
 											<DropdownMenu>
 												<DropdownMenuTrigger asChild>
 													<Button
@@ -293,39 +307,84 @@ export function PortDetailDialog({
 														disabled={availableIDEs.length === 0}
 													>
 														<FolderOpen className="size-4" />
-														Open in IDE...
+														Open With...
 														<ChevronDown className="size-4" />
 													</Button>
 												</DropdownMenuTrigger>
 												<DropdownMenuContent align="start">
-													<DropdownMenuLabel>IDEs</DropdownMenuLabel>
-													{availableIDEs.map((ide) => (
+													{availableIDEs.length > 0 && (
+														<>
+															<DropdownMenuLabel>IDEs</DropdownMenuLabel>
+															{availableIDEs.map((ide) => (
+																<DropdownMenuItem
+																	key={ide.id}
+																	onClick={async () => {
+																		try {
+																			await openInIDE(composeDirectory, ide.command);
+																			toast.success(`Opening project in ${ide.name}...`);
+																		} catch (error) {
+																			toast.error(
+																				error instanceof Error
+																					? error.message
+																					: "Failed to open in IDE",
+																			);
+																		}
+																	}}
+																	className="text-sm py-2"
+																>
+																	{ide.iconPath ? (
+																		<img
+																			src={`http://localhost:3033${ide.iconPath}`}
+																			alt={ide.name}
+																			className="size-5 mr-2 rounded"
+																		/>
+																	) : (
+																		<Code className="size-5 mr-2" />
+																	)}
+																	{ide.name}
+																</DropdownMenuItem>
+															))}
+															<DropdownMenuSeparator />
+														</>
+													)}
+													{/* Container shell */}
+													<DropdownMenuLabel>
+														Terminals
+														<div className="text-xs font-normal text-muted-foreground mt-0.5">
+															Open container shell
+														</div>
+													</DropdownMenuLabel>
+													{availableTerminals.map((terminal) => (
 														<DropdownMenuItem
-															key={ide.id}
+															key={terminal.id}
 															onClick={async () => {
+																if (!port.dockerContainer?.name) return;
 																try {
-																	await openInIDE(composeDirectory, ide.command);
-																	toast.success(`Opening project in ${ide.name}...`);
+																	await openContainerShell(
+																		port.dockerContainer.name,
+																		terminal.command,
+																	);
+																	toast.success(`Opening shell in ${terminal.name}...`);
 																} catch (error) {
 																	toast.error(
 																		error instanceof Error
 																			? error.message
-																			: "Failed to open in IDE",
+																			: "Failed to open container shell",
 																	);
 																}
 															}}
 															className="text-sm py-2"
 														>
-															{ide.iconPath ? (
+															{terminal.iconPath ? (
 																<img
-																	src={`http://localhost:3033${ide.iconPath}`}
-																	alt={ide.name}
+																	src={`http://localhost:3033${terminal.iconPath}`}
+																	alt={terminal.name}
 																	className="size-5 mr-2 rounded"
 																/>
 															) : (
-																<Code className="size-5 mr-2" />
+																<Terminal className="size-5 mr-2" />
 															)}
-															{ide.name}
+															{terminal.name}
 														</DropdownMenuItem>
 													))}
 												</DropdownMenuContent>
@@ -333,65 +392,6 @@ export function PortDetailDialog({
 										</div>
 									</div>
 								)}
-
-								{/* Container shell */}
-								<div>
-									<span className="text-gray-600 dark:text-gray-400 text-xs block mb-1">
-										Container Shell
-									</span>
-									<div className="flex gap-2 flex-wrap">
-										<DropdownMenu>
-											<DropdownMenuTrigger asChild>
-												<Button
-													variant="outline"
-													size="sm"
-													className="flex items-center gap-2"
-													disabled={availableTerminals.length === 0}
-												>
-													<Terminal className="size-4" />
-													Open Shell...
-													<ChevronDown className="size-4" />
-												</Button>
-											</DropdownMenuTrigger>
-											<DropdownMenuContent align="start">
-												<DropdownMenuLabel>Terminals</DropdownMenuLabel>
-												{availableTerminals.map((terminal) => (
-													<DropdownMenuItem
-														key={terminal.id}
-														onClick={async () => {
-															if (!port.dockerContainer?.name) return;
-															try {
-																await openContainerShell(
-																	port.dockerContainer.name,
-																	terminal.command,
-																);
-																toast.success(`Opening shell in ${terminal.name}...`);
-															} catch (error) {
-																toast.error(
-																	error instanceof Error
-																		? error.message
-																		: "Failed to open container shell",
-																);
-															}
-														}}
-														className="text-sm py-2"
-													>
-														{terminal.iconPath ? (
-															<img
-																src={`http://localhost:3033${terminal.iconPath}`}
-																alt={terminal.name}
-																className="size-5 mr-2 rounded"
-															/>
-														) : (
-															<Terminal className="size-5 mr-2" />
-														)}
-														{terminal.name}
-													</DropdownMenuItem>
-												))}
-											</DropdownMenuContent>
-										</DropdownMenu>
-									</div>
-								</div>
 							</div>
 						</div>
 					)}

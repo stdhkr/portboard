@@ -16,53 +16,39 @@ Key points:
 
 ### Running the Development Server
 ```bash
-npm run dev
-# or
 bun dev
 ```
 Starts Vite dev server with HMR (Hot Module Replacement).
 
 ### Building for Production
 ```bash
-npm run build
-# or
 bun run build
 ```
 Compiles TypeScript and builds the application for production.
 
 ### Linting and Formatting
 ```bash
-npm run lint
-# or
 bun run lint
 ```
 Runs Biome linter on all TypeScript/TSX files in src/.
 
 ```bash
-npm run format
-# or
 bun run format
 ```
 Formats code using Biome.
 
 ```bash
-npm run check
-# or
 bun run check
 ```
 Runs Biome check (lint + format) and applies fixes.
 
 ```bash
-npm run typecheck
-# or
 bun run typecheck
 ```
 Runs TypeScript type checking without emitting files.
 
 ### Preview Production Build
 ```bash
-npm run preview
-# or
 bun preview
 ```
 Locally preview the production build.
@@ -70,7 +56,7 @@ Locally preview the production build.
 ## Technology Stack
 
 ### Core Technologies
-- **Runtime**: Bun (with Node.js fallback via npm)
+- **Runtime**: Bun
 - **Frontend**: React 19.1.1 with TypeScript
 - **Build Tool**: Vite 7.1.7
 - **Compiler**: React Compiler (babel-plugin-react-compiler) - enabled for automatic optimization

@@ -87,14 +87,13 @@ An open-source, browser-based port management dashboard for developers.
 ### Development Tools
 - **TypeScript 5.9** with strict mode
 - **Biome 2.3.4** for linting and formatting
-- **Bun** runtime (with Node.js fallback)
+- **Bun** runtime
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ or Bun
-- npm or bun
+- Bun
 
 ### Installation
 
@@ -104,8 +103,6 @@ git clone https://github.com/yourusername/portboard.git
 cd portboard
 
 # Install dependencies
-npm install
-# or
 bun install
 ```
 
@@ -113,8 +110,6 @@ bun install
 
 ```bash
 # Start the development server
-npm run dev
-# or
 bun dev
 ```
 
@@ -124,13 +119,9 @@ The app will be available at `http://localhost:5173` (or the next available port
 
 ```bash
 # Build the application
-npm run build
-# or
 bun run build
 
 # Preview the production build
-npm run preview
-# or
 bun preview
 ```
 
@@ -138,12 +129,12 @@ bun preview
 
 ```bash
 # Linting
-npm run lint          # Run Biome linter
-npm run format        # Format code with Biome
-npm run check         # Lint + format with auto-fix
+bun run lint          # Run Biome linter
+bun run format        # Format code with Biome
+bun run check         # Lint + format with auto-fix
 
 # Type checking
-npm run typecheck     # Run TypeScript type checker
+bun run typecheck     # Run TypeScript type checker
 ```
 
 ## Project Structure
