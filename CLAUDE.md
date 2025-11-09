@@ -10,59 +10,60 @@ Key points:
 - **Goal**: Build a pgweb/Drizzle Studio-like web dashboard for managing ports and processes
 - **Design**: Neo Brutalism UI with bold borders, offset shadows, and high-contrast colors
 - **Security-first**: Default localhost binding, explicit opt-in for Docker socket access, own-process-only kills by default
-- **Multi-phase approach**: Starting with Bun + Hono + React, potentially migrating to Go + Wails later
+- **Multi-phase approach**: Starting with Node.js + Hono + React, potentially migrating to Go + Wails later
 
 ## Development Commands
 
 ### Running the Development Server
 ```bash
-bun dev
+npm run dev
 ```
 Starts Vite dev server with HMR (Hot Module Replacement).
 
 ### Building for Production
 ```bash
-bun run build
+npm run build
 ```
 Compiles TypeScript and builds the application for production.
 
 ### Linting and Formatting
 ```bash
-bun run lint
+npm run lint
 ```
 Runs Biome linter on all TypeScript/TSX files in src/.
 
 ```bash
-bun run format
+npm run format
 ```
 Formats code using Biome.
 
 ```bash
-bun run check
+npm run check
 ```
 Runs Biome check (lint + format) and applies fixes.
 
 ```bash
-bun run typecheck
+npm run typecheck
 ```
 Runs TypeScript type checking without emitting files.
 
 ### Preview Production Build
 ```bash
-bun preview
+npm preview
 ```
 Locally preview the production build.
 
 ## Technology Stack
 
 ### Core Technologies
-- **Runtime**: Bun
+- **Runtime**: Node.js (with tsx for TypeScript execution)
 - **Frontend**: React 19.1.1 with TypeScript
 - **Build Tool**: Vite 7.1.7
 - **Compiler**: React Compiler (babel-plugin-react-compiler) - enabled for automatic optimization
 
 ### Development Tools
 - **TypeScript**: ~5.9.3 with strict mode enabled
+- **tsx**: 4.20.6 for TypeScript execution in development
 - **Biome**: 2.3.4 for linting and formatting
 
 ## Architecture Notes
@@ -90,10 +91,10 @@ The project uses two TypeScript configurations:
 - **shadcn/ui**: Base components wrapped with brutalist styling
   - Original components in [src/components/ui/](src/components/ui/)
   - Brutalist wrappers in [src/components/brutalist/](src/components/brutalist/)
-  - Button, Table, Dialog, DropdownMenu, Select components available
+  - Button, Table, Dialog, DropdownMenu components available
   - Custom components: CopyButton (render props pattern), ConnectionStatusIndicator (Active/Idle display)
   - Toast notifications via Sonner with brutalist styling
-  - Dependencies: `@radix-ui/react-slot`, `@radix-ui/react-dialog`, `@radix-ui/react-tooltip`, `@radix-ui/react-dropdown-menu`, `@radix-ui/react-select`, `class-variance-authority`, `clsx`, `tailwind-merge`, `lucide-react`, `sonner`
+  - Dependencies: `@radix-ui/react-slot`, `@radix-ui/react-dialog`, `@radix-ui/react-dropdown-menu`, `class-variance-authority`, `clsx`, `tailwind-merge`, `lucide-react`, `sonner`
   - Path alias `@` configured to resolve to `./src` directory
   - Animation support via `tw-animate-css` package
 
@@ -336,7 +337,7 @@ The codebase follows a **modular architecture** with strict separation of concer
 ### Current Setup Status
 **Completed:**
 - ✓ Tailwind CSS 4 with Vite plugin
-- ✓ shadcn/ui base components (Button, Table, Dialog, Tooltip, DropdownMenu, Select)
+- ✓ shadcn/ui base components (Button, Table, Dialog, DropdownMenu)
 - ✓ Custom UI components
   - ✓ CopyButton with render props pattern
   - ✓ ConnectionStatusIndicator (lightweight Active/Idle display)
@@ -388,7 +389,7 @@ The codebase follows a **modular architecture** with strict separation of concer
 - ✓ IDE/Terminal integration (macOS only)
   - ✓ Auto-detection service with mdfind (Spotlight) and hardcoded fallback
   - ✓ CopyButton component with render props pattern
-  - ✓ DropdownMenu and Select brutalist wrappers
+  - ✓ DropdownMenu brutalist wrapper
   - ✓ Icon extraction and display for IDEs and terminals
   - ✓ Support for 11 IDEs and 7 terminal applications
   - ✓ Special handling for terminal-specific commands (Ghostty, iTerm2, etc.)

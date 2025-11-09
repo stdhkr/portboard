@@ -21,14 +21,6 @@ export {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "./dropdown-menu";
-export {
-	Select,
-	SelectContent,
-	SelectGroup,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "./select";
 export { Toaster } from "./sonner";
 export {
 	Table,
