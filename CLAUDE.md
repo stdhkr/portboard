@@ -140,8 +140,11 @@ The project uses two TypeScript configurations:
    - Scroll position preservation using useRef and useLayoutEffect
    - Synchronous scroll restoration after data updates
 5. **Connection Status Tracking** (✓ Completed)
-   - Real-time detection of active connections using `lsof -i :PORT -a -p PID | grep ESTABLISHED`
+   - Real-time detection of active connections using batch `lsof` processing
    - Accurate server-side connection counting (filtered by PID to avoid double-counting)
+   - **Optimized batch processing**: Single `lsof` call for all ports (~1 second load time, 80% improvement)
+   - Correct port number detection with `-P` flag (prevents service name confusion like "pdb" → 3033)
+   - Local port extraction (server-side only, ignoring client connections)
    - Custom ConnectionStatusIndicator component with lightweight design
    - Active/Idle status with visual indicator (green dot for active, empty dot for idle)
    - Connection count display for active ports
@@ -278,10 +281,10 @@ The codebase follows a **modular architecture** with strict separation of concer
 
 **Backend (Hono):**
 - **Services**: Modular service layer with focused responsibilities
-  - `port-service.ts` (~230 lines): Main orchestrator, platform detection
-  - `connection-service.ts` (~19 lines): Connection count tracking
+  - `port-service.ts` (~175 lines): Main orchestrator, platform detection
+  - `connection-service.ts` (~94 lines): Batch connection count tracking with optimized parsing
   - `unix-port-parser.ts` (~52 lines): lsof output parsing
-  - `process-metadata-service.ts` (~146 lines): Process metadata collection
+  - `process-metadata-service.ts` (~545 lines): Batch process metadata collection with parallel operations
   - `category-service.ts` (~130 lines): Process categorization
     - Categorizes processes into: system, development, database, web-server, applications, user
     - **applications**: macOS .app bundle apps (Discord, Chrome, etc.) - detected by `.app` in commandPath
@@ -364,9 +367,14 @@ The codebase follows a **modular architecture** with strict separation of concer
 - ✓ Search functionality (port, process name, command path)
 - ✓ Multi-column sorting with ascending/descending order toggle
 - ✓ Connection status tracking with active/idle detection
+  - ✓ **Performance optimization**: Batch processing for ~1 second load time (80% improvement from initial 5 seconds)
+  - ✓ Single `lsof` call for all connection counts using `getBatchConnectionCounts()`
+  - ✓ Correct port number detection with `-P` flag (prevents "pdb" → 3033 confusion)
+  - ✓ Local port extraction (server-side only, filters out client connections)
 - ✓ CPU and Memory columns in table for resource monitoring
   - ✓ Sortable by CPU usage and Memory usage
   - ✓ formatMemory() helper with smart formatting
+  - ✓ Batch resource usage collection with single `ps` call
 - ✓ Auto-refresh improvements
   - ✓ Last updated timestamp display (HH:MM:SS format)
   - ✓ Scroll position preservation using useLayoutEffect
