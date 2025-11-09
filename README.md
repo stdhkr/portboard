@@ -18,6 +18,7 @@ An open-source, browser-based port management dashboard for developers.
   - **Connection status tracking**: Real-time display of active connections vs idle ports
     - Accurate server-side connection counting (filtered by PID)
     - Active/Idle status badges with connection count
+    - **Optimized batch processing** for fast performance (~1 second load time)
   - **Clean table interface**: Simplified view showing only essential information
     - Core columns: Port, Process Name, PID, Status, CPU, Memory, Actions
     - Click rows to open detailed modal with full information

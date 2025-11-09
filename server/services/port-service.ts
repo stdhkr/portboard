@@ -5,9 +5,9 @@ import {
 	type DockerContainerInfo,
 	type ProcessCategory,
 } from "./category-service";
-import { getConnectionCount } from "./connection-service";
+import { getBatchConnectionCounts } from "./connection-service";
 import { getDockerPortMappings } from "./docker-service";
-import { collectProcessMetadata } from "./process-metadata-service";
+import { collectBatchProcessMetadata } from "./process-metadata-service";
 import { parseLsofOutput } from "./unix-port-parser";
 
 const execAsync = promisify(exec);
@@ -74,16 +74,28 @@ async function getPortsUnix(): Promise<PortInfo[]> {
 	// Parse lsof output to extract basic info
 	const basicPortInfo = parseLsofOutput(stdout);
 
-	// Collect metadata for all processes in parallel
-	const metadataPromises = basicPortInfo.map(async (info) => {
+	// Batch collect connection counts for all ports
+	const portPidPairs: Array<[number, number]> = basicPortInfo.map((info) => [info.port, info.pid]);
+	const connectionCountMap = await getBatchConnectionCounts(portPidPairs);
+
+	// Batch collect process metadata for all unique PIDs
+	const pidProcessPairs = basicPortInfo.map((info) => ({
+		pid: info.pid,
+		processName: info.processName,
+	}));
+	const metadataMap = await collectBatchProcessMetadata(pidProcessPairs);
+
+	// Combine all the data
+	const ports: PortInfo[] = basicPortInfo.map((info) => {
 		const { processName, pid, user, protocol, port, bindAddress } = info;
 
-		// Get connection count for this port and PID (server-side connections only)
-		const connectionCount = await getConnectionCount(port, pid);
+		// Get connection count from batch results
+		const connectionCount = connectionCountMap.get(`${port}-${pid}`) || 0;
 		const connectionStatus: ConnectionStatus = connectionCount > 0 ? "active" : "idle";
 		const lastAccessed = connectionCount > 0 ? new Date() : undefined;
 
-		// Collect process metadata (including resource usage and start time)
+		// Get metadata from batch results
+		const metadata = metadataMap.get(pid) || {};
 		const {
 			commandPath,
 			cwd,
@@ -93,7 +105,7 @@ async function getPortsUnix(): Promise<PortInfo[]> {
 			memoryUsage,
 			memoryRSS,
 			processStartTime,
-		} = await collectProcessMetadata(pid, processName);
+		} = metadata;
 
 		// Check if this port belongs to a Docker container
 		let dockerContainer: DockerContainerInfo | undefined;
@@ -131,9 +143,6 @@ async function getPortsUnix(): Promise<PortInfo[]> {
 			processStartTime,
 		} as PortInfo;
 	});
-
-	// Wait for all metadata collection to complete
-	const ports = await Promise.all(metadataPromises);
 
 	// Remove duplicates (same port/pid combination from IPv4/IPv6)
 	const uniquePorts = new Map<string, PortInfo>();
