@@ -67,7 +67,7 @@ export function KillDialog({ open, onClose, port, onKillSuccess }: KillDialogPro
 				{port && (
 					<div className="space-y-2 rounded-lg border-2 border-black dark:border-white bg-gray-50 dark:bg-gray-900 p-4">
 						<div className="flex justify-between text-sm">
-							<span className="font-bold font-mono text-black dark:text-white">PROCESS:</span>
+							<span className="font-bold font-mono text-black dark:text-white">PROCESS</span>
 							<span className="font-mono text-black dark:text-white flex items-center gap-2">
 								{(() => {
 									const SelectedIcon = CATEGORY_INFO[port.category].icon;
@@ -77,17 +77,17 @@ export function KillDialog({ open, onClose, port, onKillSuccess }: KillDialogPro
 							</span>
 						</div>
 						<div className="flex justify-between text-sm">
-							<span className="font-bold font-mono text-black dark:text-white">CATEGORY:</span>
+							<span className="font-bold font-mono text-black dark:text-white">CATEGORY</span>
 							<span className="font-mono text-black dark:text-white">
 								{CATEGORY_INFO[port.category].label}
 							</span>
 						</div>
 						<div className="flex justify-between text-sm">
-							<span className="font-bold font-mono text-black dark:text-white">PID:</span>
+							<span className="font-bold font-mono text-black dark:text-white">PID</span>
 							<span className="font-mono text-black dark:text-white">{port.pid}</span>
 						</div>
 						<div className="flex justify-between text-sm">
-							<span className="font-bold font-mono text-black dark:text-white">PORT:</span>
+							<span className="font-bold font-mono text-black dark:text-white">PORT</span>
 							<span className="font-mono text-black dark:text-white">{port.port}</span>
 						</div>
 					</div>

@@ -91,10 +91,10 @@ The project uses two TypeScript configurations:
 - **shadcn/ui**: Base components wrapped with brutalist styling
   - Original components in [src/components/ui/](src/components/ui/)
   - Brutalist wrappers in [src/components/brutalist/](src/components/brutalist/)
-  - Button, Table, Dialog, DropdownMenu components available
+  - Button, Table, Dialog, DropdownMenu, Checkbox components available
   - Custom components: CopyButton (render props pattern), ConnectionStatusIndicator (Active/Idle display)
   - Toast notifications via Sonner with brutalist styling
-  - Dependencies: `@radix-ui/react-slot`, `@radix-ui/react-dialog`, `@radix-ui/react-dropdown-menu`, `class-variance-authority`, `clsx`, `tailwind-merge`, `lucide-react`, `sonner`
+  - Dependencies: `@radix-ui/react-slot`, `@radix-ui/react-dialog`, `@radix-ui/react-dropdown-menu`, `@radix-ui/react-checkbox`, `class-variance-authority`, `clsx`, `tailwind-merge`, `lucide-react`, `sonner`
   - Path alias `@` configured to resolve to `./src` directory
   - Animation support via `tw-animate-css` package
 
@@ -131,6 +131,18 @@ The project uses two TypeScript configurations:
    - Search functionality across ports, processes, and command paths
    - Multi-column sorting with ascending/descending order (Port, Process Name, PID, Connection Status, CPU, Memory)
 3. **Process Control**: Kill processes with confirmation dialogs (✓ Completed)
+   - **Batch kill functionality**: Select and kill multiple processes at once
+     - Checkbox selection for individual ports with brutalist styling
+     - "Select All" / "Deselect All" via header checkbox with indeterminate state
+     - Visual batch operations toolbar (yellow background, Neo Brutalism style)
+     - Batch kill confirmation dialog with detailed process list
+     - Three-level warning system:
+       - 🔴 System processes (red warning badge)
+       - 🟡 Development processes (yellow warning badge)
+       - 🟠 Active connections (orange warning badge)
+     - Parallel kill execution with `Promise.allSettled`
+     - Success/failure count reporting in toast notifications
+     - Automatic selection clearing after successful batch kill
    - Ghost button variant for system/development processes (subtle, prevents accidental clicks)
    - Destructive button variant for user processes (prominent red)
    - Category-aware warnings for system and development processes
@@ -209,6 +221,7 @@ portboard/
 │   ├── components/
 │   │   ├── brutalist/        # Neo Brutalism component wrappers
 │   │   │   ├── button.tsx
+│   │   │   ├── checkbox.tsx                # Brutalist checkbox component
 │   │   │   ├── table.tsx
 │   │   │   ├── dialog.tsx
 │   │   │   ├── sonner.tsx
@@ -218,10 +231,11 @@ portboard/
 │   │   │   └── index.ts
 │   │   ├── ui/               # shadcn/ui base components
 │   │   ├── port-table/       # Modular port table components
-│   │   │   ├── index.tsx                         # Main table orchestrator
-│   │   │   ├── port-row.tsx                      # Individual port row display
+│   │   │   ├── index.tsx                         # Main table orchestrator with batch operations
+│   │   │   ├── port-row.tsx                      # Individual port row display with checkbox
 │   │   │   ├── port-detail-dialog.tsx            # Port detail modal
-│   │   │   ├── kill-dialog.tsx                   # Kill confirmation dialog
+│   │   │   ├── kill-dialog.tsx                   # Single kill confirmation dialog
+│   │   │   ├── batch-kill-dialog.tsx             # Batch kill confirmation dialog
 │   │   │   ├── search-bar.tsx                    # Search input component
 │   │   │   └── connection-status-indicator.tsx   # Connection status display
 │   │   └── theme-toggle.tsx
@@ -236,7 +250,7 @@ portboard/
 │   │   ├── api.ts                # API functions
 │   │   └── utils.ts              # Utility functions (cn helper)
 │   ├── store/
-│   │   └── port-store.ts         # Jotai state atoms
+│   │   └── port-store.ts         # Jotai state atoms (including batch kill state)
 │   ├── types/
 │   │   └── port.ts               # TypeScript type definitions
 │   ├── App.tsx                   # Main React component
@@ -340,10 +354,11 @@ The codebase follows a **modular architecture** with strict separation of concer
 ### Current Setup Status
 **Completed:**
 - ✓ Tailwind CSS 4 with Vite plugin
-- ✓ shadcn/ui base components (Button, Table, Dialog, DropdownMenu)
+- ✓ shadcn/ui base components (Button, Table, Dialog, DropdownMenu, Checkbox)
 - ✓ Custom UI components
   - ✓ CopyButton with render props pattern
   - ✓ ConnectionStatusIndicator (lightweight Active/Idle display)
+  - ✓ Brutalist Checkbox component with Neo Brutalism styling
 - ✓ Sonner toast notifications with brutalist styling
 - ✓ Neo Brutalism design system
   - ✓ Custom brutalist component wrappers
@@ -409,8 +424,26 @@ The codebase follows a **modular architecture** with strict separation of concer
     - ✓ Container shell access with `docker exec -it`
     - ✓ Automatic bash/sh detection
     - ✓ AppleScript integration for Terminal and iTerm2
+- ✓ **Batch kill functionality** (Complete implementation)
+  - ✓ Checkbox selection for individual ports with brutalist styling
+  - ✓ "Select All" / "Deselect All" via header checkbox with indeterminate state
+  - ✓ Visual batch operations toolbar (yellow #FFD93D background)
+  - ✓ Selected count display (e.g., "3 ports selected")
+  - ✓ Batch kill confirmation dialog with detailed process list
+  - ✓ Three-level warning system:
+    - ✓ Red warning for system processes
+    - ✓ Yellow warning for development processes
+    - ✓ Orange warning for active connections
+  - ✓ Parallel kill execution with `Promise.allSettled`
+  - ✓ Success/failure count reporting in toast notifications
+  - ✓ Automatic selection clearing after successful batch kill
+  - ✓ State management with Jotai atoms (selectedPortsAtom, etc.)
 
 **Future Additions:**
+- Batch kill enhancements:
+  - Quick select filters (All Idle, All Development, High CPU)
+  - Port range selection (e.g., 3000-3010)
+  - Signal selection (SIGTERM/SIGKILL/SIGINT)
 - Cross-platform support for IDE/Terminal integration (Windows, Linux)
 - Cross-platform icon support (Windows: .ico, Linux: .desktop)
 - Port history tracking with JSON persistence

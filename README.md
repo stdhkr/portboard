@@ -26,6 +26,13 @@ An open-source, browser-based port management dashboard for developers.
   - Search functionality across ports, processes, and commands
   - Multi-column sorting (Port, Process Name, PID, Connection Status, CPU, Memory)
 - ⚡ **Smart Process Control**: Kill processes with confirmation dialogs
+  - **Batch kill functionality**: Select and kill multiple processes at once
+    - Checkbox selection for individual ports
+    - "Select All" / "Deselect All" for quick selection
+    - Visual batch operations toolbar with selected count
+    - Batch kill confirmation dialog with detailed process information
+    - Three-level warning system (System, Development, Active connections)
+    - Parallel kill execution with success/failure reporting
   - Subtle ghost buttons for system/development processes to prevent accidental kills
   - Destructive red buttons for user processes
   - Category-aware warnings in confirmation dialogs
@@ -148,6 +155,7 @@ portboard/
 │   ├── components/
 │   │   ├── brutalist/        # Neo Brutalism component wrappers
 │   │   │   ├── button.tsx
+│   │   │   ├── checkbox.tsx
 │   │   │   ├── table.tsx
 │   │   │   ├── dialog.tsx
 │   │   │   ├── sonner.tsx
@@ -161,6 +169,7 @@ portboard/
 │   │   │   ├── port-row.tsx                      # Individual port row
 │   │   │   ├── port-detail-dialog.tsx            # Port detail modal
 │   │   │   ├── kill-dialog.tsx                   # Kill confirmation dialog
+│   │   │   ├── batch-kill-dialog.tsx             # Batch kill confirmation dialog
 │   │   │   ├── search-bar.tsx                    # Search input
 │   │   │   └── connection-status-indicator.tsx   # Connection status display
 │   │   └── theme-toggle.tsx
@@ -222,6 +231,11 @@ portboard/
   - [x] Project name detection from package.json
   - [x] Smart command path display with filtering
 - [x] Smart process kill functionality
+  - [x] **Batch kill functionality**: Select and kill multiple processes
+    - [x] Checkbox selection with "Select All" / "Deselect All"
+    - [x] Visual batch operations toolbar
+    - [x] Batch kill confirmation dialog with warnings
+    - [x] Parallel kill execution with success/failure reporting
   - [x] Ghost button variant for system/development processes
   - [x] Destructive button variant for user processes
   - [x] Confirmation dialogs with category-aware warnings
@@ -300,6 +314,16 @@ portboard/
     - [x] Terminal-specific command handling (Ghostty, iTerm2, etc.)
     - [x] Automatic bash/sh detection
   - [ ] Cross-platform support (Windows, Linux)
+- [x] **Batch kill functionality**: Select and kill multiple processes at once
+  - [x] Checkbox selection for individual ports
+  - [x] "Select All" / "Deselect All" functionality
+  - [x] Batch operations toolbar with selected count
+  - [x] Batch kill confirmation dialog with warnings
+  - [x] Three-level warning system (System, Development, Active connections)
+  - [x] Parallel kill execution with success/failure reporting
+  - [ ] Quick select filters (All Idle, All Development, High CPU)
+  - [ ] Port range selection (e.g., 3000-3010)
+  - [ ] Signal selection (SIGTERM/SIGKILL/SIGINT)
 - [ ] Docker container port monitoring (opt-in)
 - [ ] Configurable auto-refresh intervals
 - [ ] Port history tracking with JSON persistence

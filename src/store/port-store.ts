@@ -39,3 +39,34 @@ export const closeKillDialogAtom = atom(null, (_get, set) => {
 		set(selectedPortAtom, null);
 	}, 200); // Match the dialog animation duration
 });
+
+// Batch kill atoms
+export const selectedPortsAtom = atom<Set<number>>(new Set<number>());
+export const isBatchKillDialogOpenAtom = atom(false);
+
+// Derived atoms for batch operations
+export const togglePortSelectionAtom = atom(null, (get, set, port: number) => {
+	const selectedPorts = new Set(get(selectedPortsAtom));
+	if (selectedPorts.has(port)) {
+		selectedPorts.delete(port);
+	} else {
+		selectedPorts.add(port);
+	}
+	set(selectedPortsAtom, selectedPorts);
+});
+
+export const selectAllPortsAtom = atom(null, (_get, set, ports: number[]) => {
+	set(selectedPortsAtom, new Set(ports));
+});
+
+export const deselectAllPortsAtom = atom(null, (_get, set) => {
+	set(selectedPortsAtom, new Set());
+});
+
+export const openBatchKillDialogAtom = atom(null, (_get, set) => {
+	set(isBatchKillDialogOpenAtom, true);
+});
+
+export const closeBatchKillDialogAtom = atom(null, (_get, set) => {
+	set(isBatchKillDialogOpenAtom, false);
+});

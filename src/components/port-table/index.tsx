@@ -1,10 +1,11 @@
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { ArrowDown, ArrowUp, RefreshCw } from "lucide-react";
+import { ArrowDown, ArrowUp, RefreshCw, Trash2 } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import useSWR from "swr";
 import {
 	Button,
+	Checkbox,
 	Table,
 	TableBody,
 	TableCell,
@@ -12,6 +13,7 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/brutalist";
+import { BatchKillDialog } from "@/components/port-table/batch-kill-dialog";
 import { KillDialog } from "@/components/port-table/kill-dialog";
 import { PortDetailDialog } from "@/components/port-table/port-detail-dialog";
 import { PortRow } from "@/components/port-table/port-row";
@@ -22,11 +24,18 @@ import { usePortSorting } from "@/hooks/use-port-sorting";
 import { fetchPorts } from "@/lib/api";
 import {
 	categoryFilterAtom,
+	closeBatchKillDialogAtom,
 	closeKillDialogAtom,
+	deselectAllPortsAtom,
+	isBatchKillDialogOpenAtom,
 	isKillDialogOpenAtom,
+	openBatchKillDialogAtom,
 	openKillDialogAtom,
 	searchQueryAtom,
+	selectAllPortsAtom,
 	selectedPortAtom,
+	selectedPortsAtom,
+	togglePortSelectionAtom,
 } from "@/store/port-store";
 import type { PortInfo } from "@/types/port";
 
@@ -50,6 +59,15 @@ export function PortTable() {
 
 	const [categoryFilter, setCategoryFilter] = useAtom(categoryFilterAtom);
 	const [searchQuery, setSearchQuery] = useAtom(searchQueryAtom);
+
+	// Batch kill state
+	const selectedPorts = useAtomValue(selectedPortsAtom);
+	const togglePortSelection = useSetAtom(togglePortSelectionAtom);
+	const selectAllPorts = useSetAtom(selectAllPortsAtom);
+	const deselectAllPorts = useSetAtom(deselectAllPortsAtom);
+	const isBatchKillDialogOpen = useAtomValue(isBatchKillDialogOpenAtom);
+	const openBatchKillDialog = useSetAtom(openBatchKillDialogAtom);
+	const closeBatchKillDialog = useSetAtom(closeBatchKillDialogAtom);
 
 	// State for detail dialog
 	const [detailDialogPort, setDetailDialogPort] = useState<PortInfo | null>(null);
@@ -118,6 +136,29 @@ export function PortTable() {
 		});
 	};
 
+	// Batch operations
+	const handleSelectAll = () => {
+		const allPortNumbers = sortedPorts.map((p) => p.port);
+		selectAllPorts(allPortNumbers);
+	};
+
+	const handleDeselectAll = () => {
+		deselectAllPorts();
+	};
+
+	const handleBatchKill = () => {
+		if (selectedPorts.size === 0) {
+			toast.error("No ports selected", {
+				description: "Please select at least one port to kill",
+			});
+			return;
+		}
+		openBatchKillDialog();
+	};
+
+	const isAllSelected = sortedPorts.length > 0 && selectedPorts.size === sortedPorts.length;
+	const isSomeSelected = selectedPorts.size > 0 && selectedPorts.size < sortedPorts.length;
+
 	if (error) {
 		return (
 			<div className="brutalist-border rounded-lg brutalist-red p-4">
@@ -182,6 +223,26 @@ export function PortTable() {
 					})}
 				</div>
 
+				{/* Batch operations toolbar */}
+				{selectedPorts.size > 0 && (
+					<div className="flex items-center justify-between p-3 rounded-lg border-2 border-black dark:border-white bg-[#FFD93D] shadow-[3px_3px_0px_rgba(0,0,0,1)] dark:shadow-[3px_3px_0px_rgba(255,255,255,1)]">
+						<div className="flex items-center gap-2">
+							<span className="font-mono font-bold text-black">
+								{selectedPorts.size} {selectedPorts.size === 1 ? "port" : "ports"} selected
+							</span>
+						</div>
+						<div className="flex items-center gap-2">
+							<Button variant="outline" size="sm" onClick={handleDeselectAll}>
+								Deselect All
+							</Button>
+							<Button variant="destructive" size="sm" onClick={handleBatchKill}>
+								<Trash2 className="mr-2 h-4 w-4" />
+								Kill Selected
+							</Button>
+						</div>
+					</div>
+				)}
+
 				<div
 					ref={scrollContainerRef}
 					className="rounded-lg border-2 border-black dark:border-white overflow-auto shadow-[0px_2px_0px_rgba(0,0,0,1)] dark:shadow-[0px_2px_0px_rgba(255,255,255,1)]"
@@ -189,8 +250,26 @@ export function PortTable() {
 					<Table>
 						<TableHeader>
 							<TableRow>
+								<TableHead className="w-[50px] pl-4">
+									<Checkbox
+										checked={isAllSelected}
+										ref={(el) => {
+											if (el) {
+												// @ts-expect-error - indeterminate is not in the type definition but is supported
+												el.indeterminate = isSomeSelected;
+											}
+										}}
+										onCheckedChange={(checked) => {
+											if (checked) {
+												handleSelectAll();
+											} else {
+												handleDeselectAll();
+											}
+										}}
+									/>
+								</TableHead>
 								<TableHead
-									className="w-[100px] pl-4 cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+									className="w-[100px] cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
 									onClick={() => handleSort("port")}
 								>
 									<div className="flex items-center gap-1">
@@ -279,7 +358,7 @@ export function PortTable() {
 						<TableBody>
 							{isLoading ? (
 								<TableRow>
-									<TableCell colSpan={7} className="h-24 text-center">
+									<TableCell colSpan={8} className="h-24 text-center">
 										<div className="flex items-center justify-center">
 											<RefreshCw className="mr-2 h-4 w-4 animate-spin" />
 											Loading ports...
@@ -288,7 +367,7 @@ export function PortTable() {
 								</TableRow>
 							) : sortedPorts.length === 0 ? (
 								<TableRow>
-									<TableCell colSpan={7} className="h-24 text-center">
+									<TableCell colSpan={8} className="h-24 text-center">
 										{ports?.length === 0
 											? "No listening ports found"
 											: `No ${CATEGORY_INFO[categoryFilter].label.toLowerCase()} found`}
@@ -301,6 +380,8 @@ export function PortTable() {
 										port={port}
 										onKillClick={handleKillClick}
 										onRowClick={handleRowClick}
+										isSelected={selectedPorts.has(port.port)}
+										onToggleSelection={togglePortSelection}
 									/>
 								))
 							)}
@@ -313,6 +394,16 @@ export function PortTable() {
 				open={isKillDialogOpen}
 				onClose={closeKillDialog}
 				port={selectedPort}
+				onKillSuccess={mutate}
+			/>
+
+			<BatchKillDialog
+				open={isBatchKillDialogOpen}
+				onClose={() => {
+					closeBatchKillDialog();
+					deselectAllPorts();
+				}}
+				ports={ports || []}
 				onKillSuccess={mutate}
 			/>
 

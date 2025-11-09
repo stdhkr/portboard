@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, TableCell, TableRow } from "@/components/brutalist";
+import { Button, Checkbox, TableCell, TableRow } from "@/components/brutalist";
 import { CATEGORY_INFO } from "@/constants/categories";
 import type { PortInfo } from "@/types/port";
 import { ConnectionStatusIndicator } from "./connection-status-indicator";
@@ -8,9 +8,17 @@ interface PortRowProps {
 	port: PortInfo;
 	onKillClick: (port: PortInfo) => void;
 	onRowClick: (port: PortInfo) => void;
+	isSelected?: boolean;
+	onToggleSelection?: (port: number) => void;
 }
 
-export function PortRow({ port, onKillClick, onRowClick }: PortRowProps) {
+export function PortRow({
+	port,
+	onKillClick,
+	onRowClick,
+	isSelected = false,
+	onToggleSelection,
+}: PortRowProps) {
 	const [iconError, setIconError] = useState(false);
 	const categoryInfo = CATEGORY_INFO[port.category];
 	const CategoryIcon = categoryInfo.icon;
@@ -30,7 +38,10 @@ export function PortRow({ port, onKillClick, onRowClick }: PortRowProps) {
 			className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors"
 			onClick={() => onRowClick(port)}
 		>
-			<TableCell className="text-base font-mono font-medium pl-4">{port.port}</TableCell>
+			<TableCell className="pl-4" onClick={(e) => e.stopPropagation()}>
+				<Checkbox checked={isSelected} onCheckedChange={() => onToggleSelection?.(port.port)} />
+			</TableCell>
+			<TableCell className="text-base font-mono font-medium">{port.port}</TableCell>
 			<TableCell className="font-medium">
 				<div className="flex flex-col gap-1">
 					<div className="flex items-center gap-2">
