@@ -33,7 +33,7 @@ export function BatchKillDialog({ open, onClose, ports, onKillSuccess }: BatchKi
 	// Check if any selected ports are system or development processes
 	const hasSystemPorts = selectedPortInfos.some((p) => p.category === "system");
 	const hasDevelopmentPorts = selectedPortInfos.some((p) => p.category === "development");
-	const hasActivePorts = selectedPortInfos.some((p) => p.connectionStatus === "Active");
+	const hasActivePorts = selectedPortInfos.some((p) => p.connectionStatus === "active");
 
 	const handleKill = async () => {
 		setIsKilling(true);
@@ -145,7 +145,7 @@ export function BatchKillDialog({ open, onClose, ports, onKillSuccess }: BatchKi
 										<div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-400">
 											<span className="font-mono">PID: {port.pid}</span>
 											<span>Category: {categoryInfo.label}</span>
-											{port.connectionStatus === "Active" && (
+											{port.connectionStatus === "active" && (
 												<span className="text-orange-600 dark:text-orange-400 font-medium">
 													Active ({port.connectionCount} connections)
 												</span>

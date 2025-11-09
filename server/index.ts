@@ -2,6 +2,7 @@ import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { iconRoutes } from "./routes/icons";
+import logsRoutes from "./routes/logs";
 import { portRoutes } from "./routes/ports";
 
 const app = new Hono();
@@ -12,6 +13,7 @@ app.use("/*", cors());
 // API Routes
 app.route("/api/ports", portRoutes);
 app.route("/api/icons", iconRoutes);
+app.route("/api/logs", logsRoutes);
 
 // Health check
 app.get("/health", (c) => {

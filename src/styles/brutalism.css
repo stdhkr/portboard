@@ -183,3 +183,23 @@
 .dialog-scrollbar::-webkit-scrollbar-thumb:hover {
 	background: var(--scrollbar-hover);
 }
+
+/* Log Container Scrollbar - High contrast for dark backgrounds */
+.log-scrollbar::-webkit-scrollbar {
+	width: 10px;
+}
+
+.log-scrollbar::-webkit-scrollbar-track {
+	background: rgba(0, 0, 0, 0.2);
+}
+
+.log-scrollbar::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, 0.4);
+	border: 2px solid rgba(255, 255, 255, 0.6);
+	border-radius: 0;
+}
+
+.log-scrollbar::-webkit-scrollbar-thumb:hover {
+	background: var(--brutalist-cyan);
+	border: 2px solid var(--brutalist-cyan);
+}

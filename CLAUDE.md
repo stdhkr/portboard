@@ -91,8 +91,8 @@ The project uses two TypeScript configurations:
 - **shadcn/ui**: Base components wrapped with brutalist styling
   - Original components in [src/components/ui/](src/components/ui/)
   - Brutalist wrappers in [src/components/brutalist/](src/components/brutalist/)
-  - Button, Table, Dialog, DropdownMenu, Checkbox components available
-  - Custom components: CopyButton (render props pattern), ConnectionStatusIndicator (Active/Idle display)
+  - Button, Table, Dialog, DropdownMenu, Checkbox, Collapsible components available
+  - Custom components: CopyButton (render props pattern), ConnectionStatusIndicator (Active/Idle display), Collapsible (expandable sections)
   - Toast notifications via Sonner with brutalist styling
   - Dependencies: `@radix-ui/react-slot`, `@radix-ui/react-dialog`, `@radix-ui/react-dropdown-menu`, `@radix-ui/react-checkbox`, `class-variance-authority`, `clsx`, `tailwind-merge`, `lucide-react`, `sonner`
   - Path alias `@` configured to resolve to `./src` directory
@@ -228,6 +228,7 @@ portboard/
 │   │   │   ├── copy-button.tsx         # Clipboard copy with render props
 │   │   │   ├── dropdown-menu.tsx       # Brutalist dropdown menu
 │   │   │   ├── select.tsx              # Brutalist select components
+│   │   │   ├── collapsible.tsx         # Brutalist collapsible component
 │   │   │   └── index.ts
 │   │   ├── ui/               # shadcn/ui base components
 │   │   ├── port-table/       # Modular port table components
@@ -260,7 +261,8 @@ portboard/
 │   ├── index.ts                  # Hono server entry point
 │   ├── routes/
 │   │   ├── ports.ts              # Port listing and kill endpoints
-│   │   └── icons.ts              # Icon serving endpoint
+│   │   ├── icons.ts              # Icon serving endpoint
+│   │   └── logs.ts               # Docker container logs endpoint
 │   └── services/                 # Modular service layer
 │       ├── port-service.ts           # Main port API (orchestrator)
 │       ├── connection-service.ts     # Connection count tracking
@@ -359,6 +361,7 @@ The codebase follows a **modular architecture** with strict separation of concer
   - ✓ CopyButton with render props pattern
   - ✓ ConnectionStatusIndicator (lightweight Active/Idle display)
   - ✓ Brutalist Checkbox component with Neo Brutalism styling
+  - ✓ Brutalist Collapsible component for expandable sections
 - ✓ Sonner toast notifications with brutalist styling
 - ✓ Neo Brutalism design system
   - ✓ Custom brutalist component wrappers

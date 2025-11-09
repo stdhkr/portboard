@@ -3,6 +3,7 @@
 export type { BrutalistButtonProps } from "./button";
 export { Button } from "./button";
 export { Checkbox } from "./checkbox";
+export { BrutalistCollapsible } from "./collapsible";
 export { CopyButton } from "./copy-button";
 export {
 	Dialog,

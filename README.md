@@ -162,6 +162,7 @@ portboard/
 │   │   │   ├── copy-button.tsx
 │   │   │   ├── dropdown-menu.tsx
 │   │   │   ├── select.tsx
+│   │   │   ├── collapsible.tsx
 │   │   │   └── index.ts
 │   │   ├── ui/               # shadcn/ui base components
 │   │   ├── port-table/       # Port table components
@@ -194,7 +195,8 @@ portboard/
 │   ├── index.ts                  # Hono server entry
 │   ├── routes/
 │   │   ├── ports.ts              # Port endpoints
-│   │   └── icons.ts              # Icon serving endpoint
+│   │   ├── icons.ts              # Icon serving endpoint
+│   │   └── logs.ts               # Docker logs endpoint
 │   └── services/                 # Modular services
 │       ├── port-service.ts           # Main port API
 │       ├── connection-service.ts     # Connection tracking

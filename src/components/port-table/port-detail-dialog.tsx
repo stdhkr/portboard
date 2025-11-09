@@ -2,6 +2,7 @@ import { Check, ChevronDown, Code, Copy, FolderOpen, Terminal } from "lucide-rea
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
+	BrutalistCollapsible,
 	Button,
 	CopyButton,
 	Dialog,
@@ -18,8 +19,10 @@ import {
 import { DialogDescription } from "@/components/ui/dialog";
 import { CATEGORY_INFO } from "@/constants/categories";
 import {
+	type DockerLogsResponse,
 	fetchAvailableIDEs,
 	fetchAvailableTerminals,
+	fetchDockerLogs,
 	type IDEInfo,
 	openContainerShell,
 	openInIDE,
@@ -47,6 +50,9 @@ export function PortDetailDialog({
 	const [iconError, setIconError] = useState(false);
 	const [availableIDEs, setAvailableIDEs] = useState<IDEInfo[]>([]);
 	const [availableTerminals, setAvailableTerminals] = useState<TerminalInfo[]>([]);
+	const [dockerLogs, setDockerLogs] = useState<DockerLogsResponse | null>(null);
+	const [logsLoading, setLogsLoading] = useState(false);
+	const [logsError, setLogsError] = useState<string | null>(null);
 
 	// Fetch available IDEs and terminals on mount
 	useEffect(() => {
@@ -262,6 +268,85 @@ export function PortDetailDialog({
 									</p>
 								</div>
 							</div>
+						</div>
+					)}
+
+					{/* Docker Logs Section */}
+					{port.dockerContainer && (
+						<div className="space-y-3">
+							<BrutalistCollapsible
+								title="/// DOCKER LOGS (Last 20 lines)"
+								defaultOpen={false}
+								className="mt-0"
+							>
+								<div className="font-mono text-xs">
+									{!dockerLogs && !logsLoading && !logsError && (
+										<div className="text-center py-4 text-gray-500 dark:text-gray-400">
+											<Button
+												variant="outline"
+												size="sm"
+												onClick={async () => {
+													setLogsLoading(true);
+													setLogsError(null);
+													try {
+														const logs = await fetchDockerLogs(
+															port.dockerContainer?.name || "",
+															20,
+														);
+														setDockerLogs(logs);
+													} catch (error) {
+														setLogsError(
+															error instanceof Error ? error.message : "Failed to fetch logs",
+														);
+													} finally {
+														setLogsLoading(false);
+													}
+												}}
+											>
+												Load Logs
+											</Button>
+										</div>
+									)}
+
+									{logsLoading && (
+										<div className="text-center py-4 text-gray-500 dark:text-gray-400">
+											Loading logs...
+										</div>
+									)}
+
+									{logsError && (
+										<div className="text-center py-4 text-red-500">Error: {logsError}</div>
+									)}
+
+									{dockerLogs && dockerLogs.logs.length === 0 && (
+										<div className="text-center py-4 text-gray-500 dark:text-gray-400">
+											No logs available
+										</div>
+									)}
+
+									{dockerLogs && dockerLogs.logs.length > 0 && (
+										<div className="space-y-2 max-h-96 overflow-y-auto text-gray-900 dark:text-green-400 pt-4 px-4 pb-4 -mx-4 dialog-scrollbar">
+											{dockerLogs.logs.map((log, index) => (
+												<div
+													key={`${log.timestamp}-${index}`}
+													className={`${
+														log.level === "error"
+															? "text-red-600 dark:text-red-400"
+															: log.level === "warn"
+																? "text-yellow-600 dark:text-yellow-400"
+																: "text-gray-900 dark:text-green-400"
+													}`}
+												>
+													{log.timestamp && (
+														<span className="text-gray-500 dark:text-gray-500 mr-2">{log.timestamp}</span>
+													)}
+													<span className="whitespace-pre-wrap break-all">{log.message}</span>
+												</div>
+											))}
+										</div>
+									)}
+								</div>
+							</BrutalistCollapsible>
 						</div>
 					)}
 

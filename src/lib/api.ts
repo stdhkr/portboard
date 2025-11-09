@@ -33,6 +33,18 @@ export interface TerminalInfo {
 	iconPath?: string;
 }
 
+export interface DockerLogLine {
+	timestamp: string | null;
+	message: string;
+	level: "error" | "warn" | "info";
+}
+
+export interface DockerLogsResponse {
+	containerId: string;
+	logs: DockerLogLine[];
+	count: number;
+}
+
 /**
  * Fetch all listening ports
  */
@@ -177,4 +189,21 @@ export async function openContainerShell(
 	if (!result.success || result.error) {
 		throw new Error(result.error || "Failed to open container shell");
 	}
+}
+
+/**
+ * Fetch Docker container logs
+ */
+export async function fetchDockerLogs(
+	containerId: string,
+	lines = 20,
+): Promise<DockerLogsResponse> {
+	const response = await fetch(`${API_BASE_URL}/logs/${containerId}?lines=${lines}`);
+
+	if (!response.ok) {
+		const errorData = await response.json();
+		throw new Error(errorData.error || `Failed to fetch logs: ${response.statusText}`);
+	}
+
+	return response.json();
 }
