@@ -7,7 +7,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/stdhkr/portboard.git"
+    "url": "git+https://github.com/stdhkr/portboard.git"
   },
   "bugs": {
     "url": "https://github.com/stdhkr/portboard/issues"
@@ -24,7 +24,7 @@
     "neo-brutalism"
   ],
   "bin": {
-    "portboard": "./dist/cli.js"
+    "portboard": "dist/cli.js"
   },
   "files": [
     "dist",

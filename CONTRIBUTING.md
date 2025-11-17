@@ -122,6 +122,154 @@ Use the [Feature Request template](.github/ISSUE_TEMPLATE/feature_request.md):
 2. Address feedback and update your PR
 3. Once approved, a maintainer will merge your PR
 
+## Publishing to npm (Maintainers Only)
+
+This section is for maintainers who have publish access to the `portbd` package on npm.
+
+### Prerequisites
+
+1. **npm account**: You must be logged in to npm
+   ```bash
+   npm whoami  # Check if logged in
+   npm login   # Login if needed
+   ```
+
+2. **Publish permissions**: You must have publish access to the `portbd` package
+
+### Pre-publish Checklist
+
+Before publishing a new version:
+
+1. **Ensure all changes are committed and pushed**
+   ```bash
+   git status  # Should show clean working directory
+   ```
+
+2. **Verify build works**
+   ```bash
+   npm run build
+   ```
+
+3. **Test locally**
+   ```bash
+   npm start
+   # Or test in another directory
+   cd /tmp && npx portbd
+   ```
+
+4. **Run type checking and linting**
+   ```bash
+   npm run typecheck
+   npm run check
+   ```
+
+5. **Review files to be published**
+   ```bash
+   npm pack --dry-run
+   ```
+
+### Publishing a New Version
+
+#### 1. Update Version Number
+
+Use semantic versioning (semver):
+
+- **Patch** (0.1.0 → 0.1.1): Bug fixes, small tweaks
+  ```bash
+  npm version patch
+  ```
+
+- **Minor** (0.1.0 → 0.2.0): New features, backward-compatible changes
+  ```bash
+  npm version minor
+  ```
+
+- **Major** (0.1.0 → 1.0.0): Breaking changes
+  ```bash
+  npm version major
+  ```
+
+The `npm version` command will:
+- Update `package.json` version
+- Create a git commit
+- Create a git tag
+
+#### 2. Push Changes and Tags
+
+```bash
+git push && git push --tags
+```
+
+#### 3. Publish to npm
+
+```bash
+npm publish
+```
+
+This will:
+- Run `prepublishOnly` script (builds the project)
+- Upload the package to npm registry
+- Make it available via `npx portbd`
+
+#### 4. Verify Publication
+
+```bash
+# Check package info
+npm view portbd
+
+# Test installation
+cd /tmp
+npx portbd@latest
+```
+
+#### 5. Create GitHub Release (Optional)
+
+1. Go to https://github.com/stdhkr/portboard/releases
+2. Click "Draft a new release"
+3. Select the version tag you just created
+4. Add release notes summarizing changes
+5. Publish the release
+
+### Troubleshooting
+
+#### "address already in use" Error
+
+If the default port (3033) is already in use when testing:
+
+```bash
+# Find and kill the process
+lsof -ti :3033 | xargs kill
+
+# Or use a different port
+PORT=3034 npx portbd
+```
+
+#### npm Warnings After Publish
+
+If you see warnings like:
+```
+npm warn publish "bin[portboard]" script name was cleaned
+npm warn publish "repository.url" was normalized
+```
+
+Run this command to fix:
+```bash
+npm pkg fix
+```
+
+Then commit the changes:
+```bash
+git add package.json
+git commit -m "fix: normalize package.json per npm pkg fix"
+git push
+```
+
+### Version History
+
+Current stable version: **0.1.0** (Initial release)
+
+See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
+
 ## Questions?
 
 - Check the [README.md](README.md) for project overview
