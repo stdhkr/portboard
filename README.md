@@ -186,13 +186,18 @@ See [`.env.example`](.env.example) for a complete list of available environment 
 ### Development
 
 ```bash
-# Start the development server
+# Start both frontend and backend servers (recommended)
+npm run dev:all
+
+# Or start only the frontend (requires backend to be running separately)
 npm run dev
 ```
 
 The app will be available at:
 - **Frontend**: `http://localhost:3000` (or port specified in `VITE_DEV_PORT`)
 - **Backend API**: `http://localhost:3033` (or port specified in `PORT`)
+
+**Note**: Use `npm run dev:all` to run the full application. The `npm run dev` command only starts the Vite frontend server.
 
 ### Building for Production
 
