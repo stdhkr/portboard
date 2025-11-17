@@ -320,7 +320,13 @@ export async function openInIDE(ideCommand: string, path: string): Promise<void>
 		return;
 	}
 
-	// If ideCommand contains spaces (like .app paths), quote it
+	// If ideCommand is a .app bundle, use "open -a" command
+	if (ideCommand.endsWith(".app")) {
+		await execAsync(`open -a "${ideCommand}" "${path}"`);
+		return;
+	}
+
+	// For CLI commands, execute directly
 	const command = ideCommand.includes(" ")
 		? `"${ideCommand}" "${path}"`
 		: `${ideCommand} "${path}"`;

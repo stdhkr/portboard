@@ -35,8 +35,10 @@ export interface ProcessMetadata {
  * Application/IDE information
  */
 export interface ApplicationInfo {
+	id?: string; // Optional identifier (used by frontend for unique keys)
 	name: string;
-	path: string;
+	command: string; // Command or path to launch the application
+	available?: boolean; // Whether the application is available/installed
 	iconPath?: string;
 	bundleId?: string; // macOS only
 }

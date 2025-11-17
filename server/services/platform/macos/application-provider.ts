@@ -21,16 +21,20 @@ export class MacOSApplicationProvider implements IApplicationProvider {
 		const ideApps = ides
 			.filter((ide) => ide.available)
 			.map((ide) => ({
+				id: ide.id,
 				name: ide.name,
-				path: ide.command,
+				command: ide.command,
+				available: ide.available,
 				iconPath: ide.iconPath,
 			}));
 
 		// Add Finder as the first option (always available on macOS)
 		return [
 			{
+				id: "finder",
 				name: "Finder",
-				path: "open",
+				command: "open",
+				available: true,
 				iconPath: undefined, // Finder uses system icon
 			},
 			...ideApps,
@@ -45,8 +49,10 @@ export class MacOSApplicationProvider implements IApplicationProvider {
 		return terminals
 			.filter((terminal) => terminal.available)
 			.map((terminal) => ({
+				id: terminal.id,
 				name: terminal.name,
-				path: terminal.command,
+				command: terminal.command,
+				available: terminal.available,
 				iconPath: terminal.iconPath,
 			}));
 	}
