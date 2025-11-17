@@ -1,0 +1,242 @@
+{
+  "app": {
+    "title": "PORTBOARD",
+    "subtitle": "/// オープンソースのポート管理ダッシュボード"
+  },
+  "table": {
+    "title": "待機中のポート",
+    "headers": {
+      "port": "ポート",
+      "processName": "プロセス名",
+      "pid": "PID",
+      "status": "ステータス",
+      "cpu": "CPU",
+      "memory": "メモリ",
+      "actions": "アクション"
+    },
+    "noResults": "ポートが見つかりません",
+    "loading": "ポートを読み込み中...",
+    "error": "ポートの読み込みに失敗しました",
+    "lastUpdated": "最終更新",
+    "selectedCount": "{{count}}個のポートを選択中",
+    "selectAll": "すべて選択",
+    "deselectAll": "選択を解除",
+    "stats": {
+      "loading": "[読み込み中...]",
+      "info": "[{{filtered}}/{{total}}ポート] [自動更新: {{interval}}秒] [更新: {{time}}]"
+    }
+  },
+  "search": {
+    "placeholder": "ポート、プロセス名、コマンドパスで検索...",
+    "filters": {
+      "all": "すべて",
+      "development": "開発",
+      "database": "データベース",
+      "webServer": "Webサーバー",
+      "applications": "アプリケーション",
+      "system": "システム",
+      "user": "ユーザーアプリ"
+    }
+  },
+  "actions": {
+    "kill": "強制終了",
+    "batchKill": "選択したプロセスを強制終了",
+    "refresh": "更新",
+    "openInBrowser": "ブラウザで開く",
+    "copyNetworkUrl": "ネットワークURLをコピー",
+    "copied": "コピーしました！",
+    "viewDetails": "詳細を表示",
+    "openWith": "開く...",
+    "copyPath": "パスをコピー",
+    "stopContainer": "コンテナを停止",
+    "stopCompose": "Composeプロジェクトを停止",
+    "containerShell": "コンテナシェル"
+  },
+  "dialog": {
+    "kill": {
+      "title": "プロセスを強制終了",
+      "description": "このプロセスを強制終了してもよろしいですか？",
+      "confirm": "プロセスを強制終了",
+      "cancel": "キャンセル",
+      "warnings": {
+        "selfPort": "これはPortboardサーバー自身です！",
+        "selfPortDescription": "このプロセスを終了すると、Portboardが終了しこのインターフェースが閉じます。",
+        "system": "システムプロセス",
+        "systemDescription": "これはシステムプロセスです。終了するとシステムが不安定になる可能性があります。",
+        "development": "開発プロセス",
+        "developmentDescription": "これは開発サーバーまたはツールのようです。",
+        "activeConnections": "アクティブな接続",
+        "activeConnectionsDescription": "このポートには{{count}}個のアクティブな接続があります。終了するとサービスが中断される可能性があります。",
+        "docker": "Dockerコンテナ",
+        "dockerDescription": "これはDockerコンテナのポートです。docker-proxyを終了する代わりに、「コンテナを停止」または「Composeプロジェクトを停止」を使用してください。"
+      },
+      "dockerActions": {
+        "recommended": "/// 推奨アクション",
+        "advanced": "/// 高度な操作（非推奨）"
+      },
+      "fields": {
+        "process": "プロセス",
+        "category": "カテゴリ",
+        "pid": "PID",
+        "port": "ポート",
+        "source": "ソース",
+        "cwd": "作業ディレクトリ"
+      }
+    },
+    "batchKill": {
+      "title": "{{count}}個のプロセスを終了",
+      "titleWithDocker": "{{count}}個のアイテムを停止/終了",
+      "description": "以下のプロセスを終了してもよろしいですか？",
+      "descriptionWithDocker": "以下のDockerコンテナは正常に停止され、その他のプロセスは終了されます：",
+      "confirm": "すべて終了",
+      "confirmWithDocker": "すべて停止/終了",
+      "cancel": "キャンセル",
+      "warnings": {
+        "critical": "重要: Portboardサーバーが含まれています",
+        "docker": "{{count}}個のDockerコンテナが含まれています",
+        "system": "{{count}}個のシステムプロセスが含まれています",
+        "development": "{{count}}個の開発プロセスが含まれています",
+        "activeConnections": "{{count}}個のポートにアクティブな接続があります"
+      }
+    },
+    "detail": {
+      "title": "ポート詳細",
+      "description": "ポート{{port}}の詳細情報",
+      "sections": {
+        "basicInfo": "/// 基本情報",
+        "quickActions": "/// クイックアクション",
+        "connectionStatus": "/// 接続状態",
+        "resourceUsage": "/// リソース使用状況",
+        "dockerInfo": "/// Docker情報",
+        "workingDirectory": "/// 作業ディレクトリ",
+        "projectDirectory": "/// プロジェクトディレクトリ",
+        "actions": "/// アクション",
+        "commandPath": "/// コマンドパス",
+        "dockerLogs": "/// Dockerログ（最新{{count}}行）"
+      },
+      "fields": {
+        "port": "ポート",
+        "portHostContainer": "ポート（ホスト:コンテナ）",
+        "protocol": "プロトコル",
+        "address": "アドレス",
+        "processName": "プロセス名",
+        "pid": "PID",
+        "category": "カテゴリ",
+        "status": "ステータス",
+        "activeConnections": "アクティブな接続",
+        "lastAccessed": "最終アクセス",
+        "cpuUsage": "CPU使用率",
+        "memoryUsage": "メモリ使用量",
+        "memory": "メモリ",
+        "rss": "RSS",
+        "started": "開始時刻",
+        "uptime": "稼働時間",
+        "containerName": "コンテナ名",
+        "image": "イメージ",
+        "config": "設定",
+        "containerId": "コンテナID",
+        "portMapping": "ポートマッピング",
+        "composeProject": "Composeプロジェクト",
+        "composeFile": "Composeファイル",
+        "workingDir": "作業ディレクトリ",
+        "projectDir": "プロジェクトディレクトリ",
+        "commandPath": "コマンドパス",
+        "networkUrl": "ネットワークURL"
+      },
+      "values": {
+        "active": "アクティブ",
+        "idle": "待機中",
+        "notAvailable": "N/A",
+        "none": "なし",
+        "justNow": "たった今",
+        "manualDockerRun": "手動（docker run）",
+        "loading": "読み込み中...",
+        "unavailable": "取得できません"
+      },
+      "buttons": {
+        "openInBrowser": "ブラウザで開く",
+        "copyNetworkUrl": "ネットワークURLをコピー",
+        "copied": "コピーしました！",
+        "copy": "コピー",
+        "openWith": "開く...",
+        "close": "閉じる",
+        "killProcess": "プロセスを強制終了",
+        "stopFollow": "フォロー停止",
+        "follow": "フォロー",
+        "refresh": "更新"
+      },
+      "labels": {
+        "lines": "行数",
+        "finder": "Finder",
+        "ides": "IDE",
+        "terminals": "ターミナル",
+        "openContainerShell": "コンテナシェルを開く"
+      },
+      "logs": {
+        "loading": "ログを読み込み中...",
+        "error": "エラー: {{error}}",
+        "noLogs": "ログがありません",
+        "refresh": "更新",
+        "follow": "フォロー",
+        "pause": "一時停止",
+        "lines": "行数"
+      },
+      "toast": {
+        "openingInIDE": "{{name}}でプロジェクトを開いています...",
+        "openingIn": "{{name}}で開いています...",
+        "openingShell": "{{name}}でシェルを開いています...",
+        "failedToOpenIDE": "IDEで開けませんでした",
+        "failedToOpenTerminal": "ターミナルで開けませんでした",
+        "failedToOpenShell": "コンテナシェルを開けませんでした",
+        "failedToOpenBrowser": "ブラウザで開けませんでした: {{error}}",
+        "failedToFetchNetworkUrl": "ネットワークURLの取得に失敗しました: {{error}}"
+      },
+      "footer": {
+        "lastUpdated": "最終更新: {{time}}"
+      }
+    }
+  },
+  "toast": {
+    "killSuccess": "プロセスを終了しました",
+    "killError": "プロセスの終了に失敗しました: {{error}}",
+    "batchKillSuccess": "{{success}}個のプロセスを終了しました",
+    "batchKillPartial": "{{total}}個中{{success}}個のプロセスを終了しました（{{failed}}個失敗）",
+    "batchKillError": "プロセスの終了に失敗しました",
+    "batchKillWithDocker": "{{containers}}個のコンテナを停止、{{processes}}個のプロセスを終了しました",
+    "dockerStopSuccess": "コンテナを停止しました",
+    "dockerStopError": "コンテナの停止に失敗しました: {{error}}",
+    "dockerComposeSuccess": "Composeプロジェクトを停止しました",
+    "dockerComposeError": "Composeプロジェクトの停止に失敗しました: {{error}}",
+    "browserOpenError": "ブラウザの起動に失敗しました: {{error}}",
+    "networkUrlCopyError": "ネットワークURLのコピーに失敗しました: {{error}}"
+  },
+  "badges": {
+    "portboard": "PORTBOARD",
+    "docker": "DOCKER",
+    "compose": "COMPOSE"
+  },
+  "time": {
+    "days": "{{count}}日",
+    "hours": "{{count}}時間",
+    "minutes": "{{count}}分",
+    "seconds": "{{count}}秒"
+  },
+  "connectionStatus": {
+    "active": "アクティブ",
+    "idle": "待機中",
+    "connection": "接続",
+    "connections": "接続"
+  },
+  "portRow": {
+    "buttons": {
+      "openInBrowser": "ブラウザで開く",
+      "kill": "強制終了"
+    },
+    "docker": {
+      "manualRun": "手動起動 (docker run)"
+    },
+    "toast": {
+      "failedToOpenBrowser": "ブラウザで開けませんでした: {{error}}"
+    }
+  }
+}

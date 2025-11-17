@@ -1,0 +1,149 @@
+/* Neo Brutalism Design System */
+
+/* Color Variables */
+:root {
+	/* Brutalist Brand Colors */
+	--brutalist-yellow: #ffd93d;
+	--brutalist-cyan: #6bcf7e;
+	--brutalist-red: #ff6b6b;
+	--brutalist-bg: #f5f5f5;
+	--brutalist-border: #000000;
+	--brutalist-text: #000000;
+}
+
+.dark {
+	--brutalist-bg: #1a1a1a;
+	--brutalist-border: #ffffff;
+	--brutalist-text: #ffffff;
+}
+
+/* Brutalist Border Utility */
+.brutalist-border {
+	@apply border-2 border-black dark:border-white;
+}
+
+/* Brutalist Shadow (Offset Effect) */
+.brutalist-shadow {
+	box-shadow: 3px 3px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.dark .brutalist-shadow {
+	box-shadow: 3px 3px 0px 0px rgba(255, 255, 255, 1);
+}
+
+/* Brutalist Shadow Hover Effect */
+.brutalist-shadow-hover {
+	transition: all 0.15s ease;
+}
+
+.brutalist-shadow-hover:hover:not(:disabled) {
+	transform: translate(1px, 1px);
+	box-shadow: 1px 1px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.dark .brutalist-shadow-hover:hover:not(:disabled) {
+	box-shadow: 1px 1px 0px 0px rgba(255, 255, 255, 1);
+}
+
+.brutalist-shadow-hover:active:not(:disabled) {
+	transform: translate(2px, 2px);
+	box-shadow: 0px 0px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.dark .brutalist-shadow-hover:active:not(:disabled) {
+	box-shadow: 0px 0px 0px 0px rgba(255, 255, 255, 1);
+}
+
+/* Brutalist Color Utilities */
+.brutalist-yellow {
+	background-color: var(--brutalist-yellow);
+	color: #000000;
+}
+
+.brutalist-cyan {
+	background-color: var(--brutalist-cyan);
+	color: #000000;
+}
+
+.brutalist-red {
+	background-color: var(--brutalist-red);
+	color: #ffffff;
+}
+
+/* Brutalist Table Styles */
+
+.brutalist-table th {
+	@apply border-b-2 border-black bg-gray-100 dark:bg-gray-800 font-bold;
+}
+
+.brutalist-table td {
+	@apply border-b border-gray-300 dark:border-gray-700;
+}
+
+.brutalist-table tr:last-child td {
+	@apply border-b-0;
+}
+
+/* Brutalist Dialog Styles */
+.brutalist-dialog-overlay {
+	background-color: rgba(0, 0, 0, 0.75);
+}
+
+.brutalist-dialog-content {
+	@apply border-2 border-black dark:border-white rounded-lg;
+	box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.dark .brutalist-dialog-content {
+	box-shadow: 4px 4px 0px 0px rgba(255, 255, 255, 1);
+}
+
+/* Brutalist Badge Styles */
+.brutalist-badge {
+	@apply border border-black dark:border-white rounded-md px-2 py-1 text-xs font-bold;
+}
+
+/* Brutalist Scrollbar Styles */
+:root {
+	--scrollbar-track: transparent;
+	--scrollbar-thumb: #000000;
+	--scrollbar-border: #000000;
+	--scrollbar-hover: #ffd93d;
+}
+
+.dark {
+	--scrollbar-track: transparent;
+	--scrollbar-thumb: #ffffff;
+	--scrollbar-border: #ffffff;
+	--scrollbar-hover: #6bcf7e;
+}
+
+/* For Webkit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+}
+
+::-webkit-scrollbar-track {
+	background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+	background: var(--scrollbar-thumb);
+	border: 1px solid var(--scrollbar-border);
+	border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: var(--scrollbar-hover);
+}
+
+::-webkit-scrollbar-corner {
+	background: var(--scrollbar-track);
+}
+
+/* For Firefox */
+* {
+	scrollbar-width: thin;
+	scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}

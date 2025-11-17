@@ -1,0 +1,242 @@
+{
+  "app": {
+    "title": "PORTBOARD",
+    "subtitle": "/// Open-source port management dashboard"
+  },
+  "table": {
+    "title": "LISTENING PORTS",
+    "headers": {
+      "port": "Port",
+      "processName": "Process Name",
+      "pid": "PID",
+      "status": "Status",
+      "cpu": "CPU",
+      "memory": "Memory",
+      "actions": "Actions"
+    },
+    "noResults": "No ports found",
+    "loading": "Loading ports...",
+    "error": "Failed to load ports",
+    "lastUpdated": "Last updated",
+    "selectedCount": "{{count}} ports selected",
+    "selectAll": "Select all",
+    "deselectAll": "Deselect all",
+    "stats": {
+      "loading": "[LOADING...]",
+      "info": "[{{filtered}}/{{total}} PORTS] [AUTO-REFRESH: {{interval}}S] [UPDATED: {{time}}]"
+    }
+  },
+  "search": {
+    "placeholder": "Search by port, process name, or command path...",
+    "filters": {
+      "all": "All",
+      "development": "Development",
+      "database": "Database",
+      "webServer": "Web Server",
+      "applications": "Applications",
+      "system": "System",
+      "user": "User Apps"
+    }
+  },
+  "actions": {
+    "kill": "Kill",
+    "batchKill": "Kill Selected",
+    "refresh": "Refresh",
+    "openInBrowser": "Open in Browser",
+    "copyNetworkUrl": "Copy Network URL",
+    "copied": "Copied!",
+    "viewDetails": "View Details",
+    "openWith": "Open With...",
+    "copyPath": "Copy Path",
+    "stopContainer": "Stop Container",
+    "stopCompose": "Stop Compose Project",
+    "containerShell": "Container Shell"
+  },
+  "dialog": {
+    "kill": {
+      "title": "Kill Process",
+      "description": "Are you sure you want to kill this process?",
+      "confirm": "Kill Process",
+      "cancel": "Cancel",
+      "warnings": {
+        "selfPort": "This is the Portboard server itself!",
+        "selfPortDescription": "Killing this process will terminate Portboard and close this interface.",
+        "system": "System Process",
+        "systemDescription": "This is a system process. Killing it may cause system instability.",
+        "development": "Development Process",
+        "developmentDescription": "This appears to be a development server or tool.",
+        "activeConnections": "Active Connections",
+        "activeConnectionsDescription": "This port has {{count}} active connections. Killing it may disrupt services.",
+        "docker": "Docker Container",
+        "dockerDescription": "This is a Docker container port. Use 'Stop Container' or 'Stop Compose Project' instead of killing docker-proxy."
+      },
+      "dockerActions": {
+        "recommended": "/// RECOMMENDED ACTIONS",
+        "advanced": "/// ADVANCED (Not Recommended)"
+      },
+      "fields": {
+        "process": "PROCESS",
+        "category": "CATEGORY",
+        "pid": "PID",
+        "port": "PORT",
+        "source": "SOURCE",
+        "cwd": "CWD"
+      }
+    },
+    "batchKill": {
+      "title": "Kill {{count}} Processes",
+      "titleWithDocker": "Stop/Kill {{count}} Items",
+      "description": "Are you sure you want to kill the following processes?",
+      "descriptionWithDocker": "The following Docker containers will be stopped gracefully, and other processes will be killed:",
+      "confirm": "Kill All",
+      "confirmWithDocker": "Stop/Kill All",
+      "cancel": "Cancel",
+      "warnings": {
+        "critical": "CRITICAL: Includes Portboard server",
+        "docker": "Includes {{count}} Docker containers",
+        "system": "Includes {{count}} system processes",
+        "development": "Includes {{count}} development processes",
+        "activeConnections": "{{count}} ports have active connections"
+      }
+    },
+    "detail": {
+      "title": "Port Details",
+      "description": "Detailed information for port {{port}}",
+      "sections": {
+        "basicInfo": "/// BASIC INFO",
+        "quickActions": "/// QUICK ACTIONS",
+        "connectionStatus": "/// CONNECTION STATUS",
+        "resourceUsage": "/// RESOURCE USAGE",
+        "dockerInfo": "/// DOCKER INFO",
+        "workingDirectory": "/// WORKING DIRECTORY",
+        "projectDirectory": "/// PROJECT DIRECTORY",
+        "actions": "/// ACTIONS",
+        "commandPath": "/// COMMAND PATH",
+        "dockerLogs": "/// DOCKER LOGS (Last {{count}} lines)"
+      },
+      "fields": {
+        "port": "Port",
+        "portHostContainer": "Port (Host:Container)",
+        "protocol": "Protocol",
+        "address": "Address",
+        "processName": "Process Name",
+        "pid": "PID",
+        "category": "Category",
+        "status": "Status",
+        "activeConnections": "Active Connections",
+        "lastAccessed": "Last Accessed",
+        "cpuUsage": "CPU Usage",
+        "memoryUsage": "Memory Usage",
+        "memory": "Memory",
+        "rss": "RSS",
+        "started": "Started",
+        "uptime": "Uptime",
+        "containerName": "Container Name",
+        "image": "Image",
+        "config": "Config",
+        "containerId": "Container ID",
+        "portMapping": "Port Mapping",
+        "composeProject": "Compose Project",
+        "composeFile": "Compose File",
+        "workingDir": "Working Directory",
+        "projectDir": "Project Directory",
+        "commandPath": "Command Path",
+        "networkUrl": "Network URL"
+      },
+      "values": {
+        "active": "Active",
+        "idle": "Idle",
+        "notAvailable": "N/A",
+        "none": "None",
+        "justNow": "Just now",
+        "manualDockerRun": "Manual (docker run)",
+        "loading": "Loading...",
+        "unavailable": "Unavailable"
+      },
+      "buttons": {
+        "openInBrowser": "Open in Browser",
+        "copyNetworkUrl": "Copy Network URL",
+        "copied": "Copied!",
+        "copy": "Copy",
+        "openWith": "Open With...",
+        "close": "Close",
+        "killProcess": "Kill Process",
+        "stopFollow": "Stop Follow",
+        "follow": "Follow",
+        "refresh": "Refresh"
+      },
+      "labels": {
+        "lines": "Lines",
+        "finder": "Finder",
+        "ides": "IDEs",
+        "terminals": "Terminals",
+        "openContainerShell": "Open container shell"
+      },
+      "logs": {
+        "loading": "Loading logs...",
+        "error": "Error: {{error}}",
+        "noLogs": "No logs available",
+        "refresh": "Refresh",
+        "follow": "Follow",
+        "pause": "Pause",
+        "lines": "Lines"
+      },
+      "toast": {
+        "openingInIDE": "Opening project in {{name}}...",
+        "openingIn": "Opening in {{name}}...",
+        "openingShell": "Opening shell in {{name}}...",
+        "failedToOpenIDE": "Failed to open in IDE",
+        "failedToOpenTerminal": "Failed to open in terminal",
+        "failedToOpenShell": "Failed to open container shell",
+        "failedToOpenBrowser": "Failed to open in browser: {{error}}",
+        "failedToFetchNetworkUrl": "Failed to fetch network URL: {{error}}"
+      },
+      "footer": {
+        "lastUpdated": "Last updated: {{time}}"
+      }
+    }
+  },
+  "toast": {
+    "killSuccess": "Process killed successfully",
+    "killError": "Failed to kill process: {{error}}",
+    "batchKillSuccess": "Successfully killed {{success}} processes",
+    "batchKillPartial": "Killed {{success}}/{{total}} processes ({{failed}} failed)",
+    "batchKillError": "Failed to kill processes",
+    "batchKillWithDocker": "{{containers}} containers stopped, {{processes}} processes killed",
+    "dockerStopSuccess": "Container stopped successfully",
+    "dockerStopError": "Failed to stop container: {{error}}",
+    "dockerComposeSuccess": "Compose project stopped successfully",
+    "dockerComposeError": "Failed to stop compose project: {{error}}",
+    "browserOpenError": "Failed to open browser: {{error}}",
+    "networkUrlCopyError": "Failed to copy network URL: {{error}}"
+  },
+  "badges": {
+    "portboard": "PORTBOARD",
+    "docker": "DOCKER",
+    "compose": "COMPOSE"
+  },
+  "time": {
+    "days": "{{count}}d",
+    "hours": "{{count}}h",
+    "minutes": "{{count}}m",
+    "seconds": "{{count}}s"
+  },
+  "connectionStatus": {
+    "active": "Active",
+    "idle": "Idle",
+    "connection": "connection",
+    "connections": "connections"
+  },
+  "portRow": {
+    "buttons": {
+      "openInBrowser": "Open in browser",
+      "kill": "Kill"
+    },
+    "docker": {
+      "manualRun": "Manual (docker run)"
+    },
+    "toast": {
+      "failedToOpenBrowser": "Failed to open in browser: {{error}}"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+    "permissions": {
+        "allow": ["Read(.env.example)"],
+        "deny": ["Read(.env)"]
+    }
+}
