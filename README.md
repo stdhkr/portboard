@@ -8,6 +8,39 @@ An open-source, browser-based port management dashboard for developers.
 
 **Portboard** is a security-first port management tool built with modern web technologies. Inspired by tools like pgweb and Drizzle Studio, it provides a clean web interface for monitoring listening ports and managing processes on your local machine.
 
+### Why Portboard?
+
+Today's developers ship code faster than ever thanks to AI tools like Cursor, Claude Code, Codex, and GitHub Copilot.
+But as AI starts spinning up dev servers automatically… a new pain emerges:
+
+**⚠️ The New Reality: Port Chaos**
+- AI assistants silently start multiple dev servers
+- The same project launches three times without you noticing
+- "Port 3000 is already in use" becomes a daily ritual
+- You kill the wrong process and break your entire session
+- You start running `lsof -i :3000 | grep LISTEN` like muscle memory
+- Docker containers expose ports you forgot existed
+- You lose track of what's running where—and why
+
+**AI accelerated development.**
+**But it also accelerated port conflicts.**
+
+---
+
+**🚀 The Solution: Portboard**
+
+Portboard gives you a single, intelligent dashboard for all active ports on your machine:
+- See every listening port at a glance
+- Identify real process names (no more truncated gibberish)
+- Detect macOS .app icons to show which app is actually running
+- Surface the working directory and project name
+- Kill processes safely with built-in context
+- Open IDEs, Terminal, or Finder directly from the port
+- Detect Docker containers and shell into them instantly
+- Copy localhost or network URL in one click
+
+**Portboard is built for the new AI-powered workflow where ports spin up faster than humans can track them.**
+
 ### Key Features
 
 - 🔍 **Enhanced Port Monitoring**: Real-time display with intelligent process identification
@@ -135,16 +168,29 @@ An open-source, browser-based port management dashboard for developers.
 
 ## Getting Started
 
+### Quick Start with npx
+
+The fastest way to run Portboard:
+
+```bash
+npx portbd
+```
+
+This will:
+- Download and run the latest version of Portboard
+- Start the server on `http://localhost:3033` (or auto-increment if busy)
+- Automatically open your browser to the dashboard
+
 ### Prerequisites
 
 - Node.js 18+
 - npm (comes with Node.js)
 
-### Installation
+### Installation for Development
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/portboard.git
+git clone https://github.com/stdhkr/portboard.git
 cd portboard
 
 # Install dependencies
@@ -198,6 +244,43 @@ The app will be available at:
 - **Backend API**: `http://localhost:3033` (or port specified in `PORT`)
 
 **Note**: Use `npm run dev:all` to run the full application. The `npm run dev` command only starts the Vite frontend server.
+
+### Stopping Portboard
+
+If Portboard is already running and you need to stop it, you have several options:
+
+#### Option 1: Use Portboard itself (Recommended)
+
+1. Open Portboard in your browser (`http://localhost:3033`)
+2. Find the port(s) with "PORTBOARD" badge (cyan color)
+3. Click the kill button - you'll see a warning that it will terminate the interface
+4. Confirm to stop Portboard
+
+#### Option 2: Find and kill the process manually
+
+```bash
+# Find Portboard process
+lsof -i :3033 | grep LISTEN
+
+# Kill the process (replace <PID> with the actual process ID)
+kill <PID>
+```
+
+#### Option 3: Kill all Node.js processes on port 3033
+
+```bash
+# macOS/Linux
+lsof -ti :3033 | xargs kill
+
+# Or use pkill (be careful - this kills all matching processes)
+pkill -f "portboard"
+```
+
+**Note**: If you're running in development mode with `npm run dev:all`, you may also need to stop the Vite dev server on port 3000:
+
+```bash
+lsof -ti :3000 | xargs kill
+```
 
 ### Building for Production
 
@@ -517,5 +600,3 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ✅ **Phase 1 MVP Complete** - Core port management features are fully functional! The dashboard can monitor listening ports, display process information, and kill processes with confirmation dialogs.
 
 ---
-
-**Note**: This project was formerly known as "Portman" but has been renamed to "Portboard".

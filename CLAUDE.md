@@ -69,11 +69,43 @@ cp .env.example .env
 - Auto-detection from `window.location` in production
 - Exports: `API_BASE_URL`, `ASSETS_BASE_URL`
 
+## NPM Package & CLI
+
+**Package Name**: `portbd` (published on npm)
+**Project Name**: `portboard` (GitHub repository)
+
+The package is designed to run via `npx` for easy one-command execution:
+
+```bash
+npx portbd
+```
+
+This will:
+- Download and run the latest version
+- Start the server on `http://localhost:3033` (auto-increment if busy)
+- Automatically open the browser to the dashboard
+
+### Package Configuration
+
+**package.json key fields:**
+- `name`: `portbd` - npm package name
+- `bin`: `{ "portboard": "./dist/cli.js" }` - CLI executable
+- `files`: `["dist", "public", ".env.example"]` - Files included in npm package
+- `prepublishOnly`: `npm run build` - Auto-build before publishing
+
+### CLI Entry Point
+
+[server/cli.ts](server/cli.ts) - Production CLI entry point
+- Shebang: `#!/usr/bin/env node`
+- Combines Hono API server + static file serving
+- Auto-opens browser on startup
+- Handles port conflicts with auto-increment
+
 ## Development Commands
 
 ### Running the Development Server
 ```bash
-npm run dev
+npm run dev:all
 ```
 Starts both Vite dev server and Hono backend server with HMR (Hot Module Replacement).
 
@@ -81,11 +113,30 @@ Starts both Vite dev server and Hono backend server with HMR (Hot Module Replace
 - Frontend: `http://localhost:3000` (configurable via `VITE_DEV_PORT`)
 - Backend API: `http://localhost:3033` (configurable via `PORT`)
 
+**Note**: Use `npm run dev:all` for full development. `npm run dev` only starts Vite frontend.
+
 ### Building for Production
 ```bash
 npm run build
 ```
-Compiles TypeScript and builds the application for production.
+Builds both client and server for production:
+- `npm run build:client` - Vite build (outputs to `public/`)
+- `npm run build:server` - esbuild bundling (outputs single `dist/cli.js`)
+  - Bundles all server code into a single executable file
+  - Uses `--packages=external` to keep node_modules dependencies external
+  - Preserves shebang (`#!/usr/bin/env node`) for CLI execution
+  - Fast build (~15ms)
+
+### Running Production Build Locally
+```bash
+npm start
+```
+Runs the production build via `node dist/cli.js`.
+This executes the bundled CLI which:
+- Starts the Hono server
+- Serves static files from `public/`
+- Auto-opens browser
+- Handles port conflicts with auto-increment
 
 ### Linting and Formatting
 ```bash
@@ -119,12 +170,15 @@ Locally preview the production build.
 ### Core Technologies
 - **Runtime**: Node.js (with tsx for TypeScript execution)
 - **Frontend**: React 19.2 with TypeScript
-- **Build Tool**: Vite 7.1.7
+- **Build Tools**:
+  - **Vite 7.1.7** - Frontend bundler
+  - **esbuild** - Server bundler for CLI
 - **Compiler**: React Compiler (babel-plugin-react-compiler) - enabled for automatic optimization
 
 ### Development Tools
 - **TypeScript**: ~5.9.3 with strict mode enabled
 - **tsx**: 4.20.6 for TypeScript execution in development
+- **esbuild**: 0.27.0 for server bundling
 - **Biome**: 2.3.4 for linting and formatting
 
 ## Architecture Notes
@@ -133,10 +187,33 @@ Locally preview the production build.
 The React Compiler is enabled in this project via [vite.config.ts](vite.config.ts). This experimental feature automatically optimizes React components, but may impact dev and build performance. See the React Compiler [documentation](https://react.dev/learn/react-compiler) for details.
 
 ### TypeScript Configuration
-The project uses two TypeScript configurations:
+The project uses three TypeScript configurations:
 - [tsconfig.app.json](tsconfig.app.json): Application code configuration with strict mode
 - [tsconfig.node.json](tsconfig.node.json): Node.js tooling configuration
-- [tsconfig.json](tsconfig.json): Root configuration that references both
+- [tsconfig.server.json](tsconfig.server.json): Server build configuration (outputs to `dist/`)
+- [tsconfig.json](tsconfig.json): Root configuration that references both app and node configs
+
+### Build Configuration
+
+**Vite ([vite.config.ts](vite.config.ts)):**
+- Frontend build output: `public/` directory
+- Configured with `emptyOutDir: true` to clean before build
+- `publicDir: false` to avoid conflicts with output directory
+- Static files served by CLI in production
+
+**esbuild (package.json script):**
+- Server bundler: `esbuild server/cli.ts --bundle --platform=node --format=esm --outfile=dist/cli.js --packages=external`
+- Bundles all server code into single `dist/cli.js` file
+- `--packages=external`: Keeps node_modules dependencies external (not bundled)
+- `--platform=node`: Node.js target platform
+- `--format=esm`: ES module format (required for `"type": "module"`)
+- Output size: ~72KB (vs 602KB without external packages)
+- Build time: ~15ms
+
+**TypeScript Server Config ([tsconfig.server.json](tsconfig.server.json)):**
+- Used for type checking only (esbuild handles compilation)
+- `allowImportingTsExtensions: false` - Required for emit
+- `moduleResolution: "node"` - Node.js module resolution
 
 ### Styling
 - **Tailwind CSS 4**: Installed via `@tailwindcss/vite` plugin
@@ -478,7 +555,8 @@ portboard/
 │   ├── config/
 │   │   ├── constants.ts          # Backend constants with env support (SERVER_CONFIG, TIMING, DOCKER, ICON, NETWORK)
 │   │   └── server-state.ts       # Runtime state management (server port tracking, protected ports)
-│   ├── index.ts                  # Hono server entry point (with dotenv/config import)
+│   ├── index.ts                  # Hono server entry point (development only, with dotenv/config import)
+│   ├── cli.ts                    # CLI entry point for production (npx portbd)
 │   ├── routes/
 │   │   ├── ports.ts              # Port listing and kill endpoints
 │   │   │                         # POST /api/ports/open-in-browser - Open port URL in browser
@@ -507,11 +585,17 @@ portboard/
 │       ├── docker-service.ts         # Docker port mapping detection
 │       ├── icon-service.ts           # Icon extraction and caching (macOS implementation)
 │       └── ide-detection-service.ts  # IDE/Terminal auto-detection (macOS implementation)
-├── public/                       # Static assets
-├── package.json                  # Dependencies and scripts
-├── tsconfig.*.json               # TypeScript configurations
-├── vite.config.ts                # Vite configuration with React Compiler & path alias
-└── biome.json                    # Biome configuration
+├── public/                       # Static assets (Vite build output, git-ignored)
+├── dist/                         # Server build output (TypeScript compilation, git-ignored)
+├── package.json                  # Dependencies and scripts (npm package: portbd)
+├── tsconfig.json                 # Root TypeScript configuration
+├── tsconfig.app.json             # Frontend TypeScript configuration
+├── tsconfig.node.json            # Node.js tooling TypeScript configuration
+├── tsconfig.server.json          # Server build TypeScript configuration
+├── vite.config.ts                # Vite configuration (outputs to public/)
+├── biome.json                    # Biome configuration
+├── .env.example                  # Environment variables template
+└── .gitignore                    # Git ignore rules (includes dist/, public/)
 ```
 
 ## Code Architecture
