@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Portboard** (formerly Portman) is an open-source, browser-based port management tool built with React, TypeScript, and Vite. The project features a distinctive Neo Brutalism design system and provides a full-featured dashboard for managing ports and processes.
+**Portboard** is an open-source, browser-based port management tool built with React, TypeScript, and Vite. The project features a distinctive Neo Brutalism design system and provides a full-featured dashboard for managing ports and processes.
 
 Key points:
 - **Goal**: Build a pgweb/Drizzle Studio-like web dashboard for managing ports and processes
@@ -487,10 +487,8 @@ const localIP = platformProvider.browserProvider.getLocalIPAddress();
 
 ### Features to Implement
 1. **Port History Tracking**: Track port usage over time with JSON persistence
-2. **Port Auto-adjustment**: If default port 3033 is in use, automatically try 3034, 3035, etc.
-3. **CLI Mode**: Standalone CLI commands (`portman list`, `portman kill <pid>`)
-4. **Docker Integration** (Phase 2): Optional with `--with-docker` flag
-5. **Resource Usage Monitoring**: CPU and memory usage per process
+2. **CLI Mode**: Standalone CLI commands (`portboard list`, `portboard kill <pid>`)
+3. **Docker Integration** (Phase 2): Optional with `--with-docker` flag
 
 ### Security Principles (from plan)
 - **Localhost-only binding** by default
@@ -879,6 +877,5 @@ The codebase follows a **modular architecture** with strict separation of concer
 
 ## Additional Notes
 
-- The project name has been changed from "Portman" to "Portboard" (as mentioned in [README.md](README.md))
 - Phase 1 MVP is now complete with all core features implemented
 - The project emphasizes being an **open-source alternative** to closed-source port management tools due to security concerns with docker.sock access
