@@ -35,7 +35,7 @@ import {
 	SelectValue,
 } from "@/components/brutalist";
 import { ASSETS_BASE_URL } from "@/config/api";
-import { DOCKER, TIMING, UI } from "@/config/constants";
+import { DOCKER, TIMING } from "@/config/constants";
 import { CATEGORY_I18N_KEYS, CATEGORY_INFO } from "@/constants/categories";
 import {
 	type DockerLogsResponse,
@@ -129,7 +129,7 @@ export function PortDetailDialog({
 	onKillClick,
 	lastUpdatedTime,
 }: PortDetailDialogProps) {
-	const { t } = useTranslation();
+	const { t, i18n } = useTranslation();
 	const [iconError, setIconError] = useState(false);
 	const [availableIDEs, setAvailableIDEs] = useState<IDEInfo[]>([]);
 	const [availableTerminals, setAvailableTerminals] = useState<TerminalInfo[]>([]);
@@ -299,7 +299,9 @@ export function PortDetailDialog({
 	};
 
 	const formatDateTime = (date: Date): string => {
-		return date.toLocaleString(UI.LOCALE, {
+		// Determine locale based on i18n language setting
+		const locale = i18n.language === "ja" ? "ja-JP" : "en-US";
+		return date.toLocaleString(locale, {
 			year: "numeric",
 			month: "2-digit",
 			day: "2-digit",

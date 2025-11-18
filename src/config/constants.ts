@@ -35,6 +35,4 @@ export const DOCKER = {
 export const UI = {
 	/** Maximum layout width (Tailwind CSS class) */
 	MAX_LAYOUT_WIDTH: "max-w-6xl",
-	/** Default locale for date/time formatting */
-	LOCALE: "ja-JP",
 } as const;
