@@ -16,7 +16,7 @@ export function getServerPort(): number | null {
 }
 
 /**
- * Get all protected Portboard ports (API server + Vite dev server)
+ * Get all protected Portboard ports (API server + Vite dev server in development)
  */
 export function getProtectedPorts(): number[] {
 	const ports: number[] = [];
@@ -26,8 +26,11 @@ export function getProtectedPorts(): number[] {
 		ports.push(serverPort);
 	}
 
-	// Add Vite dev server port (from constants)
-	ports.push(SERVER_CONFIG.DEV_SERVER_PORT);
+	// Add Vite dev server port only in development mode
+	// In production (npx portbd), Vite is not running, so we shouldn't protect port 3000
+	if (process.env.NODE_ENV === "development") {
+		ports.push(SERVER_CONFIG.DEV_SERVER_PORT);
+	}
 
 	return ports;
 }
