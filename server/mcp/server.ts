@@ -12,7 +12,7 @@ export async function createMCPServer() {
 	const server = new Server(
 		{
 			name: "portboard",
-			version: "0.3.0",
+			version: "0.3.1",
 		},
 		{
 			capabilities: {
