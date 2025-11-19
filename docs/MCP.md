@@ -77,6 +77,10 @@ Kill a process by PID with safety checks.
 **Safety features:**
 - Ownership verification (can only kill your own processes)
 - Protected ports (cannot kill Portboard server itself without `force=true`)
+- **Docker-aware**: Automatically detects Docker containers and uses safe stop commands
+  - Uses `docker-compose down` for compose projects
+  - Uses `docker stop` for standalone containers
+  - Prevents issues with directly killing docker-proxy processes
 
 **Example usage:**
 ```
@@ -85,6 +89,15 @@ User: Kill process 12345
 Claude: [uses portboard_kill_process with pid=12345]
 
 Successfully killed process 12345
+```
+
+**Example (Docker container):**
+```
+User: Kill process running on port 5432 (postgres container)
+
+Claude: [uses portboard_kill_process with pid=67890]
+
+Successfully stopped Docker container postgres (PID 67890)
 ```
 
 ---

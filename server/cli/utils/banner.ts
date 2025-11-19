@@ -1,5 +1,6 @@
+import chalk from "chalk";
 import figlet from "figlet";
-import { pastel } from "gradient-string";
+import packageJson from "../../../package.json" with { type: "json" };
 
 export function showBanner() {
 	const banner = figlet.textSync("PORTBOARD", {
@@ -9,8 +10,8 @@ export function showBanner() {
 	});
 
 	console.log("");
-	console.log(pastel.multiline(banner));
+	console.log(chalk.hex("#FFD93D").bold(banner));
 	console.log("");
-	console.log("  Port Management Dashboard v0.2.0");
+	console.log(`  Port Management Dashboard v${packageJson.version}`);
 	console.log("");
 }

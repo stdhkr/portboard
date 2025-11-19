@@ -187,7 +187,6 @@ Portboard gives you a single, intelligent dashboard for all active ports on your
 - **chalk** - Terminal color and styling
 - **ora** - Elegant terminal spinners
 - **figlet** - ASCII art text generation
-- **gradient-string** - Colorful gradient text
 - **@modelcontextprotocol/sdk** - MCP server for AI integration
 - **Platform Abstraction Layer** - Cross-platform OS operations (macOS, Windows, Linux)
 
@@ -223,7 +222,7 @@ portboard list --search=node      # Search query
 portboard list --json             # JSON output
 
 portboard info <port>             # Show detailed port information
-portboard kill <port|pid>         # Kill process by port or PID
+portboard kill <port|pid>         # Kill process by port or PID (Docker-aware: uses stop for containers)
 portboard open <port>             # Open port in browser
 
 portboard docker ls               # List Docker containers
@@ -254,7 +253,7 @@ Add to your Claude Desktop configuration (`~/Library/Application Support/Claude/
 
 **Available Tools:**
 - `portboard_list_ports` - List all listening ports with filtering
-- `portboard_kill_process` - Kill processes with safety checks
+- `portboard_kill_process` - Kill processes with safety checks (Docker-aware: uses stop for containers)
 - `portboard_get_port_info` - Get detailed port information
 - `portboard_docker_list` - List Docker container ports
 - `portboard_docker_stop` - Stop Docker containers

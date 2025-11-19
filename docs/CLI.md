@@ -128,6 +128,13 @@ portboard kill 3000 --force   # Skip all safety checks
 2. If not found, search by PID
 3. If both port and PID exist with same number, show warning and use port by default
 
+**Docker-aware behavior:**
+- If the target is a Docker container, Portboard automatically uses safe stop commands:
+  - `docker-compose down` for compose projects
+  - `docker stop` for standalone containers
+- This prevents issues with directly killing docker-proxy processes
+- Docker containers are gracefully stopped instead of killed
+
 **Confirmation:**
 - Interactive `(y/N)` prompt shown by default
 - `--yes`: Skip confirmation (but keep safety checks)

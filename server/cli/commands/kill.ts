@@ -94,17 +94,51 @@ export const killCommand = new Command("kill")
 			}
 		}
 
-		// Kill process
-		const spinner = ora(`Killing process ${portInfo.pid}...`).start();
+		// Docker container handling
+		if (portInfo.dockerContainer) {
+			const container = portInfo.dockerContainer;
+			console.log(chalk.blue(`\nℹ️  This is a Docker container: ${container.name}`));
 
-		try {
-			await killProcess(portInfo.pid);
-			spinner.succeed(
-				chalk.green(`Successfully killed process ${portInfo.pid} on port ${portInfo.port}`),
-			);
-		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : String(error);
-			spinner.fail(chalk.red(`Failed to kill process: ${errorMessage}`));
-			process.exit(1);
+			if (container.composeConfigFiles) {
+				console.log(chalk.cyan("Using docker-compose down (recommended)"));
+				const spinner = ora(`Stopping compose project...`).start();
+
+				try {
+					const { stopDockerCompose } = await import("../../services/docker-service.js");
+					await stopDockerCompose(container.composeConfigFiles);
+					spinner.succeed(chalk.green(`Successfully stopped compose project`));
+				} catch (error) {
+					const errorMessage = error instanceof Error ? error.message : String(error);
+					spinner.fail(chalk.red(`Failed to stop compose project: ${errorMessage}`));
+					process.exit(1);
+				}
+			} else {
+				console.log(chalk.cyan("Using docker stop (recommended)"));
+				const spinner = ora(`Stopping container ${container.name}...`).start();
+
+				try {
+					const { stopDockerContainer } = await import("../../services/docker-service.js");
+					await stopDockerContainer(container.id);
+					spinner.succeed(chalk.green(`Successfully stopped container ${container.name}`));
+				} catch (error) {
+					const errorMessage = error instanceof Error ? error.message : String(error);
+					spinner.fail(chalk.red(`Failed to stop container: ${errorMessage}`));
+					process.exit(1);
+				}
+			}
+		} else {
+			// Regular process kill
+			const spinner = ora(`Killing process ${portInfo.pid}...`).start();
+
+			try {
+				await killProcess(portInfo.pid);
+				spinner.succeed(
+					chalk.green(`Successfully killed process ${portInfo.pid} on port ${portInfo.port}`),
+				);
+			} catch (error) {
+				const errorMessage = error instanceof Error ? error.message : String(error);
+				spinner.fail(chalk.red(`Failed to kill process: ${errorMessage}`));
+				process.exit(1);
+			}
 		}
 	});
