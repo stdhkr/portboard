@@ -89,17 +89,44 @@ This will:
 
 **package.json key fields:**
 - `name`: `portbd` - npm package name
-- `bin`: `{ "portboard": "./dist/cli.js" }` - CLI executable
+- `bin`: Two CLI executables:
+  - `portboard`: Main CLI with commands (list, kill, serve, etc.)
+  - `portboard-mcp`: MCP server for AI integration
 - `files`: `["dist", "public", ".env.example"]` - Files included in npm package
 - `prepublishOnly`: `npm run build` - Auto-build before publishing
 
-### CLI Entry Point
+### CLI & MCP Architecture
 
-[server/cli.ts](server/cli.ts) - Production CLI entry point
-- Shebang: `#!/usr/bin/env node`
-- Combines Hono API server + static file serving
-- Auto-opens browser on startup
-- Handles port conflicts with auto-increment
+**CLI Entry Points:**
+- [server/cli/index.ts](server/cli/index.ts) - Main CLI with commander.js framework
+  - Shebang: `#!/usr/bin/env node`
+  - Registers 7 commands: list, info, kill, docker, open, serve, (tui - planned)
+  - Default action: show banner + run serve command
+- [server/mcp/index.ts](server/mcp/index.ts) - MCP Server entry point
+  - Shebang: `#!/usr/bin/env node`
+  - stdio transport for AI integration
+  - Exposes 6 MCP tools for Claude Desktop
+
+**CLI Commands** ([server/cli/commands/](server/cli/commands/)):
+- `list.ts` - List ports with filtering, sorting, JSON output
+- `info.ts` - Show detailed port information
+- `kill.ts` - Kill process by port/PID with confirmation
+- `docker.ts` - Docker operations (ls/stop/logs with follow mode)
+- `open.ts` - Open port in browser
+- `serve.ts` - Start web UI server (migrated from cli.ts)
+
+**MCP Tools** ([server/mcp/tools/](server/mcp/tools/)):
+- `list-ports.ts` - List ports with category/search filtering
+- `kill-process.ts` - Kill with safety checks
+- `port-info.ts` - Get detailed info
+- `docker-list.ts` - List Docker ports
+- `docker-stop.ts` - Stop containers/compose
+- `docker-logs.ts` - Fetch container logs
+
+**Utilities** ([server/cli/utils/](server/cli/utils/)):
+- `banner.ts` - Figlet + gradient startup banner
+- `formatters.ts` - Memory/CPU/uptime formatting
+- `output.ts` - Chalk-based colored output helpers
 
 ## Development Commands
 
@@ -507,8 +534,8 @@ const localIP = platformProvider.browserProvider.getLocalIPAddress();
 
 ### Features to Implement
 1. **Port History Tracking**: Track port usage over time with JSON persistence
-2. **CLI Mode**: Standalone CLI commands (`portboard list`, `portboard kill <pid>`)
-3. **Docker Integration** (Phase 2): Optional with `--with-docker` flag
+2. **TUI Mode**: Terminal UI with Ink (interactive mode planned)
+3. **Cross-platform CLI/MCP**: Full Windows and Linux support for CLI and MCP
 
 ### Security Principles (from plan)
 - **Localhost-only binding** by default
@@ -576,7 +603,29 @@ portboard/
 │   │   ├── constants.ts          # Backend constants with env support (SERVER_CONFIG, TIMING, DOCKER, ICON, NETWORK)
 │   │   └── server-state.ts       # Runtime state management (server port tracking, protected ports)
 │   ├── index.ts                  # Hono server entry point (development only, with dotenv/config import)
-│   ├── cli.ts                    # CLI entry point for production (npx portbd)
+│   ├── cli/                      # CLI implementation
+│   │   ├── index.ts                  # Main CLI entry point with commander.js
+│   │   ├── commands/
+│   │   │   ├── list.ts               # List ports command
+│   │   │   ├── info.ts               # Port info command
+│   │   │   ├── kill.ts               # Kill process command (port/PID auto-detection)
+│   │   │   ├── docker.ts             # Docker operations (ls/stop/logs)
+│   │   │   ├── open.ts               # Open in browser command
+│   │   │   └── serve.ts              # Web UI server command (migrated from cli.ts)
+│   │   └── utils/
+│   │       ├── banner.ts             # Figlet + gradient startup banner
+│   │       ├── formatters.ts         # Memory/CPU/uptime formatting
+│   │       └── output.ts             # Colored output helpers (chalk)
+│   ├── mcp/                      # MCP Server implementation
+│   │   ├── index.ts                  # MCP entry point (stdio transport)
+│   │   ├── server.ts                 # MCP Server core
+│   │   └── tools/
+│   │       ├── list-ports.ts         # List ports MCP tool
+│   │       ├── kill-process.ts       # Kill process MCP tool
+│   │       ├── port-info.ts          # Port info MCP tool
+│   │       ├── docker-list.ts        # Docker list MCP tool
+│   │       ├── docker-stop.ts        # Docker stop MCP tool
+│   │       └── docker-logs.ts        # Docker logs MCP tool
 │   ├── routes/
 │   │   ├── ports.ts              # Port listing and kill endpoints
 │   │   │                         # POST /api/ports/open-in-browser - Open port URL in browser
@@ -645,7 +694,11 @@ The codebase follows a **modular architecture** with strict separation of concer
     - **applications**: macOS .app bundle apps (Discord, Chrome, etc.) - detected by `.app` in commandPath
     - **user**: CLI tools, scripts, Node.js apps without .app bundle
     - Command path only displayed in table for "user" category
-  - `docker-service.ts` (~96 lines): Docker integration
+  - `docker-service.ts` (~150 lines): Docker integration
+    - `getDockerPortMappings()`: Docker container port mapping detection
+    - `stopDockerContainer()`: Stop individual Docker containers
+    - `stopDockerCompose()`: Stop docker-compose projects
+    - `getDockerLogs()`: Fetch container logs with line count and timestamp filtering
   - `icon-service.ts`: Icon extraction & caching
   - `ide-detection-service.ts` (~427 lines): IDE/Terminal auto-detection and launching
     - Dynamic app detection using macOS Spotlight (mdfind)
