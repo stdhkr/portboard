@@ -34,7 +34,7 @@
   "scripts": {
     "start": "node dist/cli.js",
     "dev": "vite",
-    "dev:server": "tsx --watch server/index.ts",
+    "dev:server": "NODE_ENV=development tsx --watch server/index.ts",
     "dev:all": "npm run dev:server & npm run dev",
     "build": "npm run build:client && npm run build:server",
     "build:client": "tsc -b && vite build",

@@ -8,7 +8,7 @@ export const Button = forwardRef<HTMLButtonElement, BrutalistButtonProps>(
 	({ className, variant = "default", ...props }, ref) => {
 		// Determine Brutalist colors based on variant
 		const brutalistClasses = cn(
-			"rounded-lg font-bold transition-all duration-150",
+			"rounded-lg font-bold transition-all duration-150 focus-visible:border-black",
 			{
 				// Default: Yellow background
 				"brutalist-yellow hover:brutalist-yellow border-2 border-black dark:border-white brutalist-shadow brutalist-shadow-hover":

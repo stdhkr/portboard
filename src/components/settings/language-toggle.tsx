@@ -24,7 +24,7 @@ export function LanguageToggle() {
 					<SelectValue />
 				</div>
 			</SelectTrigger>
-			<SelectContent>
+			<SelectContent className="font-bold">
 				<SelectItem value="en">English</SelectItem>
 				<SelectItem value="ja">日本語</SelectItem>
 			</SelectContent>
