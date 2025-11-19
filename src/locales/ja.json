@@ -238,5 +238,22 @@
     "toast": {
       "failedToOpenBrowser": "ブラウザで開けませんでした: {{error}}"
     }
+  },
+  "settings": {
+    "notifications": {
+      "on": "通知オン",
+      "off": "通知オフ",
+      "enabled": "通知を有効にしました",
+      "disabled": "通知を無効にしました",
+      "notSupported": "このブラウザは通知をサポートしていません",
+      "permissionDenied": "通知の許可が拒否されました"
+    }
+  },
+  "notifications": {
+    "newPort": {
+      "title": "新しいポートが開かれました",
+      "single": "ポート{{port}}が{{process}}によって開かれました",
+      "multiple": "{{count}}個の新しいポートが開かれました: {{ports}}"
+    }
   }
 }

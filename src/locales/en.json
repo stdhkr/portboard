@@ -238,5 +238,22 @@
     "toast": {
       "failedToOpenBrowser": "Failed to open in browser: {{error}}"
     }
+  },
+  "settings": {
+    "notifications": {
+      "on": "Notifications",
+      "off": "Notifications",
+      "enabled": "Notifications enabled",
+      "disabled": "Notifications disabled",
+      "notSupported": "Notifications are not supported in this browser",
+      "permissionDenied": "Notification permission denied"
+    }
+  },
+  "notifications": {
+    "newPort": {
+      "title": "New Port Opened",
+      "single": "Port {{port}} opened by {{process}}",
+      "multiple": "{{count}} new ports opened: {{ports}}"
+    }
   }
 }
