@@ -143,6 +143,19 @@ Portboard gives you a single, intelligent dashboard for all active ports on your
   - **Persistent settings**: Preference saved in localStorage
   - See [docs/NOTIFICATIONS.md](docs/NOTIFICATIONS.md) for troubleshooting
 - 🔒 **Security-First**: Localhost-only binding by default, no telemetry
+- 💻 **CLI & MCP Integration**: Terminal and AI-powered workflows
+  - **Standalone CLI commands**: `portboard list`, `portboard kill`, `portboard docker ls`
+  - **JSON output mode**: Perfect for scripting and automation (`--json` flag)
+  - **Port/PID auto-detection**: Kill by port number or PID with smart ambiguity resolution
+  - **Interactive confirmations**: Safe process termination with detailed warnings
+  - **Docker CLI support**: Container management via terminal (ls/stop/logs with follow mode)
+  - **MCP Server**: Model Context Protocol integration for Claude Desktop
+    - 6 AI-accessible tools for port management
+    - Natural language port operations via Claude
+    - Safety checks and protected port handling
+  - **Colorful terminal output**: cli-table3 + chalk for beautiful tables
+  - **Figlet startup banner**: Eye-catching ASCII art on launch
+  - See [docs/CLI.md](docs/CLI.md) and [docs/MCP.md](docs/MCP.md) for details
 
 ### Security Principles
 
@@ -167,6 +180,15 @@ Portboard gives you a single, intelligent dashboard for all active ports on your
 - **SWR** - Data fetching with auto-revalidation
 - **Sonner** - Toast notifications
 - **Zod** - Runtime validation
+
+### CLI & Automation
+- **Commander.js** - CLI framework for command parsing
+- **cli-table3** - Beautiful terminal tables
+- **chalk** - Terminal color and styling
+- **ora** - Elegant terminal spinners
+- **figlet** - ASCII art text generation
+- **gradient-string** - Colorful gradient text
+- **@modelcontextprotocol/sdk** - MCP server for AI integration
 - **Platform Abstraction Layer** - Cross-platform OS operations (macOS, Windows, Linux)
 
 ### Development Tools
@@ -189,6 +211,56 @@ This will:
 - Download and run the latest version of Portboard
 - Start the server on `http://localhost:3033` (or auto-increment if busy)
 - Automatically open your browser to the dashboard
+
+### CLI Commands
+
+Portboard also provides standalone CLI commands for terminal-based workflows:
+
+```bash
+portboard list                    # List all listening ports
+portboard list --category=dev     # Filter by category
+portboard list --search=node      # Search query
+portboard list --json             # JSON output
+
+portboard info <port>             # Show detailed port information
+portboard kill <port|pid>         # Kill process by port or PID
+portboard open <port>             # Open port in browser
+
+portboard docker ls               # List Docker containers
+portboard docker stop <container> # Stop Docker container
+portboard docker logs <container> # View container logs
+```
+
+See [docs/CLI.md](docs/CLI.md) for detailed CLI documentation.
+
+### MCP Integration
+
+Portboard provides a Model Context Protocol (MCP) server for AI assistants like Claude Desktop:
+
+**Setup (Claude Desktop):**
+
+Add to your Claude Desktop configuration (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "portboard": {
+      "command": "npx",
+      "args": ["portboard-mcp"]
+    }
+  }
+}
+```
+
+**Available Tools:**
+- `portboard_list_ports` - List all listening ports with filtering
+- `portboard_kill_process` - Kill processes with safety checks
+- `portboard_get_port_info` - Get detailed port information
+- `portboard_docker_list` - List Docker container ports
+- `portboard_docker_stop` - Stop Docker containers
+- `portboard_docker_logs` - Fetch container logs
+
+See [docs/MCP.md](docs/MCP.md) for detailed MCP documentation.
 
 ### Prerequisites
 
@@ -400,7 +472,30 @@ portboard/
 │   ├── config/
 │   │   ├── constants.ts          # Backend constants with env support
 │   │   └── server-state.ts       # Runtime state (server port tracking)
-│   ├── index.ts                  # Hono server entry
+│   ├── index.ts                  # Hono server entry (development)
+│   ├── cli/                      # CLI implementation
+│   │   ├── index.ts                  # Main CLI entry point (commander.js)
+│   │   ├── commands/
+│   │   │   ├── list.ts               # List ports command
+│   │   │   ├── info.ts               # Port info command
+│   │   │   ├── kill.ts               # Kill process command
+│   │   │   ├── docker.ts             # Docker operations
+│   │   │   ├── open.ts               # Open in browser
+│   │   │   └── serve.ts              # Web UI server
+│   │   └── utils/
+│   │       ├── banner.ts             # Startup banner (figlet)
+│   │       ├── formatters.ts         # Output formatters
+│   │       └── output.ts             # Colored output
+│   ├── mcp/                      # MCP Server implementation
+│   │   ├── index.ts                  # MCP entry point (stdio)
+│   │   ├── server.ts                 # MCP Server core
+│   │   └── tools/
+│   │       ├── list-ports.ts         # List ports MCP tool
+│   │       ├── kill-process.ts       # Kill process MCP tool
+│   │       ├── port-info.ts          # Port info MCP tool
+│   │       ├── docker-list.ts        # Docker list MCP tool
+│   │       ├── docker-stop.ts        # Docker stop MCP tool
+│   │       └── docker-logs.ts        # Docker logs MCP tool
 │   ├── routes/
 │   │   ├── ports.ts              # Port endpoints
 │   │   ├── icons.ts              # Icon serving endpoint
@@ -423,17 +518,29 @@ portboard/
 │       ├── unix-port-parser.ts       # lsof output parsing
 │       ├── process-metadata-service.ts # Process metadata
 │       ├── category-service.ts       # Process categorization
-│       ├── docker-service.ts         # Docker integration
+│       ├── docker-service.ts         # Docker integration (port mapping, stop, logs)
 │       ├── icon-service.ts           # Icon extraction & caching (macOS implementation)
 │       ├── ide-detection-service.ts  # IDE/Terminal auto-detection (macOS implementation)
 │       └── browser-service.ts        # Browser integration & network URLs
-├── public/                       # Static assets
+├── dist/                         # Build output (git-ignored)
+│   ├── cli.js                        # Main CLI executable (88kb)
+│   └── mcp.js                        # MCP Server executable (67kb)
+├── public/                       # Static assets (Vite build output, git-ignored)
+├── docs/                         # Documentation
+│   ├── IMPLEMENTATION_PLAN.md        # MCP & CLI implementation plan
+│   ├── MCP.md                        # MCP Server documentation
+│   ├── CLI.md                        # CLI reference
+│   └── NOTIFICATIONS.md              # Desktop notifications guide
 ├── .env.example                  # Environment variables template
 ├── .gitignore                    # Git ignore rules (includes .env)
 ├── package.json                  # Dependencies
 ├── vite.config.ts                # Vite configuration (with env loading)
+├── CLAUDE.md                     # Developer documentation
 └── biome.json                    # Biome configuration
 ```
+
+See [CLAUDE.md](CLAUDE.md) for detailed architecture documentation.
+
 
 ## Roadmap
 
