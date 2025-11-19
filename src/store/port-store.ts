@@ -1,5 +1,6 @@
 import { atom } from "jotai";
 import { TIMING } from "@/config/constants";
+import { atomWithStorage } from "@/lib/atom-with-storage";
 import type { PortInfo, ProcessCategory } from "../types/port";
 
 // Base atoms
@@ -71,3 +72,16 @@ export const openBatchKillDialogAtom = atom(null, (_get, set) => {
 export const closeBatchKillDialogAtom = atom(null, (_get, set) => {
 	set(isBatchKillDialogOpenAtom, false);
 });
+
+// Notification settings atom with LocalStorage persistence
+export const notificationsEnabledAtom = atomWithStorage("notifications-enabled", false);
+
+// Theme settings atom with LocalStorage persistence
+const getInitialTheme = (): "light" | "dark" => {
+	if (typeof window === "undefined") return "light";
+	const savedTheme = localStorage.getItem("portboard:theme");
+	if (savedTheme === "light" || savedTheme === "dark") return savedTheme;
+	return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+};
+
+export const themeAtom = atomWithStorage<"light" | "dark">("theme", getInitialTheme());

@@ -484,6 +484,26 @@ const localIP = platformProvider.browserProvider.getLocalIPAddress();
      - Removed dependency on brutalist Badge wrapper
      - Custom green dot indicator for active connections
      - Cleaner visual design with mono font
+9. **Internationalization (i18n)** (✓ Completed)
+   - react-i18next integration with i18next-browser-languagedetector
+   - English and Japanese language support
+   - Automatic language detection (localStorage → browser navigator)
+   - LocalStorage persistence for user preference
+   - Comprehensive translation coverage across all UI components
+   - Language toggle component with brutalist select box
+   - High-quality Japanese translations with natural UX terminology
+10. **Desktop Notifications** (✓ Completed)
+    - **Notification toggle**: Bell/BellOff icon button in settings
+    - **LocalStorage persistence**: Settings saved via `atomWithStorage` helper
+    - **New port detection**: Automatically detects ports opened after initial load
+    - **Browser notifications**: Uses Notification API for desktop alerts
+    - **Multiple port support**: Groups multiple new ports into single notification
+    - **Auto-exclusion**: Portboard's own ports (3033, 3000) are not notified
+    - **Permission management**: Handles browser notification permission requests
+    - **Test notification**: Shows welcome notification when enabling
+    - **Auto-close**: Notifications auto-close after 5 seconds
+    - **i18n support**: Notification text respects language preference
+    - See [docs/NOTIFICATIONS.md](docs/NOTIFICATIONS.md) for troubleshooting
 
 ### Features to Implement
 1. **Port History Tracking**: Track port usage over time with JSON persistence
@@ -540,10 +560,12 @@ portboard/
 │   │   └── brutalism.css         # Neo Brutalism design system CSS
 │   ├── lib/
 │   │   ├── api.ts                # API functions
+│   │   ├── atom-with-storage.ts  # Jotai localStorage persistence helper
 │   │   ├── i18n.ts               # i18next configuration
+│   │   ├── notifications.ts      # Desktop notification utilities
 │   │   └── utils.ts              # Utility functions (cn helper)
 │   ├── store/
-│   │   └── port-store.ts         # Jotai state atoms (including batch kill state)
+│   │   └── port-store.ts         # Jotai state atoms (notifications, theme, batch kill, etc.)
 │   ├── types/
 │   │   └── port.ts               # TypeScript type definitions
 │   ├── App.tsx                   # Main React component
@@ -635,6 +657,21 @@ The codebase follows a **modular architecture** with strict separation of concer
       - AppleScript support for Terminal and iTerm2
       - Generic fallback for other terminal apps
     - Caching for performance optimization
+
+**State Management:**
+- **Jotai atoms**: Atomic state management for React
+- **`atomWithStorage` helper**: Custom utility for LocalStorage persistence
+  - Located at [src/lib/atom-with-storage.ts](src/lib/atom-with-storage.ts)
+  - Automatically syncs Jotai atoms with LocalStorage
+  - Prefix: `portboard:` namespace for all localStorage keys
+  - Type-safe with TypeScript generics
+  - SSR-safe (handles `typeof window === "undefined"`)
+  - Used by: notification settings, theme settings
+  - Example usage:
+    ```typescript
+    export const notificationsEnabledAtom = atomWithStorage("notifications-enabled", false);
+    export const themeAtom = atomWithStorage<"light" | "dark">("theme", "light");
+    ```
 
 **Benefits:**
 - 📖 **Readable**: Each file has a clear, single purpose

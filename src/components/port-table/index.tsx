@@ -24,6 +24,7 @@ import { CATEGORY_I18N_KEYS, CATEGORY_INFO } from "@/constants/categories";
 import { usePortFiltering } from "@/hooks/use-port-filtering";
 import { usePortSorting } from "@/hooks/use-port-sorting";
 import { fetchPorts } from "@/lib/api";
+import { createPortSet, detectNewPorts, notifyNewPorts } from "@/lib/notifications";
 import {
 	categoryFilterAtom,
 	closeBatchKillDialogAtom,
@@ -31,6 +32,7 @@ import {
 	deselectAllPortsAtom,
 	isBatchKillDialogOpenAtom,
 	isKillDialogOpenAtom,
+	notificationsEnabledAtom,
 	openBatchKillDialogAtom,
 	openKillDialogAtom,
 	searchQueryAtom,
@@ -81,6 +83,10 @@ export function PortTable() {
 	const scrollContainerRef = useRef<HTMLDivElement>(null);
 	const scrollPositionRef = useRef<number>(0);
 
+	// Notification state
+	const notificationsEnabled = useAtomValue(notificationsEnabledAtom);
+	const previousPortsRef = useRef<Set<number>>(new Set());
+
 	// Save scroll position on scroll
 	useEffect(() => {
 		const container = scrollContainerRef.current;
@@ -114,6 +120,27 @@ export function PortTable() {
 			container.scrollTop = scrollPositionRef.current;
 		}
 	}, [ports]);
+
+	// Detect and notify new ports
+	useEffect(() => {
+		if (!ports || !notificationsEnabled) {
+			if (ports) {
+				previousPortsRef.current = createPortSet(ports);
+			}
+			return;
+		}
+
+		// Detect new ports
+		const newPorts = detectNewPorts(ports, previousPortsRef.current);
+
+		// Send notification if new ports are detected
+		if (newPorts.length > 0) {
+			notifyNewPorts(newPorts, t);
+		}
+
+		// Update previous ports set
+		previousPortsRef.current = createPortSet(ports);
+	}, [ports, notificationsEnabled, t]);
 
 	// Filter ports
 	const filteredPorts = usePortFiltering(ports || []);

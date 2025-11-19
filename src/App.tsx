@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Toaster } from "@/components/brutalist";
 import { PortTable } from "@/components/port-table";
 import { LanguageToggle } from "@/components/settings/language-toggle";
+import { NotificationToggle } from "@/components/settings/notification-toggle";
 import { ThemeToggle } from "@/components/settings/theme-toggle";
 import { UI } from "@/config/constants";
 
@@ -19,6 +20,7 @@ function App() {
 						<p className="mt-2 text-black dark:text-white font-mono">{t("app.subtitle")}</p>
 					</div>
 					<div className="flex gap-2">
+						<NotificationToggle />
 						<LanguageToggle />
 						<ThemeToggle />
 					</div>
