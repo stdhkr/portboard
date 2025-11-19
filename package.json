@@ -1,6 +1,6 @@
 {
   "name": "portbd",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "An open-source, browser-based port management dashboard for developers",
   "type": "module",
   "author": "Portboard Contributors",
