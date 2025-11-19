@@ -94,3 +94,57 @@ export async function getDockerPortMappings(): Promise<Map<number, DockerContain
 
 	return portMap;
 }
+
+/**
+ * Stop a Docker container
+ */
+export async function stopDockerContainer(containerIdOrName: string): Promise<void> {
+	try {
+		await execAsync(`docker stop ${containerIdOrName}`);
+	} catch (error) {
+		throw new Error(
+			`Failed to stop container ${containerIdOrName}: ${error instanceof Error ? error.message : String(error)}`,
+		);
+	}
+}
+
+/**
+ * Stop a docker-compose project
+ */
+export async function stopDockerCompose(projectDirectory: string): Promise<void> {
+	try {
+		await execAsync("docker-compose down", { cwd: projectDirectory });
+	} catch (error) {
+		throw new Error(
+			`Failed to stop compose project: ${error instanceof Error ? error.message : String(error)}`,
+		);
+	}
+}
+
+/**
+ * Get Docker container logs
+ */
+export async function getDockerLogs(
+	containerIdOrName: string,
+	lines?: number,
+	since?: string,
+): Promise<string> {
+	try {
+		let command = `docker logs ${containerIdOrName}`;
+
+		if (lines) {
+			command += ` --tail ${lines}`;
+		}
+
+		if (since) {
+			command += ` --since ${since}`;
+		}
+
+		const { stdout } = await execAsync(command);
+		return stdout;
+	} catch (error) {
+		throw new Error(
+			`Failed to fetch logs for container ${containerIdOrName}: ${error instanceof Error ? error.message : String(error)}`,
+		);
+	}
+}
