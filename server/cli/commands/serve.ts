@@ -34,7 +34,8 @@ export const serveCommand = new Command("serve")
 		app.route("/api/logs", logsRoutes);
 
 		// Serve static files (frontend build)
-		const publicPath = join(__dirname, "..", "..", "..", "public");
+		// When bundled by esbuild, __dirname points to the dist/ directory
+		const publicPath = __dirname;
 		app.use("/*", serveStatic({ root: publicPath }));
 
 		// Fallback to index.html for client-side routing
