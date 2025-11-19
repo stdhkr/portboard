@@ -10,7 +10,7 @@ import { runServeCommand, serveCommand } from "./commands/serve.js";
 
 const program = new Command();
 
-program.name("portboard").description("Port management tool for developers").version("0.2.0");
+program.name("portboard").description("Port management tool for developers").version("0.3.0");
 
 // Register commands
 program.addCommand(listCommand);
