@@ -24,7 +24,8 @@
     "neo-brutalism"
   ],
   "bin": {
-    "portboard": "dist/cli.js"
+    "portboard": "dist/cli.js",
+    "portboard-mcp": "dist/mcp.js"
   },
   "files": [
     "dist",
@@ -38,7 +39,7 @@
     "dev:all": "npm run dev:server & npm run dev",
     "build": "npm run build:client && npm run build:server",
     "build:client": "tsc -b && vite build",
-    "build:server": "esbuild server/cli.ts --bundle --platform=node --format=esm --outfile=dist/cli.js --packages=external",
+    "build:server": "esbuild server/cli/index.ts --bundle --platform=node --format=esm --outfile=dist/cli.js --packages=external && esbuild server/mcp/index.ts --bundle --platform=node --format=esm --outfile=dist/mcp.js --packages=external",
     "prepublishOnly": "npm run build",
     "lint": "biome lint ./src/ ./server/",
     "format": "biome format --write ./src/ ./server/",
@@ -49,6 +50,7 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.19.6",
+    "@modelcontextprotocol/sdk": "^1.22.0",
     "@radix-ui/react-checkbox": "^1.3.3",
     "@radix-ui/react-collapsible": "^1.1.12",
     "@radix-ui/react-dialog": "^1.1.15",
@@ -56,14 +58,23 @@
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-slot": "^1.2.4",
     "@tailwindcss/vite": "^4.1.17",
+    "chalk": "^5.6.2",
     "class-variance-authority": "^0.7.1",
+    "cli-table3": "^0.6.5",
     "clsx": "^2.1.1",
+    "commander": "^14.0.2",
     "dotenv": "^17.2.3",
+    "figlet": "^1.9.4",
+    "gradient-string": "^3.0.0",
     "hono": "^4.10.4",
     "i18next": "^25.6.2",
     "i18next-browser-languagedetector": "^8.2.0",
+    "ink": "^6.5.1",
+    "ink-big-text": "^2.0.0",
+    "ink-gradient": "^3.0.0",
     "jotai": "^2.15.1",
     "lucide-react": "^0.552.0",
+    "ora": "^9.0.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-i18next": "^16.3.3",
@@ -75,6 +86,8 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.4",
+    "@types/figlet": "^1.7.0",
+    "@types/gradient-string": "^1.1.6",
     "@types/node": "^24.6.0",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
