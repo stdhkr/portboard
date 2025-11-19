@@ -26,8 +26,8 @@ export default defineConfig(({ mode }) => {
       port: Number(env.VITE_DEV_PORT) || 3000,
     },
     build: {
-      outDir: 'public',
-      emptyOutDir: true,
+      outDir: 'dist',
+      emptyOutDir: false, // Don't empty dist/ (contains CLI bundle)
     },
     publicDir: false,
   }
