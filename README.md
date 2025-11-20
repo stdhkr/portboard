@@ -121,11 +121,12 @@ Portboard gives you a single, intelligent dashboard for all active ports on your
   - Docker port mapping display (Host:Container format, e.g., 3000:80)
   - Timestamp display in modal footer
 - 🎨 **Neo Brutalism Design**: Bold, high-contrast UI with distinctive visual style
-  - Custom brutalist components wrapping shadcn/ui
+  - Custom brutalist components wrapping shadcn/ui (Button, Table, Dialog, DropdownMenu, Checkbox, Collapsible, Select, Tooltip)
   - Strong borders, offset shadows, and geometric shapes
   - Brutalist color scheme (yellow, cyan, red accents)
   - Custom scrollbar styling with transparent track and background
   - Sonner toast notifications with brutalist styling
+  - Contextual tooltips for improved UX (notification settings, etc.)
   - Optimized light mode background for better visual clarity
 - 🌙 **Dark Mode**: Full dark mode support with theme toggle
 - 🌐 **Internationalization (i18n)**: Multi-language support
@@ -134,13 +135,14 @@ Portboard gives you a single, intelligent dashboard for all active ports on your
   - Comprehensive translations across all UI components
   - Easy to add new languages via JSON translation files
 - 🔔 **Desktop Notifications**: Get notified when new ports are opened
-  - **Notification toggle**: Enable/disable with Bell icon in settings
+  - **Notification toggle**: Enable/disable with Bell icon in settings (with helpful tooltip)
   - **Auto-detection**: Automatically detects new ports after initial load
   - **Smart filtering**: Excludes Portboard's own ports (3033, 3000)
   - **Multi-port support**: Groups multiple new ports into single notification
   - **Test notification**: Shows welcome notification when enabling
   - **Auto-close**: Notifications dismiss after 5 seconds
   - **Persistent settings**: Preference saved in localStorage
+  - **Improved UX**: Enhanced toast messages with detailed feedback
   - See [docs/NOTIFICATIONS.md](docs/NOTIFICATIONS.md) for troubleshooting
 - 🔒 **Security-First**: Localhost-only binding by default, no telemetry
 - 💻 **CLI & MCP Integration**: Terminal and AI-powered workflows
@@ -429,6 +431,7 @@ portboard/
 │   │   │   ├── dropdown-menu.tsx
 │   │   │   ├── select.tsx
 │   │   │   ├── collapsible.tsx
+│   │   │   ├── tooltip.tsx
 │   │   │   └── index.ts
 │   │   ├── ui/               # shadcn/ui base components
 │   │   ├── port-table/       # Port table components

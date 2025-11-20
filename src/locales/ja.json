@@ -243,10 +243,11 @@
     "notifications": {
       "on": "通知オン",
       "off": "通知オフ",
-      "enabled": "通知を有効にしました",
+      "enabled": "通知を有効にしました - 新規ポートが開かれた時に通知されます",
       "disabled": "通知を無効にしました",
       "notSupported": "このブラウザは通知をサポートしていません",
-      "permissionDenied": "通知の許可が拒否されました"
+      "permissionDenied": "通知の許可が拒否されました",
+      "tooltip": "新規ポート通知"
     }
   },
   "notifications": {

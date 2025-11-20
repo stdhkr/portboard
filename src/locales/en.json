@@ -243,10 +243,11 @@
     "notifications": {
       "on": "Notifications",
       "off": "Notifications",
-      "enabled": "Notifications enabled",
+      "enabled": "Notifications enabled - You will be notified when new ports are opened",
       "disabled": "Notifications disabled",
       "notSupported": "Notifications are not supported in this browser",
-      "permissionDenied": "Notification permission denied"
+      "permissionDenied": "Notification permission denied",
+      "tooltip": "New port notifications"
     }
   },
   "notifications": {

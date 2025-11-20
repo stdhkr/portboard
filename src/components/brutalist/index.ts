@@ -40,3 +40,9 @@ export {
 	TableHeader,
 	TableRow,
 } from "./table";
+export {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "./tooltip";
