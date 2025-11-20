@@ -14,18 +14,35 @@ npx portboard-mcp
 
 ### Claude Desktop
 
-Add to your Claude Desktop configuration (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
+Add to your Claude Desktop configuration file:
+
+**macOS:**
+```
+~/Library/Application Support/Claude/claude_desktop_config.json
+```
+
+**Windows:**
+```
+%APPDATA%\Claude\claude_desktop_config.json
+```
+
+If the file doesn't exist, create it manually with the following content:
 
 ```json
 {
   "mcpServers": {
     "portboard": {
       "command": "npx",
-      "args": ["portboard-mcp"]
+      "args": ["-y", "-p", "portbd", "portboard-mcp"]
     }
   }
 }
 ```
+
+**Important:**
+- The file must be named exactly `claude_desktop_config.json` (not `config.json`)
+- The JSON syntax must be valid
+- After creating or modifying the file, **restart Claude Desktop** for changes to take effect
 
 ### Other MCP Clients
 
@@ -212,6 +229,31 @@ The MCP server returns structured error messages when operations fail:
 
 ## Troubleshooting
 
+### Common Configuration Errors
+
+#### Error: "404 Not Found - portboard-mcp"
+
+This means the `args` configuration is incorrect. **Solution:**
+
+❌ **Wrong:**
+```json
+"args": ["portboard-mcp"]
+```
+
+✅ **Correct:**
+```json
+"args": ["-y", "-p", "portbd", "portboard-mcp"]
+```
+
+**Explanation:** `portboard-mcp` is a binary command inside the `portbd` package, not a standalone npm package. You need to tell `npx` to:
+- `-y`: Skip confirmation prompts
+- `-p portbd`: Install the `portbd` package
+- `portboard-mcp`: Run the `portboard-mcp` binary from that package
+
+#### Error: "too many arguments. Expected 0 arguments but got 1"
+
+This happens when the npx command format is incorrect. Use the correct format shown above with `-p` flag.
+
 ### MCP Server Won't Start
 
 1. **Check Node.js version**: Requires Node.js 18+
@@ -223,13 +265,17 @@ The MCP server returns structured error messages when operations fail:
 
 3. **Claude Desktop logs**: Check Claude Desktop logs for error messages
    - macOS: `~/Library/Logs/Claude/`
-   - Check for connection errors or permission issues
+   - Windows: `%APPDATA%\Claude\logs\`
+   - Look for connection errors or permission issues
 
 ### MCP Tools Not Appearing in Claude
 
 1. **Restart Claude Desktop** after updating configuration
 2. **Verify configuration path**: Ensure `claude_desktop_config.json` is in the correct location
-3. **Check JSON syntax**: Validate your configuration file is valid JSON
+   - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+   - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+3. **Check JSON syntax**: Validate your configuration file is valid JSON (use a JSON validator)
+4. **Check file name**: Must be `claude_desktop_config.json`, not `config.json`
 
 ### Port Detection Issues
 

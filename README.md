@@ -242,18 +242,22 @@ Portboard provides a Model Context Protocol (MCP) server for AI assistants like 
 
 **Setup (Claude Desktop):**
 
-Add to your Claude Desktop configuration (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+Add to your Claude Desktop configuration file:
+- **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
 
 ```json
 {
   "mcpServers": {
     "portboard": {
       "command": "npx",
-      "args": ["portboard-mcp"]
+      "args": ["-y", "-p", "portbd", "portboard-mcp"]
     }
   }
 }
 ```
+
+**Important:** Restart Claude Desktop after updating the configuration.
 
 **Available Tools:**
 - `portboard_list_ports` - List all listening ports with filtering
