@@ -2,7 +2,7 @@ import { useAtom } from "jotai";
 import { Bell, BellOff } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { Button } from "@/components/brutalist";
+import { Button, Tooltip, TooltipContent, TooltipTrigger } from "@/components/brutalist";
 import { notificationsEnabledAtom } from "@/store/port-store";
 
 export function NotificationToggle() {
@@ -45,18 +45,30 @@ export function NotificationToggle() {
 	};
 
 	return (
-		<Button variant="outline" size="sm" onClick={handleToggle} aria-label="Toggle notifications">
-			{notificationsEnabled ? (
-				<>
-					<Bell className="h-4 w-4 mr-2" />
-					{t("settings.notifications.on")}
-				</>
-			) : (
-				<>
-					<BellOff className="h-4 w-4 mr-2" />
-					{t("settings.notifications.off")}
-				</>
-			)}
-		</Button>
+		<Tooltip>
+			<TooltipTrigger asChild>
+				<Button
+					variant="outline"
+					size="sm"
+					onClick={handleToggle}
+					aria-label="Toggle notifications"
+				>
+					{notificationsEnabled ? (
+						<>
+							<Bell className="h-4 w-4 mr-2" />
+							{t("settings.notifications.on")}
+						</>
+					) : (
+						<>
+							<BellOff className="h-4 w-4 mr-2" />
+							{t("settings.notifications.off")}
+						</>
+					)}
+				</Button>
+			</TooltipTrigger>
+			<TooltipContent>
+				<p>{t("settings.notifications.tooltip")}</p>
+			</TooltipContent>
+		</Tooltip>
 	);
 }
