@@ -1,4 +1,4 @@
-import { execSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { Hono } from "hono";
 import { DOCKER } from "../config/constants";
 
@@ -17,23 +17,49 @@ app.get("/:containerId", (c) => {
 		return c.json({ error: "Container ID is required" }, 400);
 	}
 
+	// Validate containerId format (alphanumeric with allowed Docker characters)
+	if (!/^[a-zA-Z0-9][a-zA-Z0-9_.-]*$/.test(containerId)) {
+		return c.json({ error: "Invalid container ID format" }, 400);
+	}
+
+	// Validate lines parameter (must be a positive integer)
+	const linesNum = Number.parseInt(lines, 10);
+	if (Number.isNaN(linesNum) || linesNum <= 0 || linesNum > 10000) {
+		return c.json({ error: "Invalid lines parameter (must be 1-10000)" }, 400);
+	}
+
+	// Validate since parameter format (RFC3339 timestamp)
+	if (since && !/^\d{4}-\d{2}-\d{2}T[\d:.]+Z?$/.test(since)) {
+		return c.json({ error: "Invalid since parameter format (must be RFC3339 timestamp)" }, 400);
+	}
+
 	try {
-		// Build docker logs command with timestamps
-		let command = "docker logs";
+		// Build docker logs command arguments safely
+		const args = ["logs"];
 
 		// Use --since for follow mode (new logs only), otherwise use -n for last N lines
 		if (since) {
-			command += ` --since ${since}`;
+			args.push("--since", since);
 		} else {
-			command += ` -n ${lines}`;
+			args.push("-n", linesNum.toString());
 		}
 
-		command += ` --timestamps ${containerId}`;
+		args.push("--timestamps", containerId);
 
-		const output = execSync(command, {
+		const result = spawnSync("docker", args, {
 			encoding: "utf-8",
 			maxBuffer: DOCKER.LOGS_MAX_BUFFER, // 10MB buffer for large logs
 		});
+
+		if (result.error) {
+			throw result.error;
+		}
+
+		if (result.status !== 0) {
+			throw new Error(result.stderr || "Docker logs command failed");
+		}
+
+		const output = result.stdout;
 
 		// Parse logs into structured format
 		const logLines = output
