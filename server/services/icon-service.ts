@@ -133,7 +133,9 @@ export async function extractAppIcon(appPath: string): Promise<string | null> {
  * Get cached icon by cache key
  */
 export async function getCachedIcon(cacheKey: string): Promise<Buffer | null> {
-	const iconPath = path.join(ICON_CACHE_DIR, cacheKey);
+	// Ensure .png extension is included (matches extractAppIcon write path)
+	const fileName = cacheKey.endsWith(".png") ? cacheKey : `${cacheKey}.png`;
+	const iconPath = path.join(ICON_CACHE_DIR, fileName);
 
 	try {
 		return await fs.readFile(iconPath);
