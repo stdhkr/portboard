@@ -1,10 +1,11 @@
-import { execSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { Hono } from "hono";
 import { z } from "zod";
 import { NETWORK } from "../config/constants";
 import { getNetworkURL, openInBrowser as openInBrowserService } from "../services/browser-service";
 import { getPlatformProviderSingleton } from "../services/platform";
 import { getListeningPorts, killProcess } from "../services/port-service";
+import { validateDirectoryPath } from "../utils/path-validation";
 
 export const portRoutes = new Hono();
 
@@ -213,7 +214,10 @@ portRoutes.post("/open-container-shell", async (c) => {
 
 // POST /api/ports/stop-container - Stop a Docker container
 const stopContainerSchema = z.object({
-	containerName: z.string().min(1),
+	containerName: z
+		.string()
+		.min(1)
+		.regex(/^[a-zA-Z0-9][a-zA-Z0-9_.-]*$/, "Invalid container name"),
 });
 
 portRoutes.post("/stop-container", async (c) => {
@@ -221,7 +225,11 @@ portRoutes.post("/stop-container", async (c) => {
 		const body = await c.req.json();
 		const { containerName } = stopContainerSchema.parse(body);
 
-		execSync(`docker stop ${containerName}`, { encoding: "utf-8" });
+		const result = spawnSync("docker", ["stop", containerName], { encoding: "utf-8" });
+
+		if (result.error || result.status !== 0) {
+			throw new Error(result.stderr || result.error?.message || "Failed to stop container");
+		}
 
 		return c.json({ success: true, error: null });
 	} catch (error) {
@@ -231,7 +239,7 @@ portRoutes.post("/stop-container", async (c) => {
 			return c.json(
 				{
 					success: false,
-					error: "Invalid request: Container name is required",
+					error: "Invalid request: Container name is required and must be valid",
 				},
 				400,
 			);
@@ -249,7 +257,13 @@ portRoutes.post("/stop-container", async (c) => {
 
 // POST /api/ports/stop-compose - Stop a Docker Compose project
 const stopComposeSchema = z.object({
-	projectDirectory: z.string().min(1),
+	projectDirectory: z
+		.string()
+		.min(1)
+		.regex(
+			/^[\w./-]+$/,
+			"Invalid directory path: only alphanumeric, dots, slashes, hyphens, and underscores allowed",
+		),
 });
 
 portRoutes.post("/stop-compose", async (c) => {
@@ -257,10 +271,26 @@ portRoutes.post("/stop-compose", async (c) => {
 		const body = await c.req.json();
 		const { projectDirectory } = stopComposeSchema.parse(body);
 
-		execSync("docker-compose down", {
+		// Validate directory path using utility function
+		const validationResult = await validateDirectoryPath(projectDirectory);
+		if (!validationResult.valid) {
+			return c.json(
+				{
+					success: false,
+					error: validationResult.error,
+				},
+				validationResult.errorCode || 400,
+			);
+		}
+
+		const result = spawnSync("docker-compose", ["down"], {
 			cwd: projectDirectory,
 			encoding: "utf-8",
 		});
+
+		if (result.error || result.status !== 0) {
+			throw new Error(result.stderr || result.error?.message || "Failed to stop compose project");
+		}
 
 		return c.json({ success: true, error: null });
 	} catch (error) {
@@ -270,7 +300,7 @@ portRoutes.post("/stop-compose", async (c) => {
 			return c.json(
 				{
 					success: false,
-					error: "Invalid request: Project directory is required",
+					error: "Invalid request: Project directory is required and must be valid",
 				},
 				400,
 			);
