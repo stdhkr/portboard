@@ -44,6 +44,37 @@ If the file doesn't exist, create it manually with the following content:
 - The JSON syntax must be valid
 - After creating or modifying the file, **restart Claude Desktop** for changes to take effect
 
+### Local Development Setup
+
+If you're developing Portboard locally and want to test changes immediately:
+
+```json
+{
+  "mcpServers": {
+    "portboard": {
+      "command": "node",
+      "args": ["/path/to/portboard/dist/mcp.js"]
+    }
+  }
+}
+```
+
+Replace `/path/to/portboard` with your actual project path. For example:
+```json
+{
+  "mcpServers": {
+    "portboard": {
+      "command": "node",
+      "args": ["/Users/username/development/portboard/dist/mcp.js"]
+    }
+  }
+}
+```
+
+**After making code changes:**
+1. Rebuild the server: `npm run build:server`
+2. Restart Claude Desktop to load the new version
+
 ### Other MCP Clients
 
 The MCP server uses stdio transport and can be integrated with any MCP-compatible client. Use the same command pattern:
@@ -254,6 +285,41 @@ This means the `args` configuration is incorrect. **Solution:**
 
 This happens when the npx command format is incorrect. Use the correct format shown above with `-p` flag.
 
+#### Error: "No result received from client-side tool execution"
+
+This error appears when the MCP server fails to return a result to Claude Desktop. **Common causes:**
+
+1. **Permission issues (most common):**
+   - The MCP server needs permission to run `lsof` command to detect ports
+   - On macOS, check System Preferences → Security & Privacy → Full Disk Access
+   - Try running `lsof -i -P -n` manually in Terminal to verify permissions
+
+2. **Node.js not in PATH:**
+   - Ensure Node.js is accessible from the PATH used by Claude Desktop
+   - Check Claude Desktop logs for "command not found" errors
+   - macOS: `~/Library/Logs/Claude/mcp*.log`
+
+3. **MCP server crash:**
+   - Check Claude Desktop logs for error messages
+   - Look for JavaScript errors or permission denied messages
+   - Try running the server manually to see errors:
+     ```bash
+     npx -y -p portbd portboard-mcp
+     # Then type this JSON and press Enter:
+     {"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}
+     ```
+
+4. **Timeout:**
+   - First run may take longer due to npm package installation
+   - Wait 30-60 seconds and try again
+   - Check internet connection for npm registry access
+
+**Quick fix:**
+1. Check Claude Desktop logs: `~/Library/Logs/Claude/` (macOS) or `%APPDATA%\Claude\logs\` (Windows)
+2. Look for the most recent `mcp-*.log` file with "portboard" in the name
+3. Check for permission errors or crash messages
+4. Grant necessary permissions and restart Claude Desktop
+
 ### MCP Server Won't Start
 
 1. **Check Node.js version**: Requires Node.js 18+
@@ -288,6 +354,34 @@ If ports are not being detected:
 1. Ensure `lsof` is available: `which lsof`
 2. Check permissions to run `lsof`
 3. Try running Portboard Web UI to verify port detection works
+
+### Manual Testing of MCP Server
+
+To test the MCP server directly and see error messages:
+
+```bash
+# Run the MCP server in stdio mode
+npx -y -p portbd portboard-mcp
+
+# The server will wait for input. Send a test request:
+# (Copy and paste this entire JSON line, then press Enter)
+{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}
+
+# Expected response: List of available tools
+# If you see errors here, they're the same errors Claude Desktop sees
+```
+
+**Testing a specific tool:**
+
+```bash
+# List all ports
+echo '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"portboard_list_ports","arguments":{}}}' | npx -y -p portbd portboard-mcp
+
+# Get info for port 3000
+echo '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"portboard_get_port_info","arguments":{"port":3000}}}' | npx -y -p portbd portboard-mcp
+```
+
+This will help identify if the issue is with the MCP server itself or with Claude Desktop's integration.
 
 ## Advanced Usage
 
