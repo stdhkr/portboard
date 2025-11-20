@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Toaster } from "@/components/brutalist";
 import { PortTable } from "@/components/port-table";
+import { GitHubLink } from "@/components/settings/github-link";
 import { LanguageToggle } from "@/components/settings/language-toggle";
 import { NotificationToggle } from "@/components/settings/notification-toggle";
 import { ThemeToggle } from "@/components/settings/theme-toggle";
@@ -23,6 +24,7 @@ function App() {
 						<NotificationToggle />
 						<LanguageToggle />
 						<ThemeToggle />
+						<GitHubLink />
 					</div>
 				</div>
 				<PortTable />

@@ -2,6 +2,10 @@
 
 An open-source, browser-based port management dashboard for developers.
 
+[![GitHub](https://img.shields.io/badge/GitHub-stdhkr%2Fportboard-blue?logo=github)](https://github.com/stdhkr/portboard)
+[![npm version](https://img.shields.io/npm/v/portbd.svg)](https://www.npmjs.com/package/portbd)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 ![Portboard Screenshot](docs/screenshot.png)
 
 ## Overview
@@ -705,11 +709,41 @@ portboard/
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Here's how you can help:
+
+### Reporting Issues
+
+Found a bug or have a feature request? Please [open an issue](https://github.com/stdhkr/portboard/issues) on GitHub.
+
+### Pull Requests
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Run tests and linting (`npm run check && npm run typecheck`)
+5. Commit your changes (`git commit -m 'Add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
+
+### Development Guidelines
+
+- Follow the existing code style (Biome configuration)
+- Add tests for new features
+- Update documentation as needed
+- See [CLAUDE.md](CLAUDE.md) for detailed architecture and development guidelines
 
 ## License
 
 [MIT License](LICENSE)
+
+Copyright (c) 2025 Portboard Contributors
+
+## Support & Feedback
+
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/stdhkr/portboard/issues)
+- 💡 **Feature Requests**: [GitHub Discussions](https://github.com/stdhkr/portboard/discussions)
+- 📖 **Documentation**: See [docs/](docs/) folder and [CLAUDE.md](CLAUDE.md)
+- 💬 **Questions**: Open a [GitHub Discussion](https://github.com/stdhkr/portboard/discussions)
 
 ## Project Status
 
