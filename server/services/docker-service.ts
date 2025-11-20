@@ -1,8 +1,45 @@
-import { exec } from "node:child_process";
-import { promisify } from "node:util";
+import { spawn } from "node:child_process";
+import { validateDirectoryPath } from "../utils/path-validation";
 import type { DockerContainerInfo } from "./category-service";
 
-const execAsync = promisify(exec);
+/**
+ * Safely execute a command and return stdout
+ */
+async function execCommand(
+	command: string,
+	args: string[],
+	options?: { cwd?: string },
+): Promise<string> {
+	return new Promise((resolve, reject) => {
+		const proc = spawn(command, args, {
+			...options,
+			stdio: ["ignore", "pipe", "pipe"],
+		});
+
+		let stdout = "";
+		let stderr = "";
+
+		proc.stdout.on("data", (data) => {
+			stdout += data.toString();
+		});
+
+		proc.stderr.on("data", (data) => {
+			stderr += data.toString();
+		});
+
+		proc.on("error", (error) => {
+			reject(error);
+		});
+
+		proc.on("close", (code) => {
+			if (code !== 0) {
+				reject(new Error(stderr || `Command failed with exit code ${code}`));
+			} else {
+				resolve(stdout);
+			}
+		});
+	});
+}
 
 /**
  * Get Docker container port mappings
@@ -13,12 +50,14 @@ export async function getDockerPortMappings(): Promise<Map<number, DockerContain
 
 	try {
 		// Check if Docker CLI is available
-		await execAsync("which docker");
+		await execCommand("which", ["docker"]);
 
 		// Get container info with port mappings
-		const { stdout } = await execAsync(
-			'docker ps --format "{{.ID}}\\t{{.Names}}\\t{{.Image}}\\t{{.Ports}}"',
-		);
+		const stdout = await execCommand("docker", [
+			"ps",
+			"--format",
+			"{{.ID}}\\t{{.Names}}\\t{{.Image}}\\t{{.Ports}}",
+		]);
 
 		const containerIds: string[] = [];
 		const containerData = new Map<string, { name: string; image: string; ports: string }>();
@@ -33,9 +72,7 @@ export async function getDockerPortMappings(): Promise<Map<number, DockerContain
 		const containerLabels = new Map<string, Record<string, string>>();
 		if (containerIds.length > 0) {
 			try {
-				const { stdout: inspectOutput } = await execAsync(
-					`docker inspect ${containerIds.join(" ")}`,
-				);
+				const inspectOutput = await execCommand("docker", ["inspect", ...containerIds]);
 				const inspectData = JSON.parse(inspectOutput);
 
 				for (const container of inspectData) {
@@ -54,25 +91,18 @@ export async function getDockerPortMappings(): Promise<Map<number, DockerContain
 			const labels = containerLabels.get(id) || {};
 			const composeConfigFiles = labels["com.docker.compose.project.config_files"];
 
-			// Extract host ports from format: "0.0.0.0:5433->5432/tcp"
-			const portMatches = [...ports.matchAll(/0\.0\.0\.0:(\d+)->(\d+)/g)];
+			// Extract host ports from various Docker port binding formats:
+			// - 0.0.0.0:5433->5432/tcp (all interfaces)
+			// - 127.0.0.1:3000->3000/tcp (localhost only)
+			// - [::]:8080->8080/tcp (IPv6 all interfaces)
+			// - *:9000->9000/tcp (wildcard)
+			// - 192.168.1.100:4000->4000/tcp (specific IP)
+
+			// Match: [host_ip]:host_port->container_port
+			// Supports IPv4, IPv6 (with brackets), and wildcard (*)
+			const portMatches = [...ports.matchAll(/(?:\[?[\da-fA-F:.]+\]?|\*):(\d+)->(\d+)/g)];
 
 			for (const match of portMatches) {
-				const hostPort = Number.parseInt(match[1], 10);
-				const containerPort = Number.parseInt(match[2], 10);
-
-				portMap.set(hostPort, {
-					id,
-					name,
-					image,
-					containerPort,
-					composeConfigFiles,
-				});
-			}
-
-			// Also handle *:port->port format
-			const wildcardMatches = [...ports.matchAll(/\*:(\d+)->(\d+)/g)];
-			for (const match of wildcardMatches) {
 				const hostPort = Number.parseInt(match[1], 10);
 				const containerPort = Number.parseInt(match[2], 10);
 
@@ -99,8 +129,13 @@ export async function getDockerPortMappings(): Promise<Map<number, DockerContain
  * Stop a Docker container
  */
 export async function stopDockerContainer(containerIdOrName: string): Promise<void> {
+	// Validate container name/ID format
+	if (!/^[a-zA-Z0-9][a-zA-Z0-9_.-]*$/.test(containerIdOrName)) {
+		throw new Error(`Invalid container name or ID: ${containerIdOrName}`);
+	}
+
 	try {
-		await execAsync(`docker stop ${containerIdOrName}`);
+		await execCommand("docker", ["stop", containerIdOrName]);
 	} catch (error) {
 		throw new Error(
 			`Failed to stop container ${containerIdOrName}: ${error instanceof Error ? error.message : String(error)}`,
@@ -112,8 +147,14 @@ export async function stopDockerContainer(containerIdOrName: string): Promise<vo
  * Stop a docker-compose project
  */
 export async function stopDockerCompose(projectDirectory: string): Promise<void> {
+	// Validate directory path using utility function
+	const validationResult = await validateDirectoryPath(projectDirectory);
+	if (!validationResult.valid) {
+		throw new Error(validationResult.error);
+	}
+
 	try {
-		await execAsync("docker-compose down", { cwd: projectDirectory });
+		await execCommand("docker-compose", ["down"], { cwd: projectDirectory });
 	} catch (error) {
 		throw new Error(
 			`Failed to stop compose project: ${error instanceof Error ? error.message : String(error)}`,
@@ -129,18 +170,28 @@ export async function getDockerLogs(
 	lines?: number,
 	since?: string,
 ): Promise<string> {
+	// Validate container name/ID format
+	if (!/^[a-zA-Z0-9][a-zA-Z0-9_.-]*$/.test(containerIdOrName)) {
+		throw new Error(`Invalid container name or ID: ${containerIdOrName}`);
+	}
+
+	// Validate since parameter format (RFC3339 timestamp)
+	if (since && !/^\d{4}-\d{2}-\d{2}T[\d:.]+Z?$/.test(since)) {
+		throw new Error(`Invalid since parameter format: ${since}`);
+	}
+
 	try {
-		let command = `docker logs ${containerIdOrName}`;
+		const args = ["logs", containerIdOrName];
 
 		if (lines) {
-			command += ` --tail ${lines}`;
+			args.push("--tail", lines.toString());
 		}
 
 		if (since) {
-			command += ` --since ${since}`;
+			args.push("--since", since);
 		}
 
-		const { stdout } = await execAsync(command);
+		const stdout = await execCommand("docker", args);
 		return stdout;
 	} catch (error) {
 		throw new Error(
