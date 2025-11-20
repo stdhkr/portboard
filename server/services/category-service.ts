@@ -35,7 +35,23 @@ export function categorizeProcess(
 			image.includes("redis") ||
 			image.includes("mongo") ||
 			image.includes("cassandra") ||
-			image.includes("elasticsearch")
+			image.includes("elasticsearch") ||
+			image.includes("dynamodb") ||
+			image.includes("cosmosdb") ||
+			image.includes("couchdb") ||
+			image.includes("neo4j") ||
+			image.includes("influxdb") ||
+			image.includes("timescaledb") ||
+			image.includes("clickhouse") ||
+			image.includes("cockroachdb") ||
+			image.includes("yugabytedb") ||
+			image.includes("scylladb") ||
+			image.includes("arangodb") ||
+			image.includes("orientdb") ||
+			image.includes("rethinkdb") ||
+			image.includes("memcached") ||
+			image.includes("valkey") ||
+			image.includes("dragonfly")
 		) {
 			return "database";
 		}
@@ -104,7 +120,23 @@ export function categorizeProcess(
 		name.includes("mongo") ||
 		name.includes("cassandra") ||
 		name.includes("elasticsearch") ||
-		name.includes("sqlite")
+		name.includes("sqlite") ||
+		name.includes("dynamodb") ||
+		name.includes("cosmosdb") ||
+		name.includes("couchdb") ||
+		name.includes("neo4j") ||
+		name.includes("influxdb") ||
+		name.includes("timescaledb") ||
+		name.includes("clickhouse") ||
+		name.includes("cockroachdb") ||
+		name.includes("yugabytedb") ||
+		name.includes("scylladb") ||
+		name.includes("arangodb") ||
+		name.includes("orientdb") ||
+		name.includes("rethinkdb") ||
+		name.includes("memcached") ||
+		name.includes("valkey") ||
+		name.includes("dragonfly")
 	) {
 		return "database";
 	}
