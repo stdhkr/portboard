@@ -347,18 +347,21 @@ The project uses three TypeScript configurations:
   - Icon extraction: `sips` for .icns to PNG conversion
   - IDE/Terminal detection: `mdfind` (Spotlight) with hardcoded fallbacks
   - Browser: `open` command, `os.networkInterfaces()` for network URLs
+- ✅ **Linux** (`platform/linux/`): Full implementation
+  - Port detection: `lsof +c 0 -i -P -n | grep LISTEN`
+  - Connection counting: Batch `lsof -P -n -i` with PID filtering
+  - Process metadata: Batch `ps` for CPU/memory/start time, `lsof` for cwd
+  - Process kill: `kill` with ownership checks
+  - Icon extraction: `.desktop` file parsing with `find` command
+  - IDE/Terminal detection: `which` command for 18 IDEs and 9 terminals
+  - Docker container shell: `docker exec -it` with terminal-specific handling
+  - Browser: `xdg-open` command, `os.networkInterfaces()` for network URLs
 - ⚡ **Windows** (`platform/windows/`): Improved stub with basic data
   - Port detection: `netstat -ano` with batch `wmic` for process info
   - Connection counting: `netstat -ano | findstr "ESTABLISHED"` with port/PID matching
   - Process metadata: Batch `wmic` for ExecutablePath, WorkingSetSize, CreationDate
   - Process kill: `taskkill /PID`
   - Still needs: Icon extraction (.ico), IDE detection, full metadata
-- ⚡ **Linux** (`platform/linux/`): Improved stub with basic data
-  - Port detection: `lsof +c 0 -i -P -n | grep LISTEN`
-  - Connection counting: Batch `lsof -P -n -i` with PID filtering
-  - Process metadata: Batch `ps` for CPU/memory/start time, `lsof` for cwd
-  - Process kill: `kill` with ownership checks
-  - Still needs: Icon extraction (.desktop files), IDE detection
 
 **Usage Pattern**:
 ```typescript
@@ -387,9 +390,15 @@ const localIP = platformProvider.browserProvider.getLocalIPAddress();
 - `routes/ports.ts`: Uses `applicationProvider` for IDE/Terminal integration
 
 **Implementation Details**:
-- Services like `icon-service.ts` and `ide-detection-service.ts` remain as macOS-specific implementations used by `MacOSIconProvider` and `MacOSApplicationProvider`
-- Platform providers wrap these implementations and expose them through standard interfaces
-- Windows and Linux providers will need their own implementations (e.g., .ico for Windows, .desktop for Linux)
+- **macOS**: Services like `icon-service.ts` and `ide-detection-service.ts` are macOS-specific implementations used by `MacOSIconProvider` and `MacOSApplicationProvider`
+- **Linux**: Full provider implementations with organized file structure (6 files matching macOS):
+  - `port-provider.ts` (92 lines): Port detection and connection counting
+  - `process-provider.ts` (253 lines): Process management and metadata
+  - `icon-provider.ts` (135 lines): .desktop file parsing and icon search
+  - `application-provider.ts` (192 lines): IDE/Terminal detection with `which`
+  - `browser-provider.ts` (34 lines): Browser integration with `xdg-open`
+  - `index.ts` (21 lines): Entry point aggregating all providers
+- **Windows**: Still needs its own implementations (e.g., .ico extraction, IDE detection)
 
 ### Backend (Implemented)
 - **Framework**: Hono (lightweight web framework)
@@ -645,8 +654,14 @@ portboard/
 │       │   │   ├── icon-provider.ts          # Icon extraction (sips)
 │       │   │   ├── application-provider.ts   # IDE/Terminal detection (mdfind)
 │       │   │   └── browser-provider.ts       # Browser & network (open, networkInterfaces)
-│       │   ├── windows/                  # Windows implementations (stub)
-│       │   └── linux/                    # Linux implementations (stub)
+│       │   ├── linux/                    # Linux implementations
+│       │   │   ├── index.ts                  # LinuxPlatformProvider
+│       │   │   ├── port-provider.ts          # Port management (lsof)
+│       │   │   ├── process-provider.ts       # Process management (ps, kill)
+│       │   │   ├── icon-provider.ts          # Icon extraction (.desktop files)
+│       │   │   ├── application-provider.ts   # IDE/Terminal detection (which)
+│       │   │   └── browser-provider.ts       # Browser & network (xdg-open, networkInterfaces)
+│       │   └── windows/                  # Windows implementations (stub)
 │       ├── port-service.ts           # Main port API (uses platform providers)
 │       ├── connection-service.ts     # Connection count tracking
 │       ├── browser-service.ts        # Browser integration & network URL generation (uses platform providers)

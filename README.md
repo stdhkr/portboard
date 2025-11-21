@@ -414,12 +414,15 @@ Portboard uses a platform abstraction layer to support multiple operating system
 
 **Current Implementation Status**:
 - ✅ **macOS**: Full implementation (lsof, ps, sips, mdfind, open)
+- ✅ **Linux**: Full implementation (lsof, ps, find, which, xdg-open)
+  - Port detection and connection counting
+  - Process metadata and resource monitoring
+  - Icon extraction from .desktop files
+  - IDE/Terminal detection (18 IDEs, 9 terminals)
+  - Docker container shell access
 - ⚡ **Windows**: Improved stub with basic data (netstat, wmic, taskkill)
   - Connection counting and process metadata now functional
   - Still needs: Icon extraction (.ico), IDE detection
-- ⚡ **Linux**: Improved stub with basic data (lsof, ps)
-  - Connection counting and process metadata now functional
-  - Still needs: Icon extraction (.desktop), IDE detection
 
 The platform abstraction layer uses a **singleton pattern** for performance, ensuring that platform providers are instantiated only once. Services access platform functionality through `getPlatformProviderSingleton()`, which automatically detects the current OS and returns the appropriate implementation.
 
@@ -521,8 +524,14 @@ portboard/
 │       │   │   ├── icon-provider.ts          # Icon extraction (sips)
 │       │   │   ├── application-provider.ts   # IDE/Terminal detection (mdfind)
 │       │   │   └── browser-provider.ts       # Browser & network (open, networkInterfaces)
-│       │   ├── windows/                  # Windows implementations (stub)
-│       │   └── linux/                    # Linux implementations (stub)
+│       │   ├── linux/                    # Linux implementations
+│       │   │   ├── index.ts                  # LinuxPlatformProvider
+│       │   │   ├── port-provider.ts          # Port management (lsof)
+│       │   │   ├── process-provider.ts       # Process management (ps, kill)
+│       │   │   ├── icon-provider.ts          # Icon extraction (.desktop files)
+│       │   │   ├── application-provider.ts   # IDE/Terminal detection (which)
+│       │   │   └── browser-provider.ts       # Browser & network (xdg-open, networkInterfaces)
+│       │   └── windows/                  # Windows implementations (stub)
 │       ├── port-service.ts           # Main port API (uses platform providers)
 │       ├── connection-service.ts     # Connection tracking
 │       ├── unix-port-parser.ts       # lsof output parsing
@@ -674,7 +683,7 @@ portboard/
     - [x] Open interactive shell inside container
     - [x] Terminal-specific command handling (Ghostty, iTerm2, etc.)
     - [x] Automatic bash/sh detection
-  - [ ] Cross-platform support (Windows, Linux)
+  - [x] Cross-platform support: Linux fully implemented (Windows partial)
 - [x] **Docker Container Logs Viewer**: Real-time log viewing
   - [x] Auto-fetch logs when collapsible section is opened (controlled state with useRef)
   - [x] **Configurable line count**: Select 20/50/100/200 lines with brutalist select component
