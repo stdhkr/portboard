@@ -11,21 +11,30 @@ const execAsync = promisify(exec);
 
 export class WindowsPortProvider implements IPortProvider {
 	async getListeningPorts(): Promise<BasicPortInfo[]> {
-		// Batch operation: Get all process info upfront using wmic
-		const { stdout: wmicOutput } = await execAsync("wmic process get ProcessId,Name /format:csv");
+		// Batch operation: Get all process info upfront using PowerShell (wmic is deprecated in Windows 11)
 		const processMap = new Map<number, string>();
 
-		// Parse wmic CSV output (format: Node,Name,ProcessId)
-		const wmicLines = wmicOutput.trim().split("\n").slice(1); // Skip header
-		for (const line of wmicLines) {
-			const parts = line.trim().split(",");
-			if (parts.length >= 3) {
-				const pid = Number.parseInt(parts[2], 10);
-				const name = parts[1];
-				if (!Number.isNaN(pid) && name) {
-					processMap.set(pid, name);
+		try {
+			const { stdout: psOutput } = await execAsync(
+				'powershell -Command "Get-Process | Select-Object Id,ProcessName | ConvertTo-Csv -NoTypeInformation"',
+				{ timeout: 10000 },
+			);
+
+			// Parse PowerShell CSV output (format: "Id","ProcessName")
+			const psLines = psOutput.trim().split("\n").slice(1); // Skip header
+			for (const line of psLines) {
+				// Parse CSV: "1234","processname"
+				const match = line.match(/"(\d+)","([^"]+)"/);
+				if (match) {
+					const pid = Number.parseInt(match[1], 10);
+					const name = match[2];
+					if (!Number.isNaN(pid) && name) {
+						processMap.set(pid, name);
+					}
 				}
 			}
+		} catch (error) {
+			console.debug("Failed to get process list via PowerShell:", error);
 		}
 
 		// Get listening ports from netstat

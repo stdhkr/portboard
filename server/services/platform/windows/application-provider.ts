@@ -136,10 +136,7 @@ const TERMINAL_DEFINITIONS = [
 	{
 		name: "Git Bash",
 		commands: ["bash"],
-		paths: [
-			"%ProgramFiles%\\Git\\bin\\bash.exe",
-			"%ProgramFiles(x86)%\\Git\\bin\\bash.exe",
-		],
+		paths: ["%ProgramFiles%\\Git\\bin\\bash.exe", "%ProgramFiles(x86)%\\Git\\bin\\bash.exe"],
 		openCommand: (cwd: string) => `bash --login -c "cd '${cwd}'; exec bash"`,
 	},
 	{
@@ -278,10 +275,7 @@ export class WindowsApplicationProvider implements IApplicationProvider {
 	/**
 	 * Find an application by checking commands in PATH and common installation paths
 	 */
-	private async findApplication(
-		commands: string[],
-		paths: string[],
-	): Promise<string | null> {
+	private async findApplication(commands: string[], paths: string[]): Promise<string | null> {
 		// First, try to find via command in PATH
 		for (const cmd of commands) {
 			try {

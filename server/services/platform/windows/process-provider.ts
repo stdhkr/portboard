@@ -29,10 +29,11 @@ export class WindowsProcessProvider implements IProcessProvider {
 		}
 
 		try {
-			// Batch operation: Get all process info using wmic
-			// Format: CSV with columns CreationDate,ExecutablePath,ProcessId,WorkingSetSize,KernelModeTime,UserModeTime
+			// Batch operation: Get all process info using PowerShell (wmic is deprecated in Windows 11)
+			// Use Get-CimInstance for process information
 			const { stdout } = await execAsync(
-				"wmic process get CreationDate,ExecutablePath,ProcessId,WorkingSetSize,KernelModeTime,UserModeTime /format:csv",
+				'powershell -Command "Get-CimInstance Win32_Process | Select-Object ProcessId,ExecutablePath,WorkingSetSize,CreationDate | ConvertTo-Csv -NoTypeInformation"',
+				{ timeout: 15000 },
 			);
 
 			const processInfoMap = new Map<
@@ -40,25 +41,35 @@ export class WindowsProcessProvider implements IProcessProvider {
 				{
 					executablePath?: string;
 					workingSetSize?: number;
-					creationDate?: string;
-					kernelTime?: number;
-					userTime?: number;
+					creationDate?: Date;
 				}
 			>();
 
-			// Parse wmic CSV output (format: Node,CreationDate,ExecutablePath,ProcessId,WorkingSetSize,...)
+			// Parse PowerShell CSV output (format: "ProcessId","ExecutablePath","WorkingSetSize","CreationDate")
 			const lines = stdout.trim().split("\n").slice(1); // Skip header
 			for (const line of lines) {
-				const parts = line.trim().split(",");
-				if (parts.length >= 6) {
-					const pid = Number.parseInt(parts[3], 10);
+				// Parse CSV with potential empty fields and dates
+				const match = line.match(/"(\d+)","([^"]*)","(\d*)","([^"]*)"/);
+				if (match) {
+					const pid = Number.parseInt(match[1], 10);
 					if (!Number.isNaN(pid)) {
+						let creationDate: Date | undefined;
+						if (match[4]) {
+							try {
+								// PowerShell date format varies, try to parse it
+								creationDate = new Date(match[4]);
+								if (Number.isNaN(creationDate.getTime())) {
+									creationDate = undefined;
+								}
+							} catch {
+								// Ignore parse errors
+							}
+						}
+
 						processInfoMap.set(pid, {
-							creationDate: parts[1] || undefined,
-							executablePath: parts[2] || undefined,
-							workingSetSize: Number.parseInt(parts[4], 10) || undefined,
-							kernelTime: Number.parseInt(parts[5], 10) || undefined,
-							userTime: Number.parseInt(parts[6], 10) || undefined,
+							executablePath: match[2] || undefined,
+							workingSetSize: match[3] ? Number.parseInt(match[3], 10) : undefined,
+							creationDate,
 						});
 					}
 				}
@@ -80,20 +91,9 @@ export class WindowsProcessProvider implements IProcessProvider {
 						metadata.memoryRSS = Math.floor(info.workingSetSize / 1024); // Convert to KB
 					}
 
-					// Parse WMI datetime format (e.g., "20250115143000.500000+540")
+					// Set process start time
 					if (info.creationDate) {
-						try {
-							const year = Number.parseInt(info.creationDate.substring(0, 4), 10);
-							const month = Number.parseInt(info.creationDate.substring(4, 6), 10) - 1;
-							const day = Number.parseInt(info.creationDate.substring(6, 8), 10);
-							const hour = Number.parseInt(info.creationDate.substring(8, 10), 10);
-							const minute = Number.parseInt(info.creationDate.substring(10, 12), 10);
-							const second = Number.parseInt(info.creationDate.substring(12, 14), 10);
-
-							metadata.processStartTime = new Date(year, month, day, hour, minute, second);
-						} catch {
-							// Ignore parse errors
-						}
+						metadata.processStartTime = info.creationDate;
 					}
 
 					// Note: CPU percentage calculation would require sampling over time

@@ -90,8 +90,6 @@ export class WindowsIconProvider implements IIconProvider {
 	 */
 	private generateCacheKey(appPath: string): string {
 		// Simple hash: replace invalid filename chars and limit length
-		return appPath
-			.replace(/[^a-zA-Z0-9]/g, "_")
-			.substring(0, 100);
+		return appPath.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 100);
 	}
 }
