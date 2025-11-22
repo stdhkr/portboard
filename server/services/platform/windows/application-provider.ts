@@ -181,7 +181,18 @@ export class WindowsApplicationProvider implements IApplicationProvider {
 			}
 		}
 
-		return detectedIDEs;
+		// Add Explorer as "Finder" for cross-platform compatibility with frontend
+		// (frontend checks for ide.name === "Finder" to show file manager section)
+		return [
+			{
+				id: "explorer",
+				name: "Finder", // Use "Finder" for frontend compatibility
+				command: "explorer",
+				available: true,
+				iconPath: undefined,
+			},
+			...detectedIDEs,
+		];
 	}
 
 	async detectTerminals(): Promise<ApplicationInfo[]> {
@@ -204,6 +215,12 @@ export class WindowsApplicationProvider implements IApplicationProvider {
 
 	async openInIDE(idePath: string, directoryPath: string): Promise<void> {
 		try {
+			// Special handling for Explorer (file manager)
+			if (idePath === "explorer") {
+				await execAsync(`explorer "${directoryPath}"`);
+				return;
+			}
+
 			// Most IDEs accept directory path as argument
 			await execAsync(`start "" "${idePath}" "${directoryPath}"`);
 		} catch (error) {
