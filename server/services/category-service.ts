@@ -72,14 +72,38 @@ export function categorizeProcess(
 
 	const name = (appName || processName).toLowerCase();
 	const path = (commandPath || "").toLowerCase();
+	const procName = processName.toLowerCase();
 
-	// System processes
+	// System processes (macOS)
 	if (
 		path.startsWith("/system/") ||
 		processName === "rapportd" ||
 		processName === "ControlCenter" ||
 		name.includes("kernel") ||
 		name.includes("launchd")
+	) {
+		return "system";
+	}
+
+	// System processes (Windows)
+	if (
+		procName === "system" ||
+		procName === "svchost" ||
+		procName === "services" ||
+		procName === "lsass" ||
+		procName === "csrss" ||
+		procName === "wininit" ||
+		procName === "winlogon" ||
+		procName === "smss" ||
+		procName === "spoolsv" ||
+		procName === "dwm" ||
+		procName === "taskhostw" ||
+		procName === "runtimebroker" ||
+		procName === "searchhost" ||
+		procName === "sihost" ||
+		procName === "fontdrvhost" ||
+		path.includes("\\windows\\system32\\") ||
+		path.includes("\\windows\\syswow64\\")
 	) {
 		return "system";
 	}
