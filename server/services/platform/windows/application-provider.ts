@@ -216,7 +216,8 @@ export class WindowsApplicationProvider implements IApplicationProvider {
 	async openInIDE(idePath: string, directoryPath: string): Promise<void> {
 		try {
 			// Special handling for Explorer (file manager)
-			if (idePath === "explorer") {
+			// Check for both "explorer" and "open" (macOS command that frontend might send)
+			if (idePath === "explorer" || idePath === "open") {
 				await execAsync(`explorer "${directoryPath}"`);
 				return;
 			}
