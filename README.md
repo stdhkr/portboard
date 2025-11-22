@@ -420,9 +420,15 @@ Portboard uses a platform abstraction layer to support multiple operating system
   - Icon extraction from .desktop files
   - IDE/Terminal detection (18 IDEs, 9 terminals)
   - Docker container shell access
-- ⚡ **Windows**: Improved stub with basic data (netstat, wmic, taskkill)
-  - Connection counting and process metadata now functional
-  - Still needs: Icon extraction (.ico), IDE detection
+- ✅ **Windows**: Full implementation (netstat, PowerShell, taskkill)
+  - Port detection and connection counting
+  - Process metadata and resource monitoring (PowerShell Get-CimInstance)
+  - Icon extraction using PowerShell + System.Drawing
+  - IDE/Terminal detection (16 IDEs, 9 terminals) with fast synchronous path checks
+  - Explorer integration for file manager (mapped as "Finder" for frontend compatibility)
+  - Working directory derived from executable path (full cwd requires admin privileges)
+  - Docker: Not testable on UTM VM (WSL2/Hyper-V not supported in nested virtualization)
+  - Tested on Windows 11 ARM (UTM VM)
 
 The platform abstraction layer uses a **singleton pattern** for performance, ensuring that platform providers are instantiated only once. Services access platform functionality through `getPlatformProviderSingleton()`, which automatically detects the current OS and returns the appropriate implementation.
 
@@ -531,7 +537,13 @@ portboard/
 │       │   │   ├── icon-provider.ts          # Icon extraction (.desktop files)
 │       │   │   ├── application-provider.ts   # IDE/Terminal detection (which)
 │       │   │   └── browser-provider.ts       # Browser & network (xdg-open, networkInterfaces)
-│       │   └── windows/                  # Windows implementations (stub)
+│       │   └── windows/                  # Windows implementations
+│       │       ├── index.ts                  # WindowsPlatformProvider
+│       │       ├── port-provider.ts          # Port management (netstat)
+│       │       ├── process-provider.ts       # Process management (wmic, taskkill)
+│       │       ├── icon-provider.ts          # Icon extraction (PowerShell + System.Drawing)
+│       │       ├── application-provider.ts   # IDE/Terminal detection (where)
+│       │       └── browser-provider.ts       # Browser & network (start, networkInterfaces)
 │       ├── port-service.ts           # Main port API (uses platform providers)
 │       ├── connection-service.ts     # Connection tracking
 │       ├── unix-port-parser.ts       # lsof output parsing
