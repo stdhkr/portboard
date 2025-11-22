@@ -298,38 +298,25 @@ export class WindowsApplicationProvider implements IApplicationProvider {
 	}
 
 	/**
-	 * Find an application by checking commands in PATH and common installation paths
+	 * Find an application by checking common installation paths (fast, synchronous)
+	 * Skips PATH lookup entirely for performance
 	 */
-	private async findApplication(commands: string[], paths: string[]): Promise<string | null> {
-		// First, try to find via command in PATH
-		for (const cmd of commands) {
-			try {
-				const { stdout } = await execAsync(`where ${cmd} 2>nul`);
-				const foundPath = stdout.trim().split("\n")[0];
-				if (foundPath && existsSync(foundPath)) {
-					return foundPath;
-				}
-			} catch {
-				// Command not found in PATH
-			}
-		}
-
-		// Then check common installation paths
+	private findApplication(_commands: string[], paths: string[]): Promise<string | null> {
+		// Only check common installation paths (synchronous file existence check - very fast)
 		for (const pathTemplate of paths) {
 			const expandedPath = this.expandEnvVars(pathTemplate);
 
-			// Handle wildcard paths
+			// Skip wildcard paths (would need slow PowerShell)
 			if (expandedPath.includes("*")) {
-				const foundPath = await this.findWildcardPath(expandedPath);
-				if (foundPath) {
-					return foundPath;
-				}
-			} else if (existsSync(expandedPath)) {
-				return expandedPath;
+				continue;
+			}
+
+			if (existsSync(expandedPath)) {
+				return Promise.resolve(expandedPath);
 			}
 		}
 
-		return null;
+		return Promise.resolve(null);
 	}
 
 	/**
@@ -339,26 +326,5 @@ export class WindowsApplicationProvider implements IApplicationProvider {
 		return path.replace(/%([^%]+)%/g, (_, envVar) => {
 			return process.env[envVar] || "";
 		});
-	}
-
-	/**
-	 * Find a file matching a wildcard path pattern
-	 */
-	private async findWildcardPath(pathPattern: string): Promise<string | null> {
-		try {
-			// Convert wildcard to PowerShell pattern
-			const psPath = pathPattern.replace(/\*/g, "*");
-			const { stdout } = await execAsync(
-				`powershell -Command "Get-Item '${psPath}' -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName"`,
-				{ timeout: 5000 },
-			);
-			const foundPath = stdout.trim();
-			if (foundPath && existsSync(foundPath)) {
-				return foundPath;
-			}
-		} catch {
-			// Pattern not found
-		}
-		return null;
 	}
 }
