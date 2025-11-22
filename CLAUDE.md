@@ -556,7 +556,6 @@ const localIP = platformProvider.browserProvider.getLocalIPAddress();
 ### Features to Implement
 1. **Port History Tracking**: Track port usage over time with JSON persistence
 2. **TUI Mode**: Terminal UI with Ink (interactive mode planned)
-3. **Cross-platform CLI/MCP**: Full Windows and Linux support for CLI and MCP
 
 ### Security Principles (from plan)
 - **Localhost-only binding** by default
@@ -993,11 +992,8 @@ The codebase follows a **modular architecture** with strict separation of concer
   - Quick select filters (All Idle, All Development, High CPU)
   - Port range selection (e.g., 3000-3010)
   - Signal selection (SIGTERM/SIGKILL/SIGINT)
-- Cross-platform support for IDE/Terminal integration (Windows, Linux)
-- Cross-platform icon support (Windows: .ico, Linux: .desktop)
 - Port history tracking with JSON persistence
-- Docker and docker-compose configuration
-- CLI mode
+- TUI mode (Ink-based terminal UI)
 - Additional port filtering features
 
 ## Additional Notes
