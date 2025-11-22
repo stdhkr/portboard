@@ -167,19 +167,23 @@ const TERMINAL_DEFINITIONS = [
 
 export class WindowsApplicationProvider implements IApplicationProvider {
 	async detectIDEs(): Promise<ApplicationInfo[]> {
-		const detectedIDEs: ApplicationInfo[] = [];
+		// Run all IDE detection in parallel for better performance
+		const results = await Promise.all(
+			IDE_DEFINITIONS.map(async (ide) => {
+				const path = await this.findApplication(ide.commands, ide.paths);
+				if (path) {
+					return {
+						name: ide.name,
+						command: path,
+						available: true,
+						iconPath: undefined,
+					} as ApplicationInfo;
+				}
+				return null;
+			}),
+		);
 
-		for (const ide of IDE_DEFINITIONS) {
-			const path = await this.findApplication(ide.commands, ide.paths);
-			if (path) {
-				detectedIDEs.push({
-					name: ide.name,
-					command: path,
-					available: true,
-					iconPath: undefined,
-				});
-			}
-		}
+		const detectedIDEs = results.filter((ide): ide is ApplicationInfo => ide !== null);
 
 		// Add Explorer as "Finder" for cross-platform compatibility with frontend
 		// (frontend checks for ide.name === "Finder" to show file manager section)
@@ -196,21 +200,23 @@ export class WindowsApplicationProvider implements IApplicationProvider {
 	}
 
 	async detectTerminals(): Promise<ApplicationInfo[]> {
-		const detectedTerminals: ApplicationInfo[] = [];
+		// Run all terminal detection in parallel for better performance
+		const results = await Promise.all(
+			TERMINAL_DEFINITIONS.map(async (terminal) => {
+				const path = await this.findApplication(terminal.commands, terminal.paths);
+				if (path) {
+					return {
+						name: terminal.name,
+						command: path,
+						available: true,
+						iconPath: undefined,
+					} as ApplicationInfo;
+				}
+				return null;
+			}),
+		);
 
-		for (const terminal of TERMINAL_DEFINITIONS) {
-			const path = await this.findApplication(terminal.commands, terminal.paths);
-			if (path) {
-				detectedTerminals.push({
-					name: terminal.name,
-					command: path,
-					available: true,
-					iconPath: undefined,
-				});
-			}
-		}
-
-		return detectedTerminals;
+		return results.filter((terminal): terminal is ApplicationInfo => terminal !== null);
 	}
 
 	async openInIDE(idePath: string, directoryPath: string): Promise<void> {
