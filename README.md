@@ -14,36 +14,61 @@ An open-source, browser-based port management dashboard for developers.
 
 ### Why Portboard?
 
-Today's developers ship code faster than ever thanks to AI tools like Cursor, Claude Code, Codex, and GitHub Copilot.
-But as AI starts spinning up dev servers automatically… a new pain emerges:
+#### The Terminal Way (Before)
 
-**⚠️ The New Reality: Port Chaos**
+```bash
+# Step 1: Find the process
+lsof -i :3000
+
+# Step 2: Copy the PID from output, then kill it
+kill -9 12345
+
+# Or if you know the one-liner...
+lsof -ti:3000 | xargs kill -9
+```
+
+Sound familiar? This workflow hasn't changed in decades. It works, but:
+- You need to remember the command syntax
+- Output is cryptic and hard to parse
+- No way to see all ports at once
+- No context about what the process actually is
+- One typo and you kill the wrong thing
+
+#### The AI Era (Now)
+
+Today's developers ship code faster than ever thanks to AI tools like Cursor, Claude Code, Codex, and GitHub Copilot. But as AI starts spinning up dev servers automatically… a new pain emerges:
+
+**⚠️ Port Chaos is Real**
 - AI assistants silently start multiple dev servers
 - The same project launches three times without you noticing
 - "Port 3000 is already in use" becomes a daily ritual
 - You kill the wrong process and break your entire session
-- You start running `lsof -i :3000 | grep LISTEN` like muscle memory
 - Docker containers expose ports you forgot existed
 - You lose track of what's running where—and why
 
-**AI accelerated development.**
-**But it also accelerated port conflicts.**
+**AI accelerated development. But it also accelerated port conflicts.**
 
 ---
 
-**🚀 The Solution: Portboard**
+#### The Portboard Way (After)
+
+```bash
+npx portbd
+```
+
+One command. Visual dashboard. Done.
 
 Portboard gives you a single, intelligent dashboard for all active ports on your machine:
 - See every listening port at a glance
 - Identify real process names (no more truncated gibberish)
 - Detect macOS .app icons to show which app is actually running
 - Surface the working directory and project name
-- Kill processes safely with built-in context
+- Kill processes safely with built-in context (no more `kill -9` typos)
 - Open IDEs, Terminal, or Finder directly from the port
 - Detect Docker containers and shell into them instantly
 - Copy localhost or network URL in one click
 
-**Portboard is built for the new AI-powered workflow where ports spin up faster than humans can track them.**
+**Whether you're a `lsof` veteran or new to port management, Portboard makes it visual, fast, and safe.**
 
 ### Key Features
 
