@@ -696,31 +696,32 @@ portboard/
 - **Consistency**: Same data across all interfaces
 
 ### Phase 2: Enhanced Features
-- [x] Application icon display (macOS only)
-  - [x] Native .icns extraction from .app bundles
+- [x] Application icon display
+  - [x] Native .icns extraction from .app bundles (macOS)
+  - [x] PowerShell + System.Drawing icon extraction (Windows)
+  - [x] .desktop file icon extraction (Linux)
   - [x] Icon caching in /tmp for performance
   - [x] Fallback to category icons on error
   - [x] Support for nested .app bundles (e.g., Cursor Helper)
-  - [ ] Cross-platform support (Windows: .ico, Linux: .desktop)
 - [x] Connection status tracking
   - [x] Real-time active connection detection
   - [x] Active/Idle status display with connection count
   - [x] Last accessed timestamp tracking
-- [x] IDE/Terminal/Finder integration (macOS only)
-  - [x] **Finder integration**: Quick access to directories in macOS Finder
+- [x] IDE/Terminal/File Manager integration (Cross-platform)
+  - [x] **File Manager integration**: Finder (macOS), Explorer (Windows), xdg-open (Linux)
   - [x] Auto-detection of installed IDEs (Cursor, VS Code, IntelliJ family, etc.)
-  - [x] Auto-detection of terminal apps (Ghostty, iTerm2, Warp, Alacritty, etc.)
-  - [x] Three-section dropdown menu with category labels (Finder, IDEs, Terminals)
-  - [x] Dynamic app discovery using macOS Spotlight (mdfind)
+  - [x] Auto-detection of terminal apps (Ghostty, iTerm2, Windows Terminal, etc.)
+  - [x] Three-section dropdown menu with category labels (File Manager, IDEs, Terminals)
+  - [x] Platform-specific app discovery (mdfind on macOS, which on Linux, path checks on Windows)
   - [x] Application icon extraction and display
-  - [x] Open working directory in Finder/IDE/Terminal
+  - [x] Open working directory in File Manager/IDE/Terminal
   - [x] Copy directory path to clipboard
   - [x] Docker container support
-    - [x] Open docker-compose project directory in Finder/IDE
+    - [x] Open docker-compose project directory in File Manager/IDE
     - [x] Open interactive shell inside container
-    - [x] Terminal-specific command handling (Ghostty, iTerm2, etc.)
+    - [x] Terminal-specific command handling
     - [x] Automatic bash/sh detection
-  - [x] Cross-platform support: Linux fully implemented (Windows partial)
+  - [x] Full cross-platform support: macOS, Windows, and Linux
 - [x] **Docker Container Logs Viewer**: Real-time log viewing
   - [x] Auto-fetch logs when collapsible section is opened (controlled state with useRef)
   - [x] **Configurable line count**: Select 20/50/100/200 lines with brutalist select component
