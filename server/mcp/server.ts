@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import { dockerListTool } from "./tools/docker-list.js";
@@ -8,11 +11,16 @@ import { killProcessTool } from "./tools/kill-process.js";
 import { listPortsTool } from "./tools/list-ports.js";
 import { portInfoTool } from "./tools/port-info.js";
 
+// Read version from package.json (works both in dev and bundled dist)
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const packageJsonPath = join(__dirname, "..", "package.json");
+const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
+
 export async function createMCPServer() {
 	const server = new Server(
 		{
 			name: "portboard",
-			version: "0.5.0",
+			version: packageJson.version,
 		},
 		{
 			capabilities: {
