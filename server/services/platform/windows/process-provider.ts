@@ -75,6 +75,10 @@ export class WindowsProcessProvider implements IProcessProvider {
 				}
 			}
 
+			// Get working directories for requested PIDs using handle.exe alternative
+			// On Windows, we derive cwd from the executable path's directory
+			// Full cwd detection requires elevation or third-party tools
+
 			// Build metadata for each requested PID
 			for (const { pid } of pidProcessPairs) {
 				const metadata: ProcessMetadata = {};
@@ -84,6 +88,14 @@ export class WindowsProcessProvider implements IProcessProvider {
 					// Set command path
 					if (info.executablePath) {
 						metadata.commandPath = info.executablePath;
+
+						// Derive working directory from executable path
+						// This is an approximation - the actual cwd might differ
+						// but it's useful for most cases (opening IDE at project location)
+						const lastBackslash = info.executablePath.lastIndexOf("\\");
+						if (lastBackslash > 0) {
+							metadata.cwd = info.executablePath.substring(0, lastBackslash);
+						}
 					}
 
 					// Calculate memory usage (WorkingSetSize is in bytes)
