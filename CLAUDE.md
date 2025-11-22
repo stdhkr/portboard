@@ -356,12 +356,16 @@ The project uses three TypeScript configurations:
   - IDE/Terminal detection: `which` command for 18 IDEs and 9 terminals
   - Docker container shell: `docker exec -it` with terminal-specific handling
   - Browser: `xdg-open` command, `os.networkInterfaces()` for network URLs
-- ⚡ **Windows** (`platform/windows/`): Improved stub with basic data
+- ✅ **Windows** (`platform/windows/`): Full implementation
   - Port detection: `netstat -ano` with batch `wmic` for process info
   - Connection counting: `netstat -ano | findstr "ESTABLISHED"` with port/PID matching
   - Process metadata: Batch `wmic` for ExecutablePath, WorkingSetSize, CreationDate
   - Process kill: `taskkill /PID`
-  - Still needs: Icon extraction (.ico), IDE detection, full metadata
+  - Icon extraction: PowerShell with System.Drawing for .exe icons
+  - IDE/Terminal detection: `where` command and common installation paths (16 IDEs, 9 terminals)
+  - Docker container shell: `docker exec -it` with terminal-specific handling (Windows Terminal, PowerShell, cmd)
+  - Browser: `start ""` command, `os.networkInterfaces()` for network URLs
+  - Needs testing on Windows VM
 
 **Usage Pattern**:
 ```typescript
@@ -398,7 +402,13 @@ const localIP = platformProvider.browserProvider.getLocalIPAddress();
   - `application-provider.ts` (192 lines): IDE/Terminal detection with `which`
   - `browser-provider.ts` (34 lines): Browser integration with `xdg-open`
   - `index.ts` (21 lines): Entry point aggregating all providers
-- **Windows**: Still needs its own implementations (e.g., .ico extraction, IDE detection)
+- **Windows**: Full provider implementations with organized file structure (6 files matching macOS/Linux):
+  - `port-provider.ts` (115 lines): Port detection with `netstat -ano` and `wmic`
+  - `process-provider.ts` (117 lines): Process management with `taskkill` and batch `wmic`
+  - `icon-provider.ts` (97 lines): Icon extraction using PowerShell + System.Drawing
+  - `application-provider.ts` (343 lines): IDE/Terminal detection with `where` command and common paths (16 IDEs, 9 terminals)
+  - `browser-provider.ts` (35 lines): Browser integration with `start ""` command
+  - `index.ts` (21 lines): Entry point aggregating all providers
 
 ### Backend (Implemented)
 - **Framework**: Hono (lightweight web framework)
@@ -661,7 +671,13 @@ portboard/
 │       │   │   ├── icon-provider.ts          # Icon extraction (.desktop files)
 │       │   │   ├── application-provider.ts   # IDE/Terminal detection (which)
 │       │   │   └── browser-provider.ts       # Browser & network (xdg-open, networkInterfaces)
-│       │   └── windows/                  # Windows implementations (stub)
+│       │   └── windows/                  # Windows implementations
+│       │       ├── index.ts                  # WindowsPlatformProvider
+│       │       ├── port-provider.ts          # Port management (netstat)
+│       │       ├── process-provider.ts       # Process management (wmic, taskkill)
+│       │       ├── icon-provider.ts          # Icon extraction (PowerShell + System.Drawing)
+│       │       ├── application-provider.ts   # IDE/Terminal detection (where)
+│       │       └── browser-provider.ts       # Browser & network (start, networkInterfaces)
 │       ├── port-service.ts           # Main port API (uses platform providers)
 │       ├── connection-service.ts     # Connection count tracking
 │       ├── browser-service.ts        # Browser integration & network URL generation (uses platform providers)
