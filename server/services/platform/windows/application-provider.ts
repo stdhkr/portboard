@@ -224,7 +224,8 @@ export class WindowsApplicationProvider implements IApplicationProvider {
 			// Special handling for Explorer (file manager)
 			// Check for both "explorer" and "open" (macOS command that frontend might send)
 			if (idePath === "explorer" || idePath === "open") {
-				await execAsync(`explorer "${directoryPath}"`);
+				// Use start command to open Explorer - explorer.exe can return non-zero even on success
+				await execAsync(`start "" explorer "${directoryPath}"`);
 				return;
 			}
 
