@@ -356,16 +356,17 @@ The project uses three TypeScript configurations:
   - IDE/Terminal detection: `which` command for 18 IDEs and 9 terminals
   - Docker container shell: `docker exec -it` with terminal-specific handling
   - Browser: `xdg-open` command, `os.networkInterfaces()` for network URLs
-- ✅ **Windows** (`platform/windows/`): Full implementation
-  - Port detection: `netstat -ano` with batch `wmic` for process info
+- ✅ **Windows** (`platform/windows/`): Full implementation (tested on Windows 11 ARM via UTM)
+  - Port detection: `netstat -ano` with PowerShell `Get-Process` for process names
   - Connection counting: `netstat -ano | findstr "ESTABLISHED"` with port/PID matching
-  - Process metadata: Batch `wmic` for ExecutablePath, WorkingSetSize, CreationDate
-  - Process kill: `taskkill /PID`
+  - Process metadata: PowerShell `Get-CimInstance Win32_Process` for ExecutablePath, WorkingSetSize, CreationDate
+  - Process kill: `taskkill /PID /F`
+  - Working directory: Derived from executable path (full cwd requires admin/NtQueryInformationProcess)
   - Icon extraction: PowerShell with System.Drawing for .exe icons
-  - IDE/Terminal detection: `where` command and common installation paths (16 IDEs, 9 terminals)
-  - Docker container shell: `docker exec -it` with terminal-specific handling (Windows Terminal, PowerShell, cmd)
+  - IDE/Terminal detection: Fast synchronous `existsSync()` path checks (16 IDEs, 9 terminals)
+  - Explorer: Mapped as "Finder" for frontend compatibility, uses `start "" explorer`
   - Browser: `start ""` command, `os.networkInterfaces()` for network URLs
-  - Needs testing on Windows VM
+  - Docker: Not testable on UTM VM (WSL2/Hyper-V not supported in nested virtualization)
 
 **Usage Pattern**:
 ```typescript
