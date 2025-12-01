@@ -88,6 +88,12 @@ export async function getDockerPortMappings(): Promise<Map<number, DockerContain
 		// Build port mappings with compose metadata
 		for (const [id, data] of containerData.entries()) {
 			const { name, image, ports } = data;
+
+			// Skip containers without port mappings
+			if (!ports) {
+				continue;
+			}
+
 			const labels = containerLabels.get(id) || {};
 			const composeConfigFiles = labels["com.docker.compose.project.config_files"];
 
@@ -117,9 +123,12 @@ export async function getDockerPortMappings(): Promise<Map<number, DockerContain
 				}
 			}
 		}
-	} catch {
+	} catch (error) {
 		// Docker not available or not running - return empty map
-		console.debug("Docker not available, skipping container detection");
+		console.debug(
+			"Docker not available, skipping container detection:",
+			error instanceof Error ? error.message : String(error),
+		);
 	}
 
 	return portMap;
