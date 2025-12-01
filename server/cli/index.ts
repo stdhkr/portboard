@@ -18,7 +18,10 @@ const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
 
 const program = new Command();
 
-program.name("portboard").description("Port management tool for developers").version(packageJson.version);
+program
+	.name("portboard")
+	.description("Port management tool for developers")
+	.version(packageJson.version);
 
 // Register commands
 program.addCommand(listCommand);
