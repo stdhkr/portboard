@@ -1,3 +1,4 @@
+import { useSetAtom } from "jotai";
 import { RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -13,6 +14,7 @@ import {
 } from "@/components/brutalist";
 import { CATEGORY_I18N_KEYS, CATEGORY_INFO } from "@/constants/categories";
 import { killProcess, stopDockerCompose, stopDockerContainer } from "@/lib/api";
+import { removePortFromSelectionAtom } from "@/store/port-store";
 import type { PortInfo } from "@/types/port";
 
 interface KillDialogProps {
@@ -27,6 +29,7 @@ export function KillDialog({ open, onClose, port, onKillSuccess }: KillDialogPro
 	const [isKilling, setIsKilling] = useState(false);
 	const [isStoppingContainer, setIsStoppingContainer] = useState(false);
 	const [isStoppingCompose, setIsStoppingCompose] = useState(false);
+	const removePortFromSelection = useSetAtom(removePortFromSelectionAtom);
 
 	const handleKillConfirm = async () => {
 		if (!port) return;
@@ -37,6 +40,7 @@ export function KillDialog({ open, onClose, port, onKillSuccess }: KillDialogPro
 			toast.success(t("toast.killSuccess"), {
 				description: `Successfully killed process ${port.processName} (PID: ${port.pid})`,
 			});
+			removePortFromSelection(port.port);
 			onClose();
 			onKillSuccess();
 		} catch (error) {
@@ -57,6 +61,7 @@ export function KillDialog({ open, onClose, port, onKillSuccess }: KillDialogPro
 			toast.success(t("toast.dockerStopSuccess"), {
 				description: `Successfully stopped container ${port.dockerContainer.name}`,
 			});
+			removePortFromSelection(port.port);
 			onClose();
 			onKillSuccess();
 		} catch (error) {
@@ -84,6 +89,7 @@ export function KillDialog({ open, onClose, port, onKillSuccess }: KillDialogPro
 			toast.success(t("toast.dockerComposeSuccess"), {
 				description: `Successfully stopped compose project in ${projectDir}`,
 			});
+			removePortFromSelection(port.port);
 			onClose();
 			onKillSuccess();
 		} catch (error) {

@@ -65,6 +65,12 @@ export const deselectAllPortsAtom = atom(null, (_get, set) => {
 	set(selectedPortsAtom, new Set());
 });
 
+export const removePortFromSelectionAtom = atom(null, (get, set, port: number) => {
+	const selectedPorts = new Set(get(selectedPortsAtom));
+	selectedPorts.delete(port);
+	set(selectedPortsAtom, selectedPorts);
+});
+
 export const openBatchKillDialogAtom = atom(null, (_get, set) => {
 	set(isBatchKillDialogOpenAtom, true);
 });
